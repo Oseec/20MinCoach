@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 20minCoach Design System - Professional coaching platform */
+
+@layer base {
+  :root {
+    /* Primary - Professional Blue */
+    --primary: 214 91% 30%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 91% 40%;
+    --primary-dark: 214 91% 20%;
+
+    /* Secondary - Trust Green */
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 142 76% 46%;
+    --secondary-dark: 142 76% 26%;
+
+    /* Success - Coaching Green */
+    --success: 122 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 122 76% 46%;
+
+    /* Warning - Professional Orange */
+    --warning: 32 95% 44%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Error - Clean Red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Neutral Grays */
+    --background: 0 0% 100%;
+    --foreground: 222 24% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 24% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 24% 12%;
+
+    /* Subtle UI */
+    --muted: 214 13% 96%;
+    --muted-foreground: 214 13% 46%;
+    --accent: 214 13% 96%;
+    --accent-foreground: 214 13% 16%;
+
+    /* Borders & Inputs */
+    --border: 214 13% 91%;
+    --input: 214 13% 91%;
+    --ring: 214 91% 30%;
+
+    /* Coaching-specific colors */
+    --coach-online: 122 76% 36%;
+    --coach-busy: 32 95% 44%;
+    --coach-offline: 214 13% 46%;
+    --session-active: 214 91% 30%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(214 91% 30%), hsl(142 76% 36%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(214 13% 98%));
+    --gradient-button: linear-gradient(135deg, hsl(214 91% 30%), hsl(214 91% 25%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(214 91% 30% / 0.08);
+    --shadow-medium: 0 8px 32px hsl(214 91% 30% / 0.12);
+    --shadow-strong: 0 12px 48px hsl(214 91% 30% / 0.16);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Primary - Professional Blue (Dark mode) */
+    --primary: 214 91% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 91% 50%;
+    --primary-dark: 214 91% 30%;
+
+    /* Secondary - Trust Green (Dark mode) */
+    --secondary: 142 76% 46%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 142 76% 56%;
+    --secondary-dark: 142 76% 36%;
+
+    /* Success - Coaching Green (Dark mode) */
+    --success: 122 76% 46%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 122 76% 56%;
+
+    /* Warning - Professional Orange (Dark mode) */
+    --warning: 32 95% 54%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Error - Clean Red (Dark mode) */
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Neutral Grays (Dark mode) */
+    --background: 222 24% 8%;
+    --foreground: 0 0% 95%;
+    --card: 222 24% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 222 24% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Subtle UI (Dark mode) */
+    --muted: 222 24% 12%;
+    --muted-foreground: 214 13% 65%;
+    --accent: 222 24% 12%;
+    --accent-foreground: 0 0% 95%;
+
+    /* Borders & Inputs (Dark mode) */
+    --border: 222 24% 15%;
+    --input: 222 24% 15%;
+    --ring: 214 91% 40%;
+
+    /* Coaching-specific colors (Dark mode) */
+    --coach-online: 122 76% 46%;
+    --coach-busy: 32 95% 54%;
+    --coach-offline: 214 13% 55%;
+    --session-active: 214 91% 40%;
+
+    /* Gradients (Dark mode) */
+    --gradient-hero: linear-gradient(135deg, hsl(214 91% 40%), hsl(142 76% 46%));
+    --gradient-card: linear-gradient(135deg, hsl(222 24% 10%), hsl(222 24% 12%));
+    --gradient-button: linear-gradient(135deg, hsl(214 91% 40%), hsl(214 91% 35%));
+
+    /* Shadows (Dark mode) */
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.15);
+    --shadow-medium: 0 8px 32px hsl(0 0% 0% / 0.25);
+    --shadow-strong: 0 12px 48px hsl(0 0% 0% / 0.35);
+
+    /* Sidebar (Dark mode) */
+    --sidebar-background: 222 24% 6%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 214 91% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 24% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 222 24% 12%;
+    --sidebar-ring: 214 91% 40%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
