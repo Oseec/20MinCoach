@@ -2,6 +2,7 @@ import { ArrowRight, Play, CheckCircle, Star, Users, Clock, Shield } from 'lucid
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -42,6 +43,7 @@ const testimonials = [
 ];
 
 export const Landing = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -64,7 +66,9 @@ export const Landing = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4">
+                <Button size="lg" 
+                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
+                  onClick={() => navigate("/coaches")}>
                   Buscar coaches
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -72,6 +76,7 @@ export const Landing = () => {
                   size="lg" 
                   variant="outline" 
                   className="border-white text-white hover:bg-white/10 text-lg px-8 py-4"
+                  onClick={() => navigate("/dashboard")}
                 >
                   <Play className="mr-2 h-5 w-5" />
                   Ver cómo funciona

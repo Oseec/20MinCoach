@@ -4,13 +4,18 @@ En este se decriben las tecnologías utilizadas para el desarrollo de esta prueb
 
 ## Tabla de Contenidos
 - [Justificación](#justificacion)
+- [Alcance](#alcance)
 - [Tecnologías](#tecnologías)
 - [Desarrollo](#desarrollo)
 - [Ejecución](#ejecución)
 - [Referencias](#referencias)
 
 ## Justificación
-Esta seccion describe por qué se desarrolló esta PoC.
+Las pruebas de concepto son versiones anticipadas de un programa o plataforma, sirve principalmente para validar ideas, tecnologías o enfoques antes de invertir tiempo y recursos en un desarrollo completo.
+En nuestro caso, esta PoC surge con el fin de validar si el diseño ideado en el desarrollo de 20MinCoach es óptimo.
+
+## Alcance
+Qué hace y qué no hace la PoC
 
 ## Tecnologías
 
@@ -29,6 +34,11 @@ La manera en la que se desarrolló el proyecto
 
 ## Ejecución
 Instrucciones de ejecución.
+
+Tareas para ejecutar por el usuario de la prueba UX.
+- Buscar únicamente coaches que tengan experiencia con React.
+- Buscar únicamente coaches en línea.
+- Cerrar sesión. 
 
 
 ## Referencias

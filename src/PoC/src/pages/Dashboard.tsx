@@ -8,7 +8,7 @@ import { CoachCard } from '@/components/coach/CoachCard';
 
 // Mock data
 const mockUser = {
-  firstName: 'Ana',
+  firstName: 'Juan',
   lastName: 'García',
   role: 'CLIENT' as const,
   profilePictureUrl: undefined
