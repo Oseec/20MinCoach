@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, DollarSign, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -88,6 +88,49 @@ export const CoachSearch = () => {
         : [...prev, specialty]
     );
   };
+
+  // Añadir funcionalidad al panel de filtros
+  const [filteredCoaches, setFilteredCoaches] = useState(mockCoaches);
+
+  useEffect(() => {
+    let results = mockCoaches;
+
+    /* Búsqueda por texto (nombre, bio, headline, especialidades)
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      results = results.filter(
+        (coach) =>
+          coach.headline.toLowerCase().includes(query) ||
+          coach.bio.toLowerCase().includes(query) ||
+          coach.specialties.some((s) => s.name.toLowerCase().includes(query))
+      );
+    }
+    */
+
+    // 🎯 Filtro por especialidades
+    if (selectedSpecialties.length > 0) {
+      results = results.filter((coach) =>
+        coach.specialties.some((s) => selectedSpecialties.includes(s.name))
+      );
+    }
+
+    /* 💵 Filtro por rango de precio
+    results = results.filter(
+      (coach) => coach.price >= priceRange[0] && coach.price <= priceRange[1]
+    );
+    */
+
+    // ⭐ Filtro por calificación
+    results = results.filter((coach) => coach.rating >= minRating);
+
+    // 🟢 Filtro por disponibilidad online
+    if (showOnlineOnly) {
+      results = results.filter((coach) => coach.isOnline === true);
+    }
+
+    setFilteredCoaches(results);
+  }, [searchQuery, selectedSpecialties, priceRange, minRating, showOnlineOnly]);
+
 
   return (
     <div className="space-y-6">
@@ -226,7 +269,7 @@ export const CoachSearch = () => {
         </div>
 
         <div className="grid gap-6">
-          {mockCoaches.map((coach, index) => (
+          {filteredCoaches.map((coach, index) => (
             <CoachCard
               key={coach.id}
               coach={coach}
@@ -236,6 +279,7 @@ export const CoachSearch = () => {
             />
           ))}
         </div>
+
 
         {/* Load More */}
         <div className="text-center mt-8">

@@ -36,8 +36,8 @@ La manera en la que se desarrolló el proyecto
 Instrucciones de ejecución.
 
 Tareas para ejecutar por el usuario de la prueba UX.
-- Buscar únicamente coaches que tengan experiencia con React.
-- Buscar únicamente coaches en línea.
+- Filtrar coaches que tengan experiencia con React.
+- Filtrar coaches en línea.
 - Cerrar sesión. 
 
 
