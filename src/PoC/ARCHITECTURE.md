@@ -5,6 +5,8 @@
 20minCoach es una plataforma de coaching profesional que conecta usuarios con expertos en diferentes áreas mediante videollamadas de 20 minutos. La arquitectura está diseñada por capas para garantizar escalabilidad, mantenibilidad y modularidad.
 
 ## 🏗️ Arquitectura por Capas
+![N-Layer](./diagrams/n-layer.png)
+
 
 ### 📁 Estructura de Carpetas
 
