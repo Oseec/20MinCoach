@@ -98,7 +98,7 @@ src/
 - Automatic reconnection
 - State event management
 
-### 📊 Modelos de Datos
+### 📊 Data Models
 
 #### User
 ```typescript
