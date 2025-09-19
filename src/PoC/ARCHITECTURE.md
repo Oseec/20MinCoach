@@ -1,40 +1,40 @@
-# 20minCoach - Arquitectura Frontend
+# 20minCoach - Frontend Architecture
 
-## 📋 Descripción del Proyecto
+## 📋 Proyect Description
 
-20minCoach es una plataforma de coaching profesional que conecta usuarios con expertos en diferentes áreas mediante videollamadas de 20 minutos. La arquitectura está diseñada por capas para garantizar escalabilidad, mantenibilidad y modularidad.
+20minCoach is a professional coaching platform that connects users with experts in different areas through 20-minute video calls. The architecture is designed with layers to ensure scalability, maintainability, and modularity.
 
-## 🏗️ Arquitectura por Capas
+## 🏗️ Layered architecture
 ![N-Layer](./diagrams/n-layer.png)
 
 
-### 📁 Estructura de Carpetas
+### 📁 Folder structure
 
 ```
 src/
-├── 📂 models/              # Definición de modelos de datos
+├── 📂 models/              # Data model definitions
 │   ├── User.ts
 │   ├── Coach.ts
 │   ├── Session.ts
 │   └── Package.ts
 │
-├── 🔐 security/            # Autenticación y autorización
-│   └── (Preparado para integración con Okta)
+├── 🔐 security/            # Authentication and Authorization
+│   └── (Prepared for integration with Okta)
 │
-├── ⚡ middleware/          # Funcionalidades transversales
-│   ├── authMiddleware.ts   # Manejo de autenticación
-│   └── errorMiddleware.ts  # Gestión centralizada de errores
+├── ⚡ middleware/          # Cross-cutting functionalities
+│   ├── authMiddleware.ts   # Authentication management
+│   └── errorMiddleware.ts  # Centralized error handling
 │
-├── 🔧 services/           # Lógica de negocio
-│   ├── AuthService.ts     # Autenticación
-│   ├── CoachService.ts    # Gestión de coaches
-│   ├── SessionService.ts  # Manejo de sesiones
-│   └── WebSocketService.ts # Comunicación en tiempo real
+├── 🔧 services/           # Bussines logic
+│   ├── AuthService.ts     # Authemtication
+│   ├── CoachService.ts    # Coach management
+│   ├── SessionService.ts  # Session management
+│   └── WebSocketService.ts # Real-time communication
 │
-├── 🔄 background/         # Procesos en segundo plano
-│   └── (Reconexión automática, cacheo offline)
+├── 🔄 background/         # Background processes
+│   └── (Automatic reconnection, offline data caching )
 │
-├── ✅ validators/         # Validación de datos
+├── ✅ validators/         # Data validation
 │   ├── userValidator.ts
 │   └── coachValidator.ts
 │
@@ -43,60 +43,60 @@ src/
 │   ├── CoachDTO.ts
 │   └── SessionDTO.ts
 │
-├── 🗺️ routing/           # Sistema de navegación
-│   └── App.tsx (configuración de rutas)
+├── 🗺️ routing/           # Navigation system
+│   └── App.tsx (Routes configuration)
 │
-├── 🎨 components/        # Componentes reutilizables
-│   ├── layout/           # Layouts principales
-│   ├── coach/            # Componentes específicos de coaches
-│   ├── session/          # Componentes de sesiones
-│   └── ui/               # Componentes base (shadcn)
+├── 🎨 components/        # Reusable components
+│   ├── layout/           # Main layouts
+│   ├── coach/            # Coach-specific components
+│   ├── session/          # Session components
+│   └── ui/               # Base components (shadcn)
 │
-├── 📱 pages/             # Páginas principales
-│   ├── Landing.tsx       # Página de inicio
-│   ├── Dashboard.tsx     # Dashboard de usuario
-│   └── CoachSearch.tsx   # Búsqueda de coaches
+├── 📱 pages/             # Main pages
+│   ├── Landing.tsx       # Home page
+│   ├── Dashboard.tsx     # User dashboard
+│   └── CoachSearch.tsx   # Coach search page
 │
-├── 🛠️ utils/            # Funciones de utilidad
-│   ├── timeUtils.ts      # Manejo de fechas y tiempo
-│   ├── formatUtils.ts    # Formateo de datos
-│   └── constants.ts      # Constantes globales
+├── 🛠️ utils/            # Date and time handling
+│   ├── timeUtils.ts      # Date and time management
+│   ├── formatUtils.ts    # Data formatting
+│   └── constants.ts      # Global constants
 │
-└── 🧪 __tests__/         # Pruebas unitarias
+└── 🧪 __tests__/         # Unit tests
     └── (Jest + React Testing Library)
 ```
 
-## 🎯 Características Principales
+## 🎯 Main Features
 
-### ✨ Diseño System
-- **Tokens semánticos** definidos en `index.css`
-- **Colores HSL** para consistencia
-- **Gradientes profesionales** para UI atractiva
-- **Animaciones suaves** con cubic-bezier
-- **Responsive design** con Tailwind CSS
+### ✨ Design System
+- **Semantic tokens** defined in `index.css`
+- **HSL colors** for consistency
+- **Professional gradients** for an attractive UI
+- **Smooth animations** using cubic-bezier
+- **Responsive design** with Tailwind CSS
 
-### 🔗 Servicios Principales
+### 🔗 Core Services
 
 #### AuthService
-- Manejo de JWT tokens
-- Refresh automático de tokens
-- Almacenamiento seguro en localStorage
-- Preparado para integración con Okta
+- JWT token management
+- Automatic token refresh
+- Secure storage in localStorage
+- Prepared for Okta integration
 
 #### CoachService
-- Búsqueda y filtrado de coaches
-- Gestión de perfiles
-- Estados de disponibilidad en tiempo real
+- Coach search and filtering
+- Profile management
+- Real-time availability status
 
 #### SessionService
-- Creación y gestión de sesiones
-- Unión a videollamadas
-- Sistema de calificaciones
+- Session creation and management
+- Joining video calls
+- Rating system
 
 #### WebSocketService
-- Comunicación en tiempo real
-- Reconexión automática
-- Gestión de eventos de estado
+- Real-time communication
+- Automatic reconnection
+- State event management
 
 ### 📊 Modelos de Datos
 
@@ -138,7 +138,7 @@ interface Session {
 }
 ```
 
-## 🚀 Tecnologías Utilizadas
+## 🚀 Technologies Used
 
 - **Frontend Framework**: React 18 + TypeScript
 - **Build Tool**: Vite
@@ -149,123 +149,122 @@ interface Session {
 - **Date/Time**: date-fns
 - **Icons**: Lucide React
 
-## 🔐 Seguridad
+## 🔐 Security
 
-### Preparación para Okta
-La arquitectura está preparada para integrar Okta como proveedor de identidad:
+### Okta Integration Ready
+The architecture is prepared to integrate Okta as an identity provider:
 
-1. **AuthService** puede ser extendido para usar Okta SDK
-2. **Middleware de autenticación** soporta tokens OAuth
-3. **Roles y permisos** preparados para integración
+1. **AuthService** can be extended to use the Okta SDK
+2. **Authentication middleware** supports OAuth tokens
+3. **Roles and permissions** ready for integration
 
-### Características de Seguridad
-- Validación de entrada con Zod
-- Manejo seguro de tokens
-- Protección de rutas
-- Gestión centralizada de errores
+### Security Features
+- Input validation with Zod
+- Secure token handling
+- Route protection
+- Centralized error management
 
-## 📱 Funcionalidades Implementadas
+## 📱 Implemented Features
 
-### ✅ Versión Actual
-- ✅ Landing page profesional
-- ✅ Dashboard de usuario
-- ✅ Búsqueda de coaches con filtros
-- ✅ Sistema de navegación completo
-- ✅ Componentes reutilizables
-- ✅ Diseño responsive
-- ✅ Arquitectura por capas
-- ✅ Validación de formularios
-- ✅ Gestión de errores
+### ✅ Current Version
+- ✅ Professional landing page
+- ✅ User dashboard
+- ✅ Coach search with filters
+- ✅ Complete navigation system
+- ✅ Reusable components
+- ✅ Responsive design
+- ✅ Layered architecture
+- ✅ Form validation
+- ✅ Error management
 
-### 🔄 Próximas Funcionalidades
-- 📹 Integración WebRTC para videollamadas
-- 🔔 Sistema de notificaciones en tiempo real
-- 💳 Integración de pagos
-- 📊 Dashboard de coach
-- 🎯 Sistema de disponibilidad
-- 🌐 Soporte multi-idioma
+### 🔄 Upcoming Features
+- 📹 WebRTC integration for video calls
+- 🔔 Real-time notifications system
+- 💳 Payment integration
+- 📊 Coach dashboard
+- 🎯 Availability management system
+- 🌐 Multi-language support
 
 ## 🧪 Testing
 
-### Estructura de Pruebas
+### Test Structure
 ```
 __tests__/
-├── components/        # Pruebas de componentes
-├── services/          # Pruebas de servicios
-├── utils/            # Pruebas de utilidades
-└── integration/      # Pruebas de integración
+├── components/        # Component tests
+├── services/          # Service tests
+├── utils/             # Utility tests
+└── integration/       # Integration tests
 ```
 
-### Herramientas
-- **Jest**: Framework de testing
-- **React Testing Library**: Testing de componentes
-- **MSW**: Mock Service Worker para APIs
-- **Cypress**: Testing end-to-end
-
-## 📦 Instalación y Desarrollo
+### Tools
+- **Jest**: Testing framework
+- **React Testing Library**: Component testing
+- **MSW**: Mock Service Worker for APIs
+- **Cypress**: End-to-end testing
+## 📦 Installation & Development
 
 ```bash
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Ejecutar en desarrollo
+# Run in development
 npm run dev
 
-# Ejecutar pruebas
+# Run tests
 npm test
 
-# Build para producción
+# Build for production
 npm run build
 ```
 
-## 🎨 Sistema de Diseño
+## 🎨 Design System
 
-### Colores Principales
-- **Primary**: Azul profesional (#1e40af)
-- **Secondary**: Verde confianza (#059669)
-- **Success**: Verde coaching (#16a34a)
-- **Warning**: Naranja profesional (#ea580c)
+### Main Colors
+- **Primary**: Professional Blue (#1e40af)
+- **Secondary**: Trust Green (#059669)
+- **Success**: Coaching Green (#16a34a)
+- **Warning**: Professional Orange (#ea580c)
 
-### Gradientes
-- **Hero**: Linear gradient azul-verde
-- **Card**: Gradiente sutil para cards
-- **Button**: Gradiente para botones principales
+### Gradients
+- **Hero**: Blue-Green linear gradient
+- **Card**: Subtle gradient for cards
+- **Button**: Gradient for primary buttons
 
-### Componentes
-- Cards con sombras suaves
-- Botones con estados hover
-- Badges para especialidades
-- Avatares para usuarios
-- Indicadores de estado
+### Components
+- Cards with soft shadows
+- Buttons with hover states
+- Badges for specialties
+- User avatars
+- Status indicators
 
-## 🔮 Roadmap de Integración
+## 🔮 Integration Roadmap
 
-### Fase 1: Autenticación (Okta)
-- Configuración Okta SDK
-- Flujos de login/logout
-- Gestión de sesiones
+### Phase 1: Authentication (Okta)
+- Okta SDK setup
+- Login/logout flows
+- Session management
 
-### Fase 2: Video Llamadas (WebRTC)
-- Integración WebRTC
-- Sala de espera
-- Controles de audio/video
+### Phase 2: Video Calls (WebRTC)
+- WebRTC integration
+- Waiting room
+- Audio/video controls
 
-### Fase 3: Tiempo Real (WebSockets)
-- Estado de coaches
-- Notificaciones push
-- Chat en tiempo real
+### Phase 3: Real-Time (WebSockets)
+- Coach status updates
+- Push notifications
+- Real-time chat
 
-### Fase 4: Pagos (Stripe)
-- Procesamiento de pagos
-- Gestión de paquetes
-- Facturación
+### Phase 4: Payments (Stripe)
+- Payment processing
+- Package management
+- Invoicing
 
-## 📞 Contacto y Soporte
+## 📞 Contact & Support
 
-Para dudas sobre la arquitectura o implementación, consulta la documentación técnica o contacta al equipo de desarrollo.
+For questions about architecture or implementation, consult the technical documentation or contact the development team.
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: Enero 2025  
-**Estado**: En desarrollo activo 🚧
+**Version**: 1.0.0  
+**Last update**: September 2025  
+**Status**: Active development 🚧
