@@ -1,6 +1,7 @@
-import { Bell, User, Menu, Video } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+// src/components/layout/Header.tsx
+import { Bell, User, Menu, Video, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +9,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useOktaAuth } from "@okta/okta-react";
+import { useLocation } from "react-router-dom";
 
 interface HeaderProps {
   user?: {
@@ -23,6 +26,25 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, onMenuClick, notifications = 0 }: HeaderProps) => {
+  const { oktaAuth, authState } = useOktaAuth();
+  const location = useLocation();
+
+  const handleSignIn = async () => {
+    // vuelve a la misma ruta después de login (o cambia a "/coaches" si prefieres)
+    await oktaAuth.signInWithRedirect({
+      originalUri: location.pathname || "/",
+    });
+  };
+
+  const handleSignOut = async () => {
+    await oktaAuth.signOut({
+      // al cerrar sesión vuelve al landing
+      postLogoutRedirectUri: window.location.origin + "/",
+    });
+  };
+
+  const isAuthed = !!authState?.isAuthenticated;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -36,7 +58,7 @@ export const Header = ({ user, onMenuClick, notifications = 0 }: HeaderProps) =>
           >
             <Menu className="h-5 w-5" />
           </Button>
-          
+
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 font-bold text-xl">
               <Video className="h-6 w-6 text-primary" />
@@ -57,20 +79,21 @@ export const Header = ({ user, onMenuClick, notifications = 0 }: HeaderProps) =>
                 variant="destructive"
                 className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
               >
-                {notifications > 9 ? '9+' : notifications}
+                {notifications > 9 ? "9+" : notifications}
               </Badge>
             )}
           </Button>
 
-          {/* User menu */}
-          {user ? (
+          {/* User menu (cuando hay sesión) */}
+          {isAuthed && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={user.profilePictureUrl} alt={user.firstName} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                      {user.firstName.charAt(0)}
+                      {user.lastName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -82,7 +105,7 @@ export const Header = ({ user, onMenuClick, notifications = 0 }: HeaderProps) =>
                       {user.firstName} {user.lastName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user.role === 'COACH' ? 'Coach' : 'Cliente'}
+                      {user.role === "COACH" ? "Coach" : "Cliente"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -95,15 +118,17 @@ export const Header = ({ user, onMenuClick, notifications = 0 }: HeaderProps) =>
                   <span>Configuración</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  Cerrar sesión
+                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSignOut(); }}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Cerrar sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
+            // Buttons cuando NO hay sesión
             <div className="flex items-center gap-2">
-              <Button variant="ghost">Iniciar sesión</Button>
-              <Button>Registrarse</Button>
+              <Button variant="ghost" onClick={handleSignIn}>Iniciar sesión</Button>
+              <Button onClick={handleSignIn}>Registrarse</Button>
             </div>
           )}
         </div>

@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { CoachCard } from '@/components/coach/CoachCard';
+import { useOktaAuth } from '@okta/okta-react';
+import { hasAllScopes } from '@/auth/RequireScope';
+import { useRoles } from "@/auth/RequireRole";
+
 
 const mockCoaches = [
   {
@@ -74,6 +78,11 @@ const specialtyOptions = [
 ];
 
 export const CoachSearch = () => {
+  const { authState } = useOktaAuth();
+  const roles = useRoles();
+  const isPremium = roles.includes("PremiumUser");
+  const canBook = isPremium;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 100]);
@@ -131,6 +140,15 @@ export const CoachSearch = () => {
     setFilteredCoaches(results);
   }, [searchQuery, selectedSpecialties, priceRange, minRating, showOnlineOnly]);
 
+  // Handler con gating: si no tiene scope, muestra aviso
+  const handleBook = (id: string) => {
+    if (!canBook) {
+      alert('Tu plan no permite reservar sesiones (requiere acción A).'); // reemplaza por tu toast si quieres
+      return;
+    }
+    // aquí abrirías el modal/flujo real de reserva
+    console.log('Book session with:', id);
+  };
 
   return (
     <div className="space-y-6">
@@ -140,6 +158,15 @@ export const CoachSearch = () => {
         <p className="text-muted-foreground text-lg">
           Encuentra el experto perfecto para tus necesidades
         </p>
+
+        {/* Aviso de plan si no puede reservar */}
+        {!canBook && (
+          <div className="mt-3">
+            <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
+              Tu plan actual no permite reservar sesiones • Actualiza a Premium
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Search Bar */}
@@ -260,7 +287,7 @@ export const CoachSearch = () => {
       <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">
-            {mockCoaches.length} coaches encontrados
+            {filteredCoaches.length} coaches encontrados
           </h2>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Ordenar por:</span>
@@ -274,12 +301,14 @@ export const CoachSearch = () => {
               key={coach.id}
               coach={coach}
               user={mockUsers[index]}
-              onBookSession={(id) => console.log('Book session with:', id)}
+              onBookSession={(id) => handleBook(id)}
               onViewProfile={(id) => console.log('View profile:', id)}
+              // Si tu CoachCard acepta props para deshabilitar botones, podrías pasar:
+              // disabledBookButton={!canBook}
+              // disabledReason="Tu plan no permite reservar sesiones"
             />
           ))}
         </div>
-
 
         {/* Load More */}
         <div className="text-center mt-8">

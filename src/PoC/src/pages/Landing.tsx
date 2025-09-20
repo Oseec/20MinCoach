@@ -3,47 +3,37 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from "react-router-dom";
+import { useOktaAuth } from "@okta/okta-react";
 
 const features = [
-  {
-    icon: Clock,
-    title: 'Sesiones de 20 minutos',
-    description: 'Consultas rápidas y efectivas que se adaptan a tu horario'
-  },
-  {
-    icon: Users,
-    title: 'Expertos verificados',
-    description: 'Coaches certificados en múltiples áreas de especialización'
-  },
-  {
-    icon: Shield,
-    title: 'Seguro y confiable',
-    description: 'Plataforma segura con garantía de satisfacción'
-  }
+  { icon: Clock, title: 'Sesiones de 20 minutos', description: 'Consultas rápidas y efectivas que se adaptan a tu horario' },
+  { icon: Users, title: 'Expertos verificados', description: 'Coaches certificados en múltiples áreas de especialización' },
+  { icon: Shield, title: 'Seguro y confiable', description: 'Plataforma segura con garantía de satisfacción' }
 ];
 
-const specialties = [
-  'Salud', 'Psicología', 'Derecho', 'Tecnología', 'Negocios', 
-  'Arte', 'Agricultura', 'Mecánica', 'Educación'
-];
+const specialties = ['Salud','Psicología','Derecho','Tecnología','Negocios','Arte','Agricultura','Mecánica','Educación'];
 
 const testimonials = [
-  {
-    name: 'María González',
-    role: 'Emprendedora',
-    rating: 5,
-    comment: 'Increíble poder consultar con expertos de forma tan rápida y efectiva'
-  },
-  {
-    name: 'Carlos Rivera',
-    role: 'Desarrollador',
-    rating: 5,
-    comment: 'Los coaches de tecnología me han ayudado a resolver problemas complejos'
-  }
+  { name: 'María González', role: 'Emprendedora', rating: 5, comment: 'Increíble poder consultar con expertos de forma tan rápida y efectiva' },
+  { name: 'Carlos Rivera', role: 'Desarrollador', rating: 5, comment: 'Los coaches de tecnología me han ayudado a resolver problemas complejos' }
 ];
 
 export const Landing = () => {
   const navigate = useNavigate();
+  const { oktaAuth, authState } = useOktaAuth();
+  const isAuthed = !!authState?.isAuthenticated;
+
+  // Si está autenticado -> navigate(to)
+  // Si no -> ir a Okta y volver a `to` tras el login
+  const goOrLogin = (to: string, force = false) => {
+    if (isAuthed) return navigate(to);
+    return oktaAuth.signInWithRedirect({
+      originalUri: to,
+      // para forzar formulario aunque haya SSO, pon force=true
+      extraParams: force ? { prompt: "login", max_age: "0" } : undefined,
+    });
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -56,31 +46,42 @@ export const Landing = () => {
                   🚀 Conecta con expertos al instante
                 </Badge>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                  Coaching profesional en{' '}
-                  <span className="text-secondary-light">20 minutos</span>
+                  Coaching profesional en <span className="text-secondary-light">20 minutos</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
                   Conecta instantáneamente con coaches expertos en salud, psicología, 
                   tecnología, derecho y más. Resuelve tus dudas de forma rápida y efectiva.
                 </p>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" 
+                <Button
+                  size="lg"
                   className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
-                  onClick={() => navigate("/coaches")}>
+                  onClick={() => goOrLogin("/coaches")}
+                >
                   Buscar coaches
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-white text-white hover:bg-white/10 text-lg px-8 py-4"
-                  onClick={() => navigate("/dashboard")}
+
+                <Button
+                  size="lg"
+                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
+                  onClick={() => goOrLogin("/dashboard")}
                 >
                   <Play className="mr-2 h-5 w-5" />
                   Ver cómo funciona
                 </Button>
+
+                {!isAuthed && (
+                  <Button
+                    size="lg"
+                    className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
+                    onClick={() => goOrLogin("/coaches")}
+                  >
+                    Iniciar sesión
+                  </Button>
+                )}
               </div>
 
               <div className="flex items-center gap-8 text-white/80">
@@ -115,9 +116,7 @@ export const Landing = () => {
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              ¿Por qué elegir 20minCoach?
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">¿Por qué elegir 20minCoach?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Una nueva forma de acceder a coaching profesional, diseñada para tu estilo de vida
             </p>
@@ -146,19 +145,15 @@ export const Landing = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Especialidades disponibles
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Encuentra expertos en tu área de interés
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Especialidades disponibles</h2>
+            <p className="text-xl text-muted-foreground">Encuentra expertos en tu área de interés</p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
             {specialties.map((specialty, index) => (
-              <Badge 
-                key={index} 
-                variant="secondary" 
+              <Badge
+                key={index}
+                variant="secondary"
                 className="text-base px-6 py-3 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
               >
                 {specialty}
@@ -172,9 +167,7 @@ export const Landing = () => {
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Lo que dicen nuestros usuarios
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Lo que dicen nuestros usuarios</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -203,20 +196,33 @@ export const Landing = () => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-hero text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            ¿Listo para comenzar?
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Listo para comenzar?</h2>
           <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
             Únete a miles de usuarios que ya están aprovechando el poder del coaching instantáneo
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4">
-              Comenzar ahora
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            {!isAuthed ? (
+              <Button
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
+                onClick={() => goOrLogin("/coaches")}
+              >
+                Comenzar ahora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4"
+                onClick={() => navigate("/coaches")}
+              >
+                Ir a tu panel
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            )}
+            <Button
+              size="lg"
+              variant="outline"
               className="border-white text-white hover:bg-white/10 text-lg px-8 py-4"
             >
               Únete como coach

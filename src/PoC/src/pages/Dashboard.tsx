@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SessionCard } from '@/components/session/SessionCard';
 import { CoachCard } from '@/components/coach/CoachCard';
+import { useOktaAuth } from '@okta/okta-react';
+import { hasAllScopes } from '@/auth/RequireScope';
+import { useRoles } from "@/auth/RequireRole";
 
 // Mock data
 const mockUser = {
@@ -68,6 +71,36 @@ const mockCoachUser = {
 export const Dashboard = () => {
   const [userRole] = useState<'CLIENT' | 'COACH'>('CLIENT');
 
+  // Scopes desde el access token
+  const { authState } = useOktaAuth();
+  //const tokenScopes = (authState?.accessToken?.claims as any)?.scp as string[] | undefined;
+  const roles = useRoles();
+  const isPremium = roles.includes("PremiumUser");
+
+  const canA = true;
+  const canB = isPremium;;
+
+  // Handlers respetando permisos
+  const handleInstant = () => {
+    if (!canA) return alert('Tu plan no permite iniciar sesiones (requiere Acción A).');
+    console.log('Sesión instantánea');
+  };
+  const handleSchedule = () => {
+    if (!canA) return alert('Tu plan no permite programar sesiones (requiere Acción A).');
+    console.log('Programar sesión');
+  };
+  const handleSearch = () => {
+    console.log('Ir a buscar coaches');
+  };
+  const handleViewReports = () => {
+    if (!canB) return alert('Este contenido es para cuentas Premium (Acción B).');
+    console.log('Abrir reportes premium');
+  };
+  const handleBookRecommended = (id: string) => {
+    if (!canA) return alert('Tu plan no permite reservar sesiones (requiere Acción A).');
+    console.log('Book session with:', id);
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
@@ -79,8 +112,24 @@ export const Dashboard = () => {
           <p className="text-muted-foreground text-lg">
             Aquí tienes un resumen de tu actividad reciente
           </p>
+
+          {/* Avisos de plan */}
+          {!canA && (
+            <div className="mt-3">
+              <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
+                Tu plan actual no permite reservar / programar sesiones (Acción A)
+              </Badge>
+            </div>
+          )}
+          {!canB && (
+            <div className="mt-2">
+              <Badge variant="outline" className="bg-violet-50 text-violet-800 border-violet-200">
+                Los reportes premium requieren plan Premium (Acción B)
+              </Badge>
+            </div>
+          )}
         </div>
-        <Button size="lg" className="mt-4 md:mt-0">
+        <Button size="lg" className="mt-4 md:mt-0" onClick={handleSchedule}>
           <Plus className="h-5 w-5 mr-2" />
           Nueva sesión
         </Button>
@@ -151,15 +200,31 @@ export const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button
+              variant="outline"
+              className="h-20 flex-col gap-2"
+              onClick={handleInstant}
+              disabled={!canA}
+              title={!canA ? 'Requiere Acción A' : undefined}
+            >
               <Video className="h-6 w-6" />
               <span>Sesión instantánea</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button
+              variant="outline"
+              className="h-20 flex-col gap-2"
+              onClick={handleSchedule}
+              disabled={!canA}
+              title={!canA ? 'Requiere Acción A' : undefined}
+            >
               <Calendar className="h-6 w-6" />
               <span>Programar sesión</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button
+              variant="outline"
+              className="h-20 flex-col gap-2"
+              onClick={handleSearch}
+            >
               <Users className="h-6 w-6" />
               <span>Buscar coaches</span>
             </Button>
@@ -198,7 +263,7 @@ export const Dashboard = () => {
                   <p className="text-muted-foreground mb-4">
                     Programa tu primera sesión con un coach
                   </p>
-                  <Button>Buscar coaches</Button>
+                  <Button onClick={handleSearch}>Buscar coaches</Button>
                 </CardContent>
               </Card>
             )}
@@ -218,7 +283,7 @@ export const Dashboard = () => {
                 key={coach.id}
                 coach={coach}
                 user={mockCoachUser}
-                onBookSession={(id) => console.log('Book session with:', id)}
+                onBookSession={(id) => handleBookRecommended(id)}
                 onViewProfile={(id) => console.log('View profile:', id)}
               />
             ))}
@@ -251,6 +316,25 @@ export const Dashboard = () => {
               <Badge variant="outline">Compra</Badge>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Bloque Premium */}
+      <Card className="border shadow-soft">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Reportes premium
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {canB ? (
+            <Button onClick={handleViewReports}>Ver reportes</Button>
+          ) : (
+            <p className="text-muted-foreground">
+              Este contenido está disponible para cuentas Premium.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

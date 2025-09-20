@@ -8,9 +8,10 @@ import { Dashboard } from "./pages/Dashboard";
 import { CoachSearch } from "./pages/CoachSearch";
 import { MainLayout } from "./components/layout/MainLayout";
 import NotFound from "./pages/NotFound";
+import RequireRole from "./auth/RequireRole";
 
 import { useOktaAuth, LoginCallback } from "@okta/okta-react";
-import RequireScope from "./auth/RequireScope";
+import RequireScope, { RequireAuthenticated } from "./auth/RequireScope";
 import ActionA from "./pages/actionA";
 import ActionB from "./pages/actionB";
 import Forbidden from "./pages/Forbidden";
@@ -25,26 +26,28 @@ const mockUser = {
   profilePictureUrl: undefined,
 };
 
+// Página opcional de login manual (útil para debug/cambiar de usuario).
 function Login() {
   const { oktaAuth, authState } = useOktaAuth();
   const [params] = useSearchParams();
 
   const signIn = async (force = false) => {
     await oktaAuth.signInWithRedirect({
-      originalUri: params.get("from") ?? "/app/action-a",
-      // fuerza pantalla de login aunque haya SSO
+      originalUri: params.get("from") ?? "/coaches",
       extraParams: force ? { prompt: "login", max_age: "0" } : undefined,
     });
   };
 
   const signOut = async () => {
-    await oktaAuth.signOut({ postLogoutRedirectUri: window.location.origin + "/login" });
+    await oktaAuth.signOut({
+      postLogoutRedirectUri: window.location.origin + "/login",
+    });
   };
 
   if (authState?.isAuthenticated) {
     return (
       <div className="p-4 space-y-2">
-        Ya estás autenticado. <Link to="/app/action-a">Ir a Action A</Link>
+        Ya estás autenticado. <Link to="/coaches">Ir a Coaches</Link>
         <div>
           <button className="border rounded px-3 py-1" onClick={signOut}>
             Cambiar de usuario (Sign out)
@@ -67,38 +70,45 @@ function Login() {
   );
 }
 
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <Routes>
-        {/* públicas que ya tenías */}
+        {/* Pública */}
         <Route path="/" element={<Landing />} />
-        <Route
-          path="/dashboard"
-          element={
-            <MainLayout user={mockUser} currentPath="/dashboard">
-              <Dashboard />
-            </MainLayout>
-          }
-        />
+
+        {/* Coaches: requiere estar autenticado (cualquier plan). */}
         <Route
           path="/coaches"
           element={
-            <MainLayout user={mockUser} currentPath="/coaches">
-              <CoachSearch />
-            </MainLayout>
+            <RequireAuthenticated>
+              <MainLayout user={mockUser} currentPath="/coaches">
+                <CoachSearch />
+              </MainLayout>
+            </RequireAuthenticated>
           }
         />
 
-        {/* auth */}
+        {/* Dashboard: ejemplo de contenido Premium (requiere actionB:execute). */}
+        <Route
+          path="/dashboard"
+          element={
+            <RequireRole anyOf={["PremiumUser"]}>
+              <MainLayout user={mockUser} currentPath="/dashboard">
+                <Dashboard />
+              </MainLayout>
+            </RequireRole>
+          }
+        />
+
+        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/login/callback" element={<LoginCallback />} />
         <Route path="/403" element={<Forbidden />} />
 
-        {/* acciones protegidas por scope */}
+        {/* Acciones de prueba por scopes (puedes dejarlas para QA) */}
         <Route
           path="/app/action-a"
           element={
@@ -116,7 +126,7 @@ const App = () => (
           }
         />
 
-        {/* debug y catch-all */}
+        {/* Debug y 404 */}
         <Route path="/debug" element={<Debug />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
