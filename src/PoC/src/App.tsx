@@ -17,6 +17,8 @@ import ActionB from "./pages/actionB";
 import Forbidden from "./pages/Forbidden";
 import Debug from "./pages/Debug";
 
+import { LoggingProvider } from "./context/LoggingContext";
+
 const queryClient = new QueryClient();
 
 const mockUser = {
@@ -71,7 +73,13 @@ function Login() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <LoggingProvider config={{
+    environment: process.env.NODE_ENV as 'development' | 'production' | 'test',
+    batchSize: 50,
+    flushInterval: 3000,
+    enableConsole: true,
+  }}>
+    <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -132,6 +140,10 @@ const App = () => (
       </Routes>
     </TooltipProvider>
   </QueryClientProvider>
+  </LoggingProvider>
 );
 
 export default App;
+
+
+

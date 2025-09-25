@@ -1,5 +1,7 @@
 import { CoachResponseDTO, CreateCoachDTO, UpdateCoachDTO } from '../dtos/CoachDTO';
 import { AuthService } from './AuthService';
+import { ExceptionHandler } from '../middleware/ExceptionHandler';
+import { LoggingService } from './LoggingService';
 
 export interface CoachSearchFilters {
   specialties?: string[];
@@ -20,6 +22,8 @@ export class CoachService {
   private static instance: CoachService;
   private baseUrl = '/api/coaches';
   private authService = AuthService.getInstance();
+  private exceptionHandler = ExceptionHandler.getInstance();
+  private logger = LoggingService.getInstance();
 
   static getInstance(): CoachService {
     if (!CoachService.instance) {

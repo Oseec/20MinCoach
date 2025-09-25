@@ -5,11 +5,15 @@ import {
   CreateRatingDTO 
 } from '../dtos/SessionDTO';
 import { AuthService } from './AuthService';
+import { ExceptionHandler } from '../middleware/ExceptionHandler';
+import { LoggingService } from './LoggingService';
 
 export class SessionService {
   private static instance: SessionService;
   private baseUrl = '/api/sessions';
   private authService = AuthService.getInstance();
+  private exceptionHandler = ExceptionHandler.getInstance();
+  private logger = LoggingService.getInstance();
 
   static getInstance(): SessionService {
     if (!SessionService.instance) {
@@ -27,17 +31,30 @@ export class SessionService {
   }
 
   async createSession(sessionData: CreateSessionDTO): Promise<SessionResponseDTO> {
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(sessionData),
-    });
+    try {
+      this.logger.logSession('session_creation_attempt');
+      
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(sessionData),
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to create session');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to create session`);
+      }
+
+      const result = await response.json();
+      this.logger.logSession('session_created');
+      
+      return result;
+    } catch (error) {
+      throw this.exceptionHandler.handleSessionException(
+        error as Error,
+        sessionData.coachId || 'unknown',
+        'create_session'
+      );
     }
-
-    return response.json();
   }
 
   async getSessionById(id: string): Promise<SessionResponseDTO> {
@@ -79,16 +96,29 @@ export class SessionService {
   }
 
   async joinSession(id: string): Promise<{ joinUrl: string; token: string }> {
-    const response = await fetch(`${this.baseUrl}/${id}/join`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-    });
+    try {
+      this.logger.logSession('session_join_attempt');
+      
+      const response = await fetch(`${this.baseUrl}/${id}/join`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to join session');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to join session`);
+      }
+
+      const result = await response.json();
+      this.logger.logSession('session_joined');
+      
+      return result;
+    } catch (error) {
+      throw this.exceptionHandler.handleSessionException(
+        error as Error,
+        id,
+        'join_session'
+      );
     }
-
-    return response.json();
   }
 
   async endSession(id: string): Promise<SessionResponseDTO> {
