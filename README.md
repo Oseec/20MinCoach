@@ -51,12 +51,99 @@ Esta sección no me quedó muy clara la verdad:
 ### Detailed Layer Design Requirements
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 #### Visual Components
-No me queda muy claro
-- Design a component hierarchy based on the selected technology
-- Specify how reusable UI components will work
-- Decide accessibility standards
-- Design the responsive guidelines within code examples of the practices that the dev team must to follow
-- Object design patterns might be required
+**Location** : [src/PoC/src/components](src/PoC/src/components)
+
+**Purpose** :Centralize the visual structure of the application, composing layouts, domain-specific components, and reusable UI components under principles of consistency, accessibility, and responsiveness.
+
+**Folder Hierarchy**
+
+- ui/ base reusable components ([View ui folder](src/PoC/src/components/ui))
+
+- layout/ global layouts ([View layouts folder ](src/PoC/src/components/layout))
+
+- coach/  domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
+
+- session/  domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
+
+**Applied Design Pattern** : Composite Pattern
+
+The [main layout ](src/PoC/src/components/layout/MainLayout.tsx) acts as a Composite, organizing and composing subcomponents ([header](src/PoC/src/components/layout/Header.tsx)), ([sidebar ](src/PoC/src/components/layout/Sidebar.tsx)) along with the dynamic page content (children).
+
+- PageContent is dynamically injected via React Router and corresponds to any file inside [src/pages ](src/PoC/src/pages/). These are the actual screens rendered inside the layout.
+
+Example: [main layout ](src/PoC/src/components/layout/MainLayout.tsx)
+```tsx
+export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header 
+        user={user}
+        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+        notifications={3}
+      />
+      
+      <div className="flex">
+        <Sidebar 
+          isOpen={sidebarOpen}
+          userRole={user?.role}
+          currentPath={currentPath}
+        />
+        
+        <main className="flex-1 lg:ml-64">
+          <div className="container max-w-7xl mx-auto p-6">
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+```
+
+![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)  
+
+**Reusability Guidelines**
+
+- Generic components - [ui](src/PoC/src/components/ui/)
+- Domain-specific components - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
+- Global layouts - [layout](src/PoC/src/components/layout/)
+
+**Accessibility**
+
+- Buttons and inputs should include ARIA attributes (aria-label, aria-expanded, etc.).
+- All interactive elements must be keyboard accessible (tabIndex).
+- Minimum contrast ratio: 4.5:1 (WCAG 2.1).
+
+**Responsiveness**
+
+- Tailwind breakpoints (sm:, md:, lg:) are used throughout.
+- Example from [main layout ](src/PoC/src/components/layout/MainLayout.tsx):
+```tsx
+<main className="flex-1 lg:ml-64">
+  <div className="container max-w-7xl mx-auto p-6">
+    {children}
+  </div>
+</main>
+```
+- Sidebar switches from fixed (lg:ml-64) to mobile overlay depending on viewport.
+
+**Developer Rules**
+
+1. Generic - [ui](src/PoC/src/components/ui/)
+
+2. Domain-specific - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
+
+3. Global layout - [layout](src/PoC/src/components/layout/)
+
+4. Every component must be:
+
+    - Responsive
+
+    - Accessible
+
+    - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 #### Controllers
 Consider a strong usage of dependency injection
 Do not forget clarify the hook-based connectors in the controllers
@@ -74,9 +161,20 @@ Provide implementation templates or examples in the source code to guide softwar
 #### Services
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
-#### Background
-Provide implementation templates or examples in the source code to guide software engineers. Este layer no lo tenemos en el source code. Hay que ver cómo lo agregramos.
-Object design patterns might be required, pub/sub
+
+
+#### Background/Jobs/Listeners
+
+## Consulta: Puedo o debo documentarlo aunque no lo implemente?, creo que es una buena opcion implementarlo/documentarlo por el tema de notificar cuando el usuario cerro la aplicacion, sea web, o en el futuro se diseñe tambien mobile; por ejemplo, notificaciones como “tu sesión empieza en 5 min”, o tambien por el tema de poder ver la actividad reciente sin recargar. Sin embargo, ahorita debido a las pocas funciones y requerimientos que tenemos, no es tan primordial implementaro, ademas entiendo que requiere backend. Aunque podria ser buena idea documentarlo para implementaciones futuras, ya que si mejoraria bastante el UI.
+
+Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
+- Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
+- Publish these events to a decoupled Event Bus (Pub/Sub) consumed by UI modules.
+- Implements periodic jobs with React Query (polling and invalidation upon return of focus/online).
+- It provides a Service Worker template and Push notifications when the app is in the background.
+
+This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
+
 #### Validators
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
@@ -344,3 +442,6 @@ Add environment variable files
 Add pipeline for runing unit test
 Document instructions for developers on how to run the app, run the test and the deployment
 Tampoco tenemos nada de esto.
+
+
+## Consulta: Para lo de Maze, lo invitamos al team para que revise el heatmap y las grabaciones, mostramos eso nosotros en la revisión, o lo montamos en la docu?

@@ -71,7 +71,7 @@ const mockCoachUser = {
 export const Dashboard = () => {
   const [userRole] = useState<'CLIENT' | 'COACH'>('CLIENT');
 
-  // Scopes desde el access token
+  //Scopes desde el access token
   const { authState } = useOktaAuth();
   //const tokenScopes = (authState?.accessToken?.claims as any)?.scp as string[] | undefined;
   const roles = useRoles();
