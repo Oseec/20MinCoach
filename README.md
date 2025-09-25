@@ -51,12 +51,99 @@ Esta sección no me quedó muy clara la verdad:
 ### Detailed Layer Design Requirements
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 #### Visual Components
-No me queda muy claro
-- Design a component hierarchy based on the selected technology
-- Specify how reusable UI components will work
-- Decide accessibility standards
-- Design the responsive guidelines within code examples of the practices that the dev team must to follow
-- Object design patterns might be required
+**Location** : [src/PoC/src/components](src/PoC/src/components)
+
+**Purpose** :Centralize the visual structure of the application, composing layouts, domain-specific components, and reusable UI components under principles of consistency, accessibility, and responsiveness.
+
+**Folder Hierarchy**
+
+- ui/ base reusable components ([View ui folder](src/PoC/src/components/ui))
+
+- layout/ global layouts ([View layouts folder ](src/PoC/src/components/layout))
+
+- coach/  domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
+
+- session/  domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
+
+**Applied Design Pattern** : Composite Pattern
+
+The [main layout ](src/PoC/src/components/layout/MainLayout.tsx) acts as a Composite, organizing and composing subcomponents ([header](src/PoC/src/components/layout/Header.tsx)), ([sidebar ](src/PoC/src/components/layout/Sidebar.tsx)) along with the dynamic page content (children).
+
+- PageContent is dynamically injected via React Router and corresponds to any file inside [src/pages ](src/PoC/src/pages/). These are the actual screens rendered inside the layout.
+
+Example: [main layout ](src/PoC/src/components/layout/MainLayout.tsx)
+```tsx
+export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header 
+        user={user}
+        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+        notifications={3}
+      />
+      
+      <div className="flex">
+        <Sidebar 
+          isOpen={sidebarOpen}
+          userRole={user?.role}
+          currentPath={currentPath}
+        />
+        
+        <main className="flex-1 lg:ml-64">
+          <div className="container max-w-7xl mx-auto p-6">
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+```
+
+![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)  
+
+**Reusability Guidelines**
+
+- Generic components - [ui](src/PoC/src/components/ui/)
+- Domain-specific components - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
+- Global layouts - [layout](src/PoC/src/components/layout/)
+
+**Accessibility**
+
+- Buttons and inputs should include ARIA attributes (aria-label, aria-expanded, etc.).
+- All interactive elements must be keyboard accessible (tabIndex).
+- Minimum contrast ratio: 4.5:1 (WCAG 2.1).
+
+**Responsiveness**
+
+- Tailwind breakpoints (sm:, md:, lg:) are used throughout.
+- Example from [main layout ](src/PoC/src/components/layout/MainLayout.tsx):
+```tsx
+<main className="flex-1 lg:ml-64">
+  <div className="container max-w-7xl mx-auto p-6">
+    {children}
+  </div>
+</main>
+```
+- Sidebar switches from fixed (lg:ml-64) to mobile overlay depending on viewport.
+
+**Developer Rules**
+
+1. Generic - [ui](src/PoC/src/components/ui/)
+
+2. Domain-specific - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
+
+3. Global layout - [layout](src/PoC/src/components/layout/)
+
+4. Every component must be:
+
+    - Responsive
+
+    - Accessible
+
+    - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 #### Controllers
 Consider a strong usage of dependency injection
 Do not forget clarify the hook-based connectors in the controllers
