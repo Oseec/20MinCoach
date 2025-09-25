@@ -218,3 +218,6 @@ Add environment variable files
 Add pipeline for runing unit test
 Document instructions for developers on how to run the app, run the test and the deployment
 Tampoco tenemos nada de esto.
+
+
+## Consulta: Para lo de Maze, lo invitamos al team para que revise el heatmap y las grabaciones, mostramos eso nosotros en la revisión, o lo montamos en la docu?
