@@ -74,9 +74,20 @@ Provide implementation templates or examples in the source code to guide softwar
 #### Services
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
-#### Background
-Provide implementation templates or examples in the source code to guide software engineers. Este layer no lo tenemos en el source code. Hay que ver cómo lo agregramos.
-Object design patterns might be required, pub/sub
+
+
+#### Background/Jobs/Listeners
+
+## Consulta: Puedo o debo documentarlo aunque no lo implemente?, creo que es una buena opcion implementarlo/documentarlo por el tema de notificar cuando el usuario cerro la aplicacion, sea web, o en el futuro se diseñe tambien mobile; por ejemplo, notificaciones como “tu sesión empieza en 5 min”, o tambien por el tema de poder ver la actividad reciente sin recargar. Sin embargo, ahorita debido a las pocas funciones y requerimientos que tenemos, no es tan primordial implementaro, ademas entiendo que requiere backend. Aunque podria ser buena idea documentarlo para implementaciones futuras, ya que si mejoraria bastante el UI.
+
+Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
+- Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
+- Publish these events to a decoupled Event Bus (Pub/Sub) consumed by UI modules.
+- Implements periodic jobs with React Query (polling and invalidation upon return of focus/online).
+- It provides a Service Worker template and Push notifications when the app is in the background.
+
+This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
+
 #### Validators
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
