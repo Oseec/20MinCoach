@@ -323,9 +323,66 @@ const validated = createSessionSchema.parse(inputData);
 - Use Zod `z.enum()` for enum validation.
 - When adding a new model, create a matching validator if input validation is required.
 #### Middleware
-Design and implement an error handling middleware
-Design and implement an log events middleware
-All of them are required to be code and provide implementation templates or examples in the source code to guide software engineers
+#### Middleware
+**Location**: [src/PoC/src/middleware](src/PoC/src/middleware)
+
+**Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
+
+**Folder Hierarchy**:
+- [authMiddleware.ts](src/PoC/src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
+- [errorMiddleware.ts](src/PoC/src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
+- [ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) – Core exception handling logic, categorizes errors, supports async and sync operations.
+- [transformers](src/PoC/src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/PoC/src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/PoC/src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/PoC/src/middleware/transformers/user.mapper.ts)).
+
+**Applied Design Pattern**: Middleware / Interceptor Pattern.
+
+Middleware functions as a pipeline to intercept, validate, log, or transform requests/responses.
+
+**Examples**
+AuthMiddleware
+```ts
+const auth = new AuthMiddleware();
+app.use((req, res, next) => auth.requireAuth(req, res, next));
+
+```
+- Checks access token and refreshes if expired.
+- Supports role-based guards via `requireRole()`.
+
+
+**ErrorMiddleware**
+```ts
+try {
+  await someServiceOperation();
+} catch (err) {
+  const handled = ErrorMiddleware.createErrorHandler("SESSION")(err);
+  console.error(handled);
+}
+
+```
+- Wraps any service/controller operation.
+- Produces standardized error responses with timestamp, correlationId, code, and message.
+- Logs errors and security events via [LogginService](src/PoC/src/services/LoggingService.ts).
+
+**ExceptionHandler**
+```ts
+const handler = ExceptionHandler.getInstance();
+const result = await handler.handleAsync(() => someAsyncOperation(), {
+  category: 'SESSION',
+  operation: 'create_session',
+  userId: '123',
+});
+
+```
+- Encapsulates business logic for exception classification.
+- Handles network, HTTP, timeout, and domain-specific errors.
+- Can wrap synchronous `(handleSync)` or asynchronous `(handleAsync)` operations.
+
+**Developer Guidelines**
+
+- Middleware should not contain business logic; that belongs in services.
+- Use transformers to map incoming DTOs to models, keeping controllers/services clean.
+- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
+- All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
 #### Business
 Study the theory of domain driven design and what technology is available in the choosen language to achive such paradigm. Indicar qué tecnología permite lograr el paradigma.
 Implement domain-specific rules and validation
