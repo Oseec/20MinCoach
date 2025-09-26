@@ -174,8 +174,6 @@ They manage asynchronous operations, event handling, and derived state.
 
 Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
 
----
-
 **Examples**
 
 **useIsMobile Hook** – viewport detection
