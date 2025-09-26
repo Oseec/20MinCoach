@@ -323,7 +323,6 @@ const validated = createSessionSchema.parse(inputData);
 - Use Zod `z.enum()` for enum validation.
 - When adding a new model, create a matching validator if input validation is required.
 #### Middleware
-#### Middleware
 **Location**: [src/PoC/src/middleware](src/PoC/src/middleware)
 
 **Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
