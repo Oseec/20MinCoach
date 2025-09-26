@@ -351,8 +351,31 @@ This layer is isolated in `src/background/`, with sample code and documentation 
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 #### DTOs
-Explain how and when DTOs are going to be required.
-Create a transformation template and example to be use between API calls and frontend models, this can be a middleware as well.
+
+At 20minCoach, we never want to couple the UI with the raw format of the backend, for two reasons:
+
+-The backend may use different field names (snake_case) and formats that aren't ideal for the UI (dates as ISO strings, ambiguous flags, etc.).
+-If the backend changes, we don't want to break the entire UI. The change should be contained in a single place.
+
+Use only within `src/services/` (raw requests/responses) and `src/middleware/transformers/` (mappings).
+Ex: the backend sends created_at as an ISO string → that's a DTO.
+
+If you need a DTO in the UI, something is wrong: add a mapper.
+
+Mappers are invoked on services:
+```tsx
+//CoachService.ts
+
+async getCoachById(id: string): Promise<Coach> {
+  const res = await fetch(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch coach');
+  const dto = await res.json();
+  return coachMapper.fromDTO(dto); // <- mapping
+}
+```
+there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers) 
+
+
 #### State management
 Select and design the state management solution
 Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
