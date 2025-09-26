@@ -194,6 +194,7 @@ const { toast, dismiss } = useToast();
 <Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
 ```
 Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
+
 **useLogger Hook** – logging and error handling controller
 ```ts
 const { logUserAction, handleAsyncOperation } = useLogger();
