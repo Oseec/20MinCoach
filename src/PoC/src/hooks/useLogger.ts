@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { LoggingService } from '../logging/LoggingService';
-import { ExceptionHandler } from '../middleware/ExceptionHandler';
+import { ExceptionHandler } from '../exceptionHandling/ExceptionHandler';
 import { LogCategory } from '../logging/LogTypes';
 
 export const useLogger = () => {

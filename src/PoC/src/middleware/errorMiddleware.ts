@@ -1,5 +1,5 @@
 import { LoggingService } from '../logging/LoggingService';
-import { ExceptionHandler, HandledException } from './ExceptionHandler';
+import { ExceptionHandler, HandledException } from '../exceptionHandling/ExceptionHandler';
 
 export interface ErrorResponse {
   message: string;

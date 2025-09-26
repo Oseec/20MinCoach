@@ -382,11 +382,11 @@ const result = await handler.handleAsync(() => someAsyncOperation(), {
 - Use transformers to map incoming DTOs to models, keeping controllers/services clean.
 - Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 - All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
-#### Business
+#### Business (not documented yet)
 Study the theory of domain driven design and what technology is available in the choosen language to achive such paradigm. Indicar qué tecnología permite lograr el paradigma.
 Implement domain-specific rules and validation
 Provide implementation templates or examples in the source code to guide software engineers
-#### Services
+#### Services (not documented yet)
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
 
@@ -403,7 +403,7 @@ Its a layer that handles everything that happens "in the background" without dir
 
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
-#### Validators
+#### Validators (not documented yet)
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 #### DTOs
@@ -432,15 +432,15 @@ async getCoachById(id: string): Promise<Coach> {
 there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers) 
 
 
-#### State management
+#### State management (not documented yet)
 Select and design the state management solution
 Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
-#### Styles
+#### Styles (not documented yet)
 Choose and design how CSS or styles are going to be manage
 Design the responsive rules of the design and how the responsiveness is going to be test
 Design an strategy for dark/light mode support and how to test it. Ojo ahí.
 Provide clear instructions to developers
-#### Utilities
+#### Utilities (not documented yet)
 Desing the utilities layers modeling with one example is enough. Puede que esto ya se haya conseguido en src/PoC/src/utils
 Singleton pattern might require. Hay que revisar si tiene Singleton.
 #### Exception Handling
@@ -498,7 +498,51 @@ handleException(
 ```
 **correlationId** allows an error trace from the client to server logs.
 
-...
+Custom user-messages are generated in the following method (there are other messages for different error types).
+```ts
+private getErrorMessage(error: any, context: ExceptionContext): string {
+    // Network errors
+    if (!navigator.onLine) {
+      return 'Sin conexión a internet. Verifica tu conexión y vuelve a intentar.';
+    }
+
+    // HTTP errors
+    if (error.response) {
+      const status = error.response.status;
+      
+      switch (status) {
+        case 400:
+          return this.getBadRequestMessage(context);
+        case 401:
+          return 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+        case 403:
+          return 'No tienes permisos para realizar esta acción.';
+        case 404:
+          return this.getNotFoundMessage(context);
+        case 409:
+          return this.getConflictMessage(context);
+        case 422:
+          return 'Los datos proporcionados no son válidos. Revisa la información e intenta nuevamente.';
+        case 429:
+          return 'Demasiadas solicitudes. Por favor, espera unos momentos antes de intentar de nuevo.';
+        case 500:
+          return 'Error interno del servidor. Nuestro equipo ha sido notificado.';
+        case 503:
+          return 'El servicio está temporalmente no disponible. Intenta más tarde.';
+        default:
+          return `Error inesperado (${status}). Si el problema persiste, contacta al soporte.`;
+      }
+    }
+
+    // Timeout errors
+    if (error.code === 'ECONNABORTED') {
+      return 'La operación tardó demasiado tiempo. Verifica tu conexión e intenta nuevamente.';
+    }
+
+    // Category-specific error messages
+    return this.getCategorySpecificMessage(error, context);
+  }
+```
 
 
 #### Logging
@@ -514,10 +558,9 @@ Log flow
 
 It follows the Singleton pattern to ensure that the entire application uses the same logging instance with a shared configuration.
 
-Logs are first stored in a buffer (`logBuffer`).  
-Automatically flushes when:  
-- The buffer reaches the configured batch size.  
-- A periodic timer (`flushTimer`) triggers after `flushInterval`.  
+
+After their creation logs are stored in a buffer (`logBuffer`).  
+Automatically flushes when the buffer reaches the configured batch size or a periodic timer (`flushTimer`) triggers after `flushInterval`.  
 ```ts
 private addLog(log: LogEntry): void {
     this.logBuffer.push(log);
@@ -719,16 +762,16 @@ The time after the last indexation in order to considered a "log-cold" storage v
 | **VIDEO**    |          30 days          |
 | **SECURITY** |         6 months          |
 
-#### Security
+#### Security (not documented yet)
 Design authentication and authorization layers. Me parece que esto ya lo tenemos pero no como layer.
 This is going to be result of the authorization PoC and the Client layer
-#### Linter Configuration
+#### Linter Configuration (not documented yet)
 Select a linting tool
 Define code style rules and conventions
 Include the linter in the project and document guidelines
 Include the linter rules file adding a custom rule of your desire
 No tenemos nada de esto.
-#### Build and Deployment Pipeline
+#### Build and Deployment Pipeline (not documented yet)
 Design build process for different environments
 Create development, staging, and production builds in the configuration files
 Create deployment documentation guidelines in the readme.md
