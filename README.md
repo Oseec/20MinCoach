@@ -194,7 +194,6 @@ const { toast, dismiss } = useToast();
 <Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
 ```
 Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
-
 **useLogger Hook** – logging and error handling controller
 ```ts
 const { logUserAction, handleAsyncOperation } = useLogger();
@@ -216,6 +215,115 @@ await handleAsyncOperation(
 #### Model
 Design the most important model classes, specially for those required for the key design patterns in your solution
 Implement model validation documenting with an example what validator are you going to use and how to use it, provide developers with instructions of how to create more validators
+
+**Location**: [src/PoC/src/models](src/PoC/src/models)
+
+
+**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/PoC/src/models/User.ts), [Coach](src/PoC/src/models/Coach.ts), [Session](src/PoC/src/models/Session.ts), [SessionPackage](src/PoC/src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
+
+**Folder Hierarchy**
+
+- [models](src/PoC/src/models) – contains all domain entity definitions
+
+- [Coach.ts](src/PoC/src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
+
+- [User.ts](src/PoC/src/models/User.ts) – User entity with personal info, role, and preferences
+
+- [Session.ts](src/PoC/src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
+
+- [Package.ts](src/PoC/src/models/Package.ts) – Session packages with features, restrictions, and validity
+
+These classes support the Data Model Pattern, representing domain entities without business logic.
+
+**Model Validation**
+
+We use Zod for runtime input validation. Validators live in a separate layer: [src/PoC/src/validator](src/PoC/src/validators)
+
+**Example**: Coach Validation
+
+```ts
+import { createCoachSchema } from '../validators/coachValidator';
+
+const newCoachInput = {
+  bio: "Experienced fitness coach with 10+ years in training.",
+  headline: "Fitness & Wellness Expert",
+  specialties: ["HEALTH", "PSYCHOLOGY"],
+  experience: 10,
+  pricePerSession: 50,
+  availability: {
+    timezone: "America/Bogota",
+    weeklySchedule: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] },
+    instantAvailable: true
+  },
+  languages: ["English", "Spanish"],
+};
+
+try {
+  const validCoach = createCoachSchema.parse(newCoachInput);
+  console.log("Coach is valid:", validCoach);
+} catch (err) {
+  if (err instanceof Error) {
+    console.error("Validation error:", err);
+  }
+}
+
+```
+**Explanation**:
+
+- createCoachSchema.parse(input) validates the input.
+- Throws detailed errors if the input is invalid.
+- Developers can catch the error to provide feedback or prevent invalid data from being saved.
+
+**How to Create More Validators**
+
+1. Import Zod:
+```ts
+import { z } from 'zod';
+```
+2. Define schemas for fields:
+```ts
+const timeSlotSchema = z.object({
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+});
+```
+3. Compose complex schemas:
+```ts
+const weeklyScheduleSchema = z.object({
+  monday: z.array(timeSlotSchema),
+  tuesday: z.array(timeSlotSchema),
+  // ...
+});
+
+```
+4. Create main entity schema:
+```ts
+export const createSessionSchema = z.object({
+  clientId: z.string(),
+  coachId: z.string(),
+  scheduledAt: z.date(),
+  duration: z.number().min(15).max(180),
+});
+
+```
+5. Infer TypeScript type for type safety:
+```ts
+export type CreateSessionInput = z.infer<typeof createSessionSchema>;
+
+```
+6. Use schema in services/controllers:
+```ts
+const validated = createSessionSchema.parse(inputData);
+
+```
+
+**Developer Guidelines**
+
+- Keep models pure (no business logic).
+- Validators should be separate from models.
+- Always use model types for consistency.
+- Use Zod `z.enum()` for enum validation.
+- When adding a new model, create a matching validator if input validation is required.
 #### Middleware
 Design and implement an error handling middleware
 Design and implement an log events middleware
