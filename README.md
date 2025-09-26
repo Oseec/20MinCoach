@@ -145,15 +145,243 @@ export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => 
 
     - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 #### Controllers
-Consider a strong usage of dependency injection
-Do not forget clarify the hook-based connectors in the controllers
+**Location** : [src/PoC/src/hooks](src/PoC/src/hooks)
+
+**Purpose** : Centralize application logic connecting services and domain data to UI components.  
+Controllers encapsulate data fetching, state management, and side effects while exposing clean APIs to components via hooks.  
+They follow dependency injection principles for flexibility and testability.
+
+**Folder Hierarchy**
+
+- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior  
+- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments 
+- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications  
+- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling  
+
+**Applied Design Pattern**: Mediator Pattern via Custom Hooks
+
+Each hook functions as a mediator between the UI and services.
+
+**Dependency Injection**
+
+Services are injected or accessed via singletons (e.g., [AuthService](src/PoC/src/services/AuthService.ts), [CoachService](src/PoC/src/services/CoachService.ts), [SessionService](src/PoC/src/services/SessionService.ts), [LoggingService](src/PoC/src/services/LoggingService.ts)) instead of being hardcoded inside hooks.  
+This allows hooks to remain flexible and testable.
+
+**Hook-based Connectors**
+
+Hooks act as a bridge between UI components and services or shared state.  
+They manage asynchronous operations, event handling, and derived state.  
+
+Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
+
+**Examples**
+
+**useIsMobile Hook** – viewport detection
+
+```tsx
+const isMobile = useIsMobile();
+
+//Usage in a component
+<div className={isMobile ? "p-4" : "p-8"}>Responsive Content</div>
+```
+**useToast Hook** toast notification controller
+```ts
+const { toast, dismiss } = useToast();
+
+//Usage in a component
+<Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
+```
+Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
+**useLogger Hook** – logging and error handling controller
+```ts
+const { logUserAction, handleAsyncOperation } = useLogger();
+
+//Log an action
+logUserAction("Clicked Save Button");
+
+//Handle async operation with error handling
+await handleAsyncOperation(
+  () => saveSessionData(session),
+  "SESSION",
+  "save_session",
+  user.id,
+  session.id
+);
+
+```
+[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/middleware/ExceptionHandler.ts)
 #### Model
 Design the most important model classes, specially for those required for the key design patterns in your solution
 Implement model validation documenting with an example what validator are you going to use and how to use it, provide developers with instructions of how to create more validators
+
+**Location**: [src/PoC/src/models](src/PoC/src/models)
+
+
+**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/PoC/src/models/User.ts), [Coach](src/PoC/src/models/Coach.ts), [Session](src/PoC/src/models/Session.ts), [SessionPackage](src/PoC/src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
+
+**Folder Hierarchy**
+
+- [models](src/PoC/src/models) – contains all domain entity definitions
+
+- [Coach.ts](src/PoC/src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
+
+- [User.ts](src/PoC/src/models/User.ts) – User entity with personal info, role, and preferences
+
+- [Session.ts](src/PoC/src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
+
+- [Package.ts](src/PoC/src/models/Package.ts) – Session packages with features, restrictions, and validity
+
+These classes support the Data Model Pattern, representing domain entities without business logic.
+
+**Model Validation**
+
+We use Zod for runtime input validation. Validators live in a separate layer: [src/PoC/src/validator](src/PoC/src/validators)
+
+**Example**: Coach Validation
+
+```ts
+import { createCoachSchema } from '../validators/coachValidator';
+
+const newCoachInput = {
+  bio: "Experienced fitness coach with 10+ years in training.",
+  headline: "Fitness & Wellness Expert",
+  specialties: ["HEALTH", "PSYCHOLOGY"],
+  experience: 10,
+  pricePerSession: 50,
+  availability: {
+    timezone: "America/Bogota",
+    weeklySchedule: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] },
+    instantAvailable: true
+  },
+  languages: ["English", "Spanish"],
+};
+
+try {
+  const validCoach = createCoachSchema.parse(newCoachInput);
+  console.log("Coach is valid:", validCoach);
+} catch (err) {
+  if (err instanceof Error) {
+    console.error("Validation error:", err);
+  }
+}
+
+```
+**Explanation**:
+
+- createCoachSchema.parse(input) validates the input.
+- Throws detailed errors if the input is invalid.
+- Developers can catch the error to provide feedback or prevent invalid data from being saved.
+
+**How to Create More Validators**
+
+1. Import Zod:
+```ts
+import { z } from 'zod';
+```
+2. Define schemas for fields:
+```ts
+const timeSlotSchema = z.object({
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+});
+```
+3. Compose complex schemas:
+```ts
+const weeklyScheduleSchema = z.object({
+  monday: z.array(timeSlotSchema),
+  tuesday: z.array(timeSlotSchema),
+  // ...
+});
+
+```
+4. Create main entity schema:
+```ts
+export const createSessionSchema = z.object({
+  clientId: z.string(),
+  coachId: z.string(),
+  scheduledAt: z.date(),
+  duration: z.number().min(15).max(180),
+});
+
+```
+5. Infer TypeScript type for type safety:
+```ts
+export type CreateSessionInput = z.infer<typeof createSessionSchema>;
+
+```
+6. Use schema in services/controllers:
+```ts
+const validated = createSessionSchema.parse(inputData);
+
+```
+
+**Developer Guidelines**
+
+- Keep models pure (no business logic).
+- Validators should be separate from models.
+- Always use model types for consistency.
+- Use Zod `z.enum()` for enum validation.
+- When adding a new model, create a matching validator if input validation is required.
 #### Middleware
-Design and implement an error handling middleware
-Design and implement an log events middleware
-All of them are required to be code and provide implementation templates or examples in the source code to guide software engineers
+**Location**: [src/PoC/src/middleware](src/PoC/src/middleware)
+
+**Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
+
+**Folder Hierarchy**:
+- [authMiddleware.ts](src/PoC/src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
+- [errorMiddleware.ts](src/PoC/src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
+- [ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) – Core exception handling logic, categorizes errors, supports async and sync operations.
+- [transformers](src/PoC/src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/PoC/src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/PoC/src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/PoC/src/middleware/transformers/user.mapper.ts)).
+
+**Applied Design Pattern**: Middleware / Interceptor Pattern.
+
+Middleware functions as a pipeline to intercept, validate, log, or transform requests/responses.
+
+**Examples**
+AuthMiddleware
+```ts
+const auth = new AuthMiddleware();
+app.use((req, res, next) => auth.requireAuth(req, res, next));
+
+```
+- Checks access token and refreshes if expired.
+- Supports role-based guards via `requireRole()`.
+
+
+**ErrorMiddleware**
+```ts
+try {
+  await someServiceOperation();
+} catch (err) {
+  const handled = ErrorMiddleware.createErrorHandler("SESSION")(err);
+  console.error(handled);
+}
+
+```
+- Wraps any service/controller operation.
+- Produces standardized error responses with timestamp, correlationId, code, and message.
+- Logs errors and security events via [LogginService](src/PoC/src/services/LoggingService.ts).
+
+**ExceptionHandler**
+```ts
+const handler = ExceptionHandler.getInstance();
+const result = await handler.handleAsync(() => someAsyncOperation(), {
+  category: 'SESSION',
+  operation: 'create_session',
+  userId: '123',
+});
+
+```
+- Encapsulates business logic for exception classification.
+- Handles network, HTTP, timeout, and domain-specific errors.
+- Can wrap synchronous `(handleSync)` or asynchronous `(handleAsync)` operations.
+
+**Developer Guidelines**
+
+- Middleware should not contain business logic; that belongs in services.
+- Use transformers to map incoming DTOs to models, keeping controllers/services clean.
+- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
+- All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
 #### Business
 Study the theory of domain driven design and what technology is available in the choosen language to achive such paradigm. Indicar qué tecnología permite lograr el paradigma.
 Implement domain-specific rules and validation
@@ -179,8 +407,31 @@ This layer is isolated in `src/background/`, with sample code and documentation 
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 #### DTOs
-Explain how and when DTOs are going to be required.
-Create a transformation template and example to be use between API calls and frontend models, this can be a middleware as well.
+
+At 20minCoach, we never want to couple the UI with the raw format of the backend, for two reasons:
+
+-The backend may use different field names (snake_case) and formats that aren't ideal for the UI (dates as ISO strings, ambiguous flags, etc.).
+-If the backend changes, we don't want to break the entire UI. The change should be contained in a single place.
+
+Use only within `src/services/` (raw requests/responses) and `src/middleware/transformers/` (mappings).
+Ex: the backend sends created_at as an ISO string → that's a DTO.
+
+If you need a DTO in the UI, something is wrong: add a mapper.
+
+Mappers are invoked on services:
+```tsx
+//CoachService.ts
+
+async getCoachById(id: string): Promise<Coach> {
+  const res = await fetch(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch coach');
+  const dto = await res.json();
+  return coachMapper.fromDTO(dto); // <- mapping
+}
+```
+there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers) 
+
+
 #### State management
 Select and design the state management solution
 Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
