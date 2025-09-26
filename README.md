@@ -195,119 +195,60 @@ Singleton pattern might require. Hay que revisar si tiene Singleton.
 #### Exception Handling
 La idea de este layer es tranformar/procesar las excepciones o errores generadas en los niveles más bajos para que sean legibles y amigables para el usuario, priorizando que la aparición de estos no afecten la lógica del resto del "programa". También sirve como frame para el logging layer especialmente para la generación de logs relacionados a errores.
 
-Tenemos las siguientes clases que participan en el procesamiento de exceptions:
+[ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) is the class in charge of processing all exceptions
 
-*Clases que participan, podría ser un diagrama*
+This class implements a Singleton pattern since only one instance of the class is needed.
+```ts
+static getInstance(): ExceptionHandler {
+    if (!ExceptionHandler.instance) {
+      ExceptionHandler.instance = new ExceptionHandler();
+    }
+    return ExceptionHandler.instance;
+  }
+```
 
-Tenemos la siguiente estructura para las excepciones:
+The following method is the core of this class. It logs errors, transforms them to uniform objects returned as HandleException, therefore only friendly and meaningful mesagges are shown to the user. It also adapts messages deppending to each category (SESSION, PAYMENT, VIDEO, etc.) and enriches with metadata in order to provide helpful log messages.
+```ts
+handleException(
+    error: Error | any,
+    context: ExceptionContext
+  ): HandledException {
+    const correlationId = this.generateCorrelationId();
+    const timestamp = new Date().toISOString();
 
-*Estructura de las excepciones*
+    // Log the exception with appropriate category
+    this.logger.logError(error, context.category, JSON.stringify({
+      operation: context.operation,
+      userId: context.userId,
+      sessionId: context.sessionId,
+      correlationId,
+      ...context.additionalInfo,
+    }));
 
+    // Create standardized exception response
+    const handledException: HandledException = {
+      message: this.getErrorMessage(error, context),
+      code: this.getErrorCode(error, context),
+      details: this.getErrorDetails(error),
+      timestamp,
+      correlationId,
+    };
 
-Here's a possible design
+    // Log security events for authentication/authorization errors
+    if (this.isSecurityRelated(error)) {
+      this.logger.logSecurity('security_exception', {
+        ip_address: 'unknown', // Would be provided by backend
+        user_agent: navigator.userAgent,
+        attempt_type: context.operation,
+        success: false,
+        user_id: context.userId,
+      });
+    }
+```
+**correlationId** allows an error trace from the client to server logs.
 
-Infrastructure Layer
+...
 
-Infrastructure Layer — this encompasses everything that interacts with the “outside world”: databases, file systems, APIs, message queues. Errors occur frequently here and are almost always technical. Typical examples include:
-
-In our case this would be /utils, autentication service... 
-
-⟹ throw low-level Exception (e.g., SqlException, IOException)
-
-⟹ log error (technical details, e.g., errors from a third-party service)
-
-Domain Layer
-This layer is also the ideal place for logging technical details. Here you know everything.
-
-⟹ Catch a low-level exception
-
-⟹ map to DomainException (e.g., DomainRuleViolationException)
-
-⟹ throw DomainException (for business logic)
-
-Application Layer
-
-⟹ catch DomainException
-
-⟹ enrich error context (e.g., user ID, use-case)
-
-⟹ Take action: apply patterns — retry, rollback transaction, throw a domain exception
-
-⟹ log error (if it’s a business logic error or an unexpected error)
-
-⟹ throw ApplicationException (with an error code)
-
-Presentation Layer (API, UI)
-
-⟹ catch ApplicationException
-
-⟹ map to HTTP response (e.g., 400, 409, 500)
-
-⟹ Include a unique error code in the response
-
-
-Infrastructure exceptions should not cross the domain layer boundary in their original form. They should be caught in the infrastructure layer or at the very junction between the layers. This ensures that the domain layer operates only with concepts and errors relevant to its business logic.
-
-“At the junction” — code that resides between the layers and is responsible for transforming exceptions (adapter, application layer).
-
-After catching an infrastructure exception, it should be converted (transformed) into an exception specific to the domain layer. These domain exceptions should express the reason for the error in terms of business logic or the domain, and not in terms of the technical details of the infrastructure. For example, a DatabaseConnectionException from the infrastructure might be transformed into a RepositoryUnavailableException or a DataAccessException in the domain.
-
-Strategies:
-
-Direct transformation: The simplest strategy, where each specific infrastructure exception is directly mapped to a corresponding domain exception. For example, FtpConnectionException maps toFileStorageUnavailableException, and HttpClientTimeoutException maps to ExternalServiceTimeoutException. This strategy is suitable when there is a clear one-to-one correspondence between infrastructure and domain errors.
-Context enrichment: During the transformation, the domain exception is enriched with additional context that can be useful for handling the error further up the call stack. This context might include the original infrastructure exception (for logging), the parameters of the operation that led to the error, or any other relevant technical details. This allows you to preserve information for debugging without polluting the domain layer with infrastructure exception types.
-
-In contrast to infrastructure errors, which are related to technical failures when interacting with external systems, domain errors arise from violations of business rules, invariants, or the logic of the domain itself. These errors are part of business processes and should be handled at the appropriate level of the application, often leading to informing the user or changing the execution flow of a business operation.
-
-
--
-Error handling flow
-The standard error handling scenario in a typical use case or command/query (in the case of CQRS) looks like this:
-
-Catching Exceptions: The use case code is wrapped in a try...catch block. Expected domain exceptions are caught (e.g., UserNotFoundException, InvalidOrderStateException, ProductOutOfStockException), as well as potentially infrastructure exceptions that were not fully transformed at the infrastructure boundary (although it's preferable for the infrastructure to transform them into its "boundary" exceptions, which the Application Layer would then catch). Unexpected exceptions (\Throwable) are also caught.
-
-Context Enrichment: When an exception is caught, it’s crucial to gather as much useful information as possible for debugging and analysis. This context may include:
-
-The ID of the user performing the action.
-The name of the use case being executed.
-The input data is passed to the use case.
-A unique request/trace ID.
-The system state that might have influenced the error.
-The original exception ($exception->getPrevious()).
-Decision Making: Based on the type of the caught exception and the enriched context, the Application Layer can make a decision:
-
-Retry: If the error is temporary and possibly infrastructure-related (e.g., network timeout, temporary service unavailability). This decision should consider a retry strategy (how many times, with what delay).
-Rollback: If the operation involves changing the state in persistence (e.g., via a database transaction) and the error occurred before its completion, all changes must be rolled back to maintain data integrity.
-Form a new error: In most cases, after processing and enrichment, the original exception is transformed into an exception specific to the Application Layer (ApplicationException) or an error object (ApplicationErrorDto) that will be passed to the Presentation Layer.
-Logging: Information about the error is logged at this stage.
-
-Business errors: Domain errors that may indicate attempts at incorrect user actions or violations of business processes are logged. The logging level can be INFO or WARNING.
-Unexpected exceptions: Any uncaught specific exceptions (domain, infrastructure) or general \Throwable should be logged with a high level of criticality (ERROR, CRITICAL), as they indicate potential problems in the code or infrastructure. The context gathered earlier is passed to the logger.
-Transformation into ApplicationException or ApplicationError: The final step is to form the result for the Presentation Layer. This can be done by throwing an ApplicationException or returning an object containing error information (e.g., ApplicationError) within it. This object/exception should contain unified information:
-
-Error type (e.g., BusinessError, ValidationError, TechnicalError).
-Error code (often using an Enum).
-A message understandable to the user (or the Presentation Layer).
-Possibly an additional “payload” with error details (e.g., a list of fields with validation errors).
--
-
-
-
-
-- Where should you place try/catch blocks?
-- Where should you implement logging?
-- Is there a suggested pattern for managing exceptions in n-tiered applications?
-
-"catch exceptions at the top level because that is where you have the most information about the the exceptions and most importantly the full stack trace".
-
-"avoid logging exceptions at multiple tiers because it is not necessary".
-
-
-
-Design and implement in code an standard way to handle exceptions. No tenemos un plan para manejar excepciones. Hay que definirlo
-Make sure the exception handling use the logging layer.
-Object design patterns might be required.
-Make sure all code templates and examples use it
 
 #### Logging
 This logging layer is designed to provide request, conectivity and user interaction tracking.
