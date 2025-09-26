@@ -273,63 +273,85 @@ Log Types and Tags
 
 Log Structure
 
-Standar
-This structure will be used for COACH, USER and SESSION logs.
-Since these will be simple logs (they will notify of logg-ins, logg-outs and the start and end of sessions).
-For these loggs "type_info" will be empty.
-{
-  "timestamp": "2024-01-15T10:30:00Z",
-  "level": "INFO",
-  "category": "SESSION",
-  "event_type": "session_started",
-  "location": "CO-BOG",
-  "type_info": {}
-}
+The creation of these log types is declared in this file => [LogTypes.ts](src/PoC/src/types/LogTypes.ts)v
 
-Logs with the following types will be considered complex logs. Therefore "type_info" will contain meaningful
-information accroding to its type.
+Base Log Information
+```ts
+export interface BaseLog {
+  timestamp: string;
+  level: LogLevel;
+  category: LogCategory;
+  event_type: string;
+  location: string;
+  type_info: Record<string, any>;
+}
+```
+This info is going to be present on every log type. No matter what tag it has.
+**type_info** is going to be extra information related to the log type and tag.
+
+
+COACH, USER and SESSION logs are considered simple logs, these usually inform of session initialization or users log-Ins.
+Therefore **type_info** wont add relevant information to these logs.
+```ts
+export interface StandardLog extends BaseLog {
+  type_info: {};
+}
+```
+
+The following types are considered complex logs. Therefore **type_info** is defined as such: 
 
 PAYMENT
-{
-  "event_type": "package_purchase",
-  "user_id": "usr_456",
-  "package_type": "pro",
-  "amount": 59.99,
-  "currency": "BRL",
-  "payment_method": "credit_card",
-  "transaction_id": "txn_xyz789",
-  "remaining_sessions": 8,
-  "country": "BR"
+```ts
+export interface PaymentLog extends BaseLog {
+  category: 'PAYMENT';
+  type_info: {
+    user_id: string;
+    package_type: string;
+    amount: number;
+    currency: string;
+    payment_method: string;
+    transaction_id: string;
+    remaining_sessions: number;
+    country: string;
+  };
 }
-
+```
 MATCHING
-{
-  "event_type": "coach_match",
-  "user_id": "usr_456",
-  "requested_specialty": "mechanics",
-  "matched_coaches": ["cch_123", "cch_456", "cch_789"],
-  "matched_coach": "cch_789",
-  "matching_duration_ms": 450,
-  "matching_criteria": {
-    "rating": 4.5,
-    "proximity": 15,
-    "response_time": 120
-  }
+```ts
+export interface MatchingLog extends BaseLog {
+  category: 'MATCHING';
+  type_info: {
+    user_id: string;
+    requested_specialty: string;
+    matched_coaches: string[];
+    matched_coach: string;
+    matching_duration_ms: number;
+    matching_criteria: {
+      rating: number;
+      proximity: number;
+      response_time: number;
+    };
+  };
 }
+```
 
 VIDEO
-{
-  "event_type": "session_quality_metrics",
-  "session_id": "ses_abc123",
-  "metrics": {
-    "bitrate_kbps": 1500,
-    "packet_loss": 0.02,
-    "jitter_ms": 15,
-    "resolution": "1280x720",
-    "audio_level": -20
-  },
-  "participants": ["usr_456", "cch_789"]
+```ts
+export interface VideoLog extends BaseLog {
+  category: 'VIDEO';
+  type_info: {
+    session_id: string;
+    metrics: {
+      bitrate_kbps: number;
+      packet_loss: number;
+      jitter_ms: number;
+      resolution: string;
+      audio_level: number;
+    };
+    participants: string[];
+  };
 }
+```
 
 Logs Storage and Visualization
 
@@ -360,11 +382,6 @@ The time after the last indexation in order to considered a log cold storage var
 | **MATCHING** |          30 days          |
 | **VIDEO**    |          30 days          |
 | **SECURITY** |         6 months          |
-
-Falta aplicar el diseño en el codigo: 
-
- Design structured logging system using strategy pattern to allow multiple logging providers
- Implement a general Logger class
 
 #### Security
 Design authentication and authorization layers. Me parece que esto ya lo tenemos pero no como layer.
