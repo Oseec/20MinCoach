@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
-import { LoggingService } from '../services/LoggingService';
-import { LoggerConfig } from '../types/LogTypes';
+import { LoggingService } from '../logging/LoggingService';
+import { LoggerConfig } from '../logging/LogTypes';
 
 interface LoggingContextType {
   logger: LoggingService;

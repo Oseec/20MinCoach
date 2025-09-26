@@ -1,5 +1,5 @@
-import { LoggingService } from '../services/LoggingService';
-import { LogCategory } from '../types/LogTypes';
+import { LoggingService } from '../logging/LoggingService';
+import { LogCategory } from '../logging/LogTypes';
 
 export interface ExceptionContext {
   category: LogCategory;

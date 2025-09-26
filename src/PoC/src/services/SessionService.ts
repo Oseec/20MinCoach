@@ -6,7 +6,7 @@ import {
 } from '../dtos/SessionDTO';
 import { AuthService } from './AuthService';
 import { ExceptionHandler } from '../middleware/ExceptionHandler';
-import { LoggingService } from './LoggingService';
+import { LoggingService } from '../logging/LoggingService';
 
 export class SessionService {
   private static instance: SessionService;

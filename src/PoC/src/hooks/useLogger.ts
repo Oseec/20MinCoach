@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { LoggingService } from '../services/LoggingService';
+import { LoggingService } from '../logging/LoggingService';
 import { ExceptionHandler } from '../middleware/ExceptionHandler';
-import { LogCategory } from '../types/LogTypes';
+import { LogCategory } from '../logging/LogTypes';
 
 export const useLogger = () => {
   const logger = LoggingService.getInstance();

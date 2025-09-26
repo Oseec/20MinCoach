@@ -1,7 +1,7 @@
 import { CoachResponseDTO, CreateCoachDTO, UpdateCoachDTO } from '../dtos/CoachDTO';
 import { AuthService } from './AuthService';
 import { ExceptionHandler } from '../middleware/ExceptionHandler';
-import { LoggingService } from './LoggingService';
+import { LoggingService } from '../logging/LoggingService';
 
 export interface CoachSearchFilters {
   specialties?: string[];

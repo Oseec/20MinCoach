@@ -8,7 +8,7 @@ import {
   VideoLog,
   SecurityLog,
   StandardLog
-} from '../types/LogTypes';
+} from './LogTypes';
 
 export class LoggingService {
   private static instance: LoggingService;

@@ -1,4 +1,4 @@
-import { LoggingService } from '../services/LoggingService';
+import { LoggingService } from '../logging/LoggingService';
 
 // Utility functions for common logging patterns
 export const loggerUtils = {

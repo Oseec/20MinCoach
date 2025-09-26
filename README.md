@@ -510,6 +510,91 @@ Log flow
 ![logFlow Image](./diagrams/logFlow.png)
 
 
+[LoggingService.ts](src/PoC/src/logging/LoggingService.ts): centralized logging class that standardizes how logs are created, buffered, and sent to the backend system in this design.
+
+It follows the Singleton pattern to ensure that the entire application uses the same logging instance with a shared configuration.
+
+Logs are first stored in a buffer (`logBuffer`).  
+Automatically flushes when:  
+- The buffer reaches the configured batch size.  
+- A periodic timer (`flushTimer`) triggers after `flushInterval`.  
+```ts
+private addLog(log: LogEntry): void {
+    this.logBuffer.push(log);
+
+    // Console logging in development
+    if (this.config.enableConsole && this.config.environment === 'development') {
+      this.logToConsole(log);
+    }
+
+    // Flush if buffer is full
+    if (this.logBuffer.length >= this.config.batchSize) {
+      this.flush();
+    }
+  }
+```
+
+**In Development**: Logs are shown in the browser console (`logToConsole`). 
+```ts
+private logToConsole(log: LogEntry): void {
+    const logMessage = `[${log.timestamp}] ${log.level} [${log.category}] ${log.event_type}`;
+    
+    switch (log.level) {
+      case 'ERROR':
+        console.error(logMessage, log.type_info);
+        break;
+      case 'WARN':
+        console.warn(logMessage, log.type_info);
+        break;
+      case 'DEBUG':
+        console.debug(logMessage, log.type_info);
+        break;
+      default:
+        console.info(logMessage, log.type_info);
+    }
+  }
+```
+
+
+**In Production**: Logs are sent in bulk to a backend endpoint (`/api/logs`).
+```ts
+private async flush(): Promise<void> {
+    if (this.logBuffer.length === 0) return;
+
+    const logsToFlush = [...this.logBuffer];
+    this.logBuffer = [];
+
+    try {
+      await this.sendLogsToBackend(logsToFlush);
+    } catch (error) {
+      console.error('Failed to send logs to backend:', error);
+      // In a real app, you might want to retry or store locally
+    }
+  }
+
+  private async sendLogsToBackend(logs: LogEntry[]): Promise<void> {
+    // In production, this would send to ElasticSearch or your logging endpoint
+    if (this.config.environment === 'production') {
+      const response = await fetch('/api/logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ logs }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to send logs: ${response.statusText}`);
+      }
+    } else {
+      // In development, just log to console
+      console.group('📊 Batch Logs Flush');
+      logs.forEach(log => this.logToConsole(log));
+      console.groupEnd();
+    }
+  }
+```
+
 Log Types and Tags
 
 | Category     | Description               |     Tag     |
@@ -524,7 +609,7 @@ Log Types and Tags
 
 Log Structure
 
-The creation of these log types is declared in this file => [LogTypes.ts](src/PoC/src/types/LogTypes.ts)v
+The creation of these log types is declared in this file => [LogTypes.ts](src/PoC/src/types/LogTypes.ts)
 
 Base Log Information
 ```ts
@@ -607,7 +692,7 @@ export interface VideoLog extends BaseLog {
 Logs Storage and Visualization
 
 This will be achieved with the implementation of ELK (ElasticSearch, Logstash and Kibana).
-ElasticSearch will be used as an indexation and storage tool where the index of each log will be its date and time of insertion. No normalization will be needed before the indexation of each log, since there is a structure pre-defined. Therefore Logstash will be used only for enrichment purposes.
+ElasticSearch will be used as an indexation and storage tool where the index of each log will be its date and time of insertion. No normalization will be needed before the indexation of each log, since there is a structure pre-defined. Logstash will be used only for enrichment purposes.
 Kibana will display log data through charts, graphs, and tables to identify trends, anomalies, and potential issues.
 
 For long-term compliance and cost optimization, logs are archived into **Amazon S3**.  
@@ -621,8 +706,8 @@ Lifecycle transitions:
 
 
 Retention and Storage Strategy
-Once a log is considered cold storage it'll be transfer to S3.
-The time after the last indexation in order to considered a log cold storage vary for each category.
+Once a log is considered cold storage it'll be transfered to S3.
+The time after the last indexation in order to considered a "log-cold" storage vary for each category.
 
 | Category     |       Time Until Cold     |
 |--------------|---------------------------|
