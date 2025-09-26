@@ -507,7 +507,7 @@ It provides a source of data for future business intelligence metrics scoped to 
 
 Log flow
 
-![logFlow Image](./diagrams/logFlow.png)
+<img src="./diagrams/logFlow.png" alt="logFlow Image" width="500"/>
 
 
 [LoggingService.ts](src/PoC/src/logging/LoggingService.ts): centralized logging class that standardizes how logs are created, buffered, and sent to the backend system in this design.
