@@ -145,8 +145,73 @@ export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => 
 
     - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 #### Controllers
-Consider a strong usage of dependency injection
-Do not forget clarify the hook-based connectors in the controllers
+**Location** : [src/PoC/src/hooks](src/PoC/src/hooks)
+
+**Purpose** : Centralize application logic connecting services and domain data to UI components.  
+Controllers encapsulate data fetching, state management, and side effects while exposing clean APIs to components via hooks.  
+They follow dependency injection principles for flexibility and testability.
+
+**Folder Hierarchy**
+
+- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior  
+- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments 
+- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications  
+- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling  
+
+**Applied Design Pattern**: Mediator Pattern via Custom Hooks
+
+Each hook functions as a mediator between the UI and services.
+
+**Dependency Injection**
+
+Services are injected or accessed via singletons (e.g., [AuthService](src/PoC/src/services/AuthService.ts), [CoachService](src/PoC/src/services/CoachService.ts), [SessionService](src/PoC/src/services/SessionService.ts), [LoggingService](src/PoC/src/services/LoggingService.ts)) instead of being hardcoded inside hooks.  
+This allows hooks to remain flexible and testable.
+
+**Hook-based Connectors**
+
+Hooks act as a bridge between UI components and services or shared state.  
+They manage asynchronous operations, event handling, and derived state.  
+
+Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
+
+---
+
+**Examples**
+
+**useIsMobile Hook** – viewport detection
+
+```tsx
+const isMobile = useIsMobile();
+
+//Usage in a component
+<div className={isMobile ? "p-4" : "p-8"}>Responsive Content</div>
+```
+**useToast Hook** toast notification controller
+```ts
+const { toast, dismiss } = useToast();
+
+//Usage in a component
+<Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
+```
+Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
+**useLogger Hook** – logging and error handling controller
+```ts
+const { logUserAction, handleAsyncOperation } = useLogger();
+
+//Log an action
+logUserAction("Clicked Save Button");
+
+//Handle async operation with error handling
+await handleAsyncOperation(
+  () => saveSessionData(session),
+  "SESSION",
+  "save_session",
+  user.id,
+  session.id
+);
+
+```
+[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/middleware/ExceptionHandler.ts)
 #### Model
 Design the most important model classes, specially for those required for the key design patterns in your solution
 Implement model validation documenting with an example what validator are you going to use and how to use it, provide developers with instructions of how to create more validators
