@@ -32,7 +32,12 @@ interface CoachCardProps {
   onViewProfile?: (coachId: string) => void;
 }
 
-export const CoachCard = ({ coach, user, onBookSession, onViewProfile }: CoachCardProps) => {
+export const CoachCard = ({
+  coach,
+  user,
+  onBookSession,
+  onViewProfile,
+}: CoachCardProps) => {
   return (
     <Card className="group overflow-hidden border shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
       <CardContent className="p-6">
@@ -42,14 +47,15 @@ export const CoachCard = ({ coach, user, onBookSession, onViewProfile }: CoachCa
             <Avatar className="h-16 w-16">
               <AvatarImage src={user.profilePictureUrl} alt={user.firstName} />
               <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                {user.firstName.charAt(0)}
+                {user.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             {coach.isOnline && (
               <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-success border-2 border-background" />
             )}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-lg truncate">
@@ -59,15 +65,17 @@ export const CoachCard = ({ coach, user, onBookSession, onViewProfile }: CoachCa
                 <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
               )}
             </div>
-            
+
             <p className="text-muted-foreground text-sm mb-2 line-clamp-2">
               {coach.headline}
             </p>
-            
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-warning text-warning" />
-                <span className="font-medium">{formatRating(coach.rating)}</span>
+                <span className="font-medium">
+                  {formatRating(coach.rating)}
+                </span>
                 <span>({coach.totalSessions})</span>
               </div>
               <div className="flex items-center gap-1">
@@ -107,9 +115,11 @@ export const CoachCard = ({ coach, user, onBookSession, onViewProfile }: CoachCa
         {/* Status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full ${
-              coach.isOnline ? 'bg-success' : 'bg-muted-foreground'
-            }`} />
+            <div
+              className={`h-2 w-2 rounded-full ${
+                coach.isOnline ? 'bg-success' : 'bg-muted-foreground'
+              }`}
+            />
             <span className="text-sm text-muted-foreground">
               {coach.isOnline ? 'Disponible ahora' : 'Sin conexión'}
             </span>

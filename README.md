@@ -444,7 +444,7 @@ Provide clear instructions to developers
 Desing the utilities layers modeling with one example is enough. Puede que esto ya se haya conseguido en src/PoC/src/utils
 Singleton pattern might require. Hay que revisar si tiene Singleton.
 #### Exception Handling
-La idea de este layer es tranformar/procesar las excepciones o errores generadas en los niveles más bajos para que sean legibles y amigables para el usuario, priorizando que la aparición de estos no afecten la lógica del resto del "programa". También sirve como frame para el logging layer especialmente para la generación de logs relacionados a errores.
+The idea of this layer is to transform/process exceptions or errors generated at the lower levels so that they become readable and user-friendly, prioritizing that their occurrence does not affect the logic of the rest of the program. It also serves as a framework for the logging layer, especially for the generation of error-related logs.
 
 [ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) is the class in charge of processing all exceptions
 
@@ -543,6 +543,9 @@ private getErrorMessage(error: any, context: ExceptionContext): string {
     return this.getCategorySpecificMessage(error, context);
   }
 ```
+
+Here´s a diagram of the error handling flow
+<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="500"/>
 
 
 #### Logging

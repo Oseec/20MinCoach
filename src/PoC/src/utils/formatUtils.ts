@@ -1,4 +1,7 @@
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+export const formatCurrency = (
+  amount: number,
+  currency: string = 'USD'
+): string => {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency: currency,
@@ -31,7 +34,10 @@ export const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-export const generateInitials = (firstName: string, lastName: string): string => {
+export const generateInitials = (
+  firstName: string,
+  lastName: string
+): string => {
   return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
 };
 
@@ -39,12 +45,12 @@ export const formatFileSize = (bytes: number): string => {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
   let unitIndex = 0;
-  
+
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
     unitIndex++;
   }
-  
+
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 };
 
@@ -52,13 +58,16 @@ export const parseSearchQuery = (query: string): string[] => {
   return query
     .toLowerCase()
     .split(/\s+/)
-    .filter(term => term.length > 0)
-    .map(term => term.trim());
+    .filter((term) => term.length > 0)
+    .map((term) => term.trim());
 };
 
-export const highlightSearchTerms = (text: string, searchTerms: string[]): string => {
+export const highlightSearchTerms = (
+  text: string,
+  searchTerms: string[]
+): string => {
   let highlightedText = text;
-  searchTerms.forEach(term => {
+  searchTerms.forEach((term) => {
     const regex = new RegExp(`(${term})`, 'gi');
     highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
   });

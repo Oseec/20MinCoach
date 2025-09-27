@@ -71,18 +71,19 @@ const getStatusText = (status: string) => {
   }
 };
 
-export const SessionCard = ({ 
-  session, 
-  coach, 
-  client, 
-  userRole, 
-  onJoin, 
-  onCancel, 
-  onRate 
+export const SessionCard = ({
+  session,
+  coach,
+  client,
+  userRole,
+  onJoin,
+  onCancel,
+  onRate,
 }: SessionCardProps) => {
   const otherUser = userRole === 'CLIENT' ? coach : client;
   const scheduledDate = new Date(session.scheduledAt);
-  const canJoin = session.status === 'SCHEDULED' || session.status === 'WAITING';
+  const canJoin =
+    session.status === 'SCHEDULED' || session.status === 'WAITING';
   const canCancel = session.status === 'SCHEDULED';
   const canRate = session.status === 'COMPLETED' && !session.rating;
 
@@ -94,25 +95,29 @@ export const SessionCard = ({
           <div className="flex items-center gap-3">
             {otherUser && (
               <Avatar className="h-12 w-12">
-                <AvatarImage 
-                  src={otherUser.user.profilePictureUrl} 
-                  alt={otherUser.user.firstName} 
+                <AvatarImage
+                  src={otherUser.user.profilePictureUrl}
+                  alt={otherUser.user.firstName}
                 />
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {otherUser.user.firstName.charAt(0)}{otherUser.user.lastName.charAt(0)}
+                  {otherUser.user.firstName.charAt(0)}
+                  {otherUser.user.lastName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
             )}
-            
+
             <div>
               <h3 className="font-semibold text-lg mb-1">{session.title}</h3>
               {otherUser && (
                 <p className="text-muted-foreground text-sm">
-                  {userRole === 'CLIENT' ? 'Coach' : 'Cliente'}: {otherUser.user.firstName} {otherUser.user.lastName}
+                  {userRole === 'CLIENT' ? 'Coach' : 'Cliente'}:{' '}
+                  {otherUser.user.firstName} {otherUser.user.lastName}
                 </p>
               )}
               {coach?.headline && userRole === 'CLIENT' && (
-                <p className="text-muted-foreground text-xs mt-1">{coach.headline}</p>
+                <p className="text-muted-foreground text-xs mt-1">
+                  {coach.headline}
+                </p>
               )}
             </div>
           </div>
@@ -128,15 +133,17 @@ export const SessionCard = ({
             <Calendar className="h-4 w-4" />
             <span>{formatSessionTime(scheduledDate)}</span>
           </div>
-          
+
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>{formatDuration(session.duration)}</span>
           </div>
-          
+
           <div className="flex items-center gap-2 text-muted-foreground">
             <Video className="h-4 w-4" />
-            <span>{session.sessionType === 'INSTANT' ? 'Instantánea' : 'Programada'}</span>
+            <span>
+              {session.sessionType === 'INSTANT' ? 'Instantánea' : 'Programada'}
+            </span>
           </div>
 
           {session.rating && (
@@ -159,34 +166,25 @@ export const SessionCard = ({
 
       <CardFooter className="p-6 pt-0 flex gap-2">
         {canJoin && (
-          <Button 
-            className="flex-1" 
-            onClick={() => onJoin?.(session.id)}
-          >
+          <Button className="flex-1" onClick={() => onJoin?.(session.id)}>
             <Video className="h-4 w-4 mr-2" />
             Unirse a sesión
           </Button>
         )}
-        
+
         {canCancel && (
-          <Button 
-            variant="outline" 
-            onClick={() => onCancel?.(session.id)}
-          >
+          <Button variant="outline" onClick={() => onCancel?.(session.id)}>
             Cancelar
           </Button>
         )}
-        
+
         {canRate && userRole === 'CLIENT' && (
-          <Button 
-            variant="outline"
-            onClick={() => onRate?.(session.id)}
-          >
+          <Button variant="outline" onClick={() => onRate?.(session.id)}>
             <Star className="h-4 w-4 mr-2" />
             Calificar
           </Button>
         )}
-        
+
         {session.status === 'COMPLETED' && session.rating && (
           <Button variant="ghost" disabled className="flex-1">
             Sesión completada

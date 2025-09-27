@@ -1,8 +1,11 @@
-import { useEffect, useRef } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useOktaAuth } from "@okta/okta-react";
+import { useEffect, useRef } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
-export function hasAllScopes(scopesStr: string[] | undefined, required: string[]) {
+export function hasAllScopes(
+  scopesStr: string[] | undefined,
+  required: string[]
+) {
   if (!scopesStr) return false;
   const set = new Set(scopesStr);
   return required.every((s) => set.has(s));
@@ -16,7 +19,7 @@ export function hasAllScopes(scopesStr: string[] | undefined, required: string[]
 export default function RequireScope({
   scopes,
   children,
-  redirectTo = "/403",
+  redirectTo = '/403',
   forceLogin = false, // si quieres forzar formulario aunque haya SSO
 }: {
   scopes: string[];
@@ -40,7 +43,7 @@ export default function RequireScope({
       const originalUri = location.pathname + location.search + location.hash;
       oktaAuth.signInWithRedirect({
         originalUri,
-        extraParams: forceLogin ? { prompt: "login", max_age: "0" } : undefined,
+        extraParams: forceLogin ? { prompt: 'login', max_age: '0' } : undefined,
       });
     }
   }, [authState?.isAuthenticated, oktaAuth, location, forceLogin]);
@@ -75,7 +78,7 @@ export function RequireAuthenticated({
 export function RequireAnyScope({
   anyOf,
   children,
-  redirectTo = "/403",
+  redirectTo = '/403',
 }: {
   anyOf: string[];
   children: JSX.Element;
@@ -85,7 +88,6 @@ export function RequireAnyScope({
   const tokenScopes = (authState?.accessToken?.claims as any)?.scp as
     | string[]
     | undefined;
-  const ok =
-    !!tokenScopes && anyOf.some((s) => new Set(tokenScopes).has(s));
+  const ok = !!tokenScopes && anyOf.some((s) => new Set(tokenScopes).has(s));
   return ok ? children : <Navigate to={redirectTo} replace />;
 }

@@ -7,21 +7,21 @@ import { SessionCard } from '@/components/session/SessionCard';
 import { CoachCard } from '@/components/coach/CoachCard';
 import { useOktaAuth } from '@okta/okta-react';
 import { hasAllScopes } from '@/auth/RequireScope';
-import { useRoles } from "@/auth/RequireRole";
+import { useRoles } from '@/auth/RequireRole';
 
 // Mock data
 const mockUser = {
   firstName: 'Juan',
   lastName: 'García',
   role: 'CLIENT' as const,
-  profilePictureUrl: undefined
+  profilePictureUrl: undefined,
 };
 
 const mockStats = {
   totalSessions: 12,
   thisMonth: 3,
   totalMinutes: 240,
-  remainingMinutes: 180
+  remainingMinutes: 180,
 };
 
 const mockUpcomingSessions = [
@@ -31,7 +31,7 @@ const mockUpcomingSessions = [
     scheduledAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     duration: 20,
     status: 'SCHEDULED',
-    sessionType: 'SCHEDULED'
+    sessionType: 'SCHEDULED',
   },
   {
     id: '2',
@@ -39,8 +39,8 @@ const mockUpcomingSessions = [
     scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     duration: 20,
     status: 'SCHEDULED',
-    sessionType: 'INSTANT'
-  }
+    sessionType: 'INSTANT',
+  },
 ];
 
 const mockRecommendedCoaches = [
@@ -51,21 +51,21 @@ const mockRecommendedCoaches = [
     headline: 'Coach de Desarrollo Personal y Liderazgo',
     specialties: [
       { id: '1', name: 'Desarrollo Personal', category: 'PSYCHOLOGY' },
-      { id: '2', name: 'Liderazgo', category: 'BUSINESS' }
+      { id: '2', name: 'Liderazgo', category: 'BUSINESS' },
     ],
     experience: 8,
     rating: 4.9,
     totalSessions: 156,
     pricePerSession: 45,
     isVerified: true,
-    isOnline: true
-  }
+    isOnline: true,
+  },
 ];
 
 const mockCoachUser = {
   firstName: 'Dr. Carlos',
   lastName: 'Mendoza',
-  profilePictureUrl: undefined
+  profilePictureUrl: undefined,
 };
 
 export const Dashboard = () => {
@@ -75,29 +75,35 @@ export const Dashboard = () => {
   const { authState } = useOktaAuth();
   //const tokenScopes = (authState?.accessToken?.claims as any)?.scp as string[] | undefined;
   const roles = useRoles();
-  const isPremium = roles.includes("PremiumUser");
+  const isPremium = roles.includes('PremiumUser');
 
   const canA = true;
-  const canB = isPremium;;
+  const canB = isPremium;
 
   // Handlers respetando permisos
   const handleInstant = () => {
-    if (!canA) return alert('Tu plan no permite iniciar sesiones (requiere Acción A).');
+    if (!canA)
+      return alert('Tu plan no permite iniciar sesiones (requiere Acción A).');
     console.log('Sesión instantánea');
   };
   const handleSchedule = () => {
-    if (!canA) return alert('Tu plan no permite programar sesiones (requiere Acción A).');
+    if (!canA)
+      return alert(
+        'Tu plan no permite programar sesiones (requiere Acción A).'
+      );
     console.log('Programar sesión');
   };
   const handleSearch = () => {
     console.log('Ir a buscar coaches');
   };
   const handleViewReports = () => {
-    if (!canB) return alert('Este contenido es para cuentas Premium (Acción B).');
+    if (!canB)
+      return alert('Este contenido es para cuentas Premium (Acción B).');
     console.log('Abrir reportes premium');
   };
   const handleBookRecommended = (id: string) => {
-    if (!canA) return alert('Tu plan no permite reservar sesiones (requiere Acción A).');
+    if (!canA)
+      return alert('Tu plan no permite reservar sesiones (requiere Acción A).');
     console.log('Book session with:', id);
   };
 
@@ -116,14 +122,21 @@ export const Dashboard = () => {
           {/* Avisos de plan */}
           {!canA && (
             <div className="mt-3">
-              <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
-                Tu plan actual no permite reservar / programar sesiones (Acción A)
+              <Badge
+                variant="outline"
+                className="bg-amber-50 text-amber-800 border-amber-200"
+              >
+                Tu plan actual no permite reservar / programar sesiones (Acción
+                A)
               </Badge>
             </div>
           )}
           {!canB && (
             <div className="mt-2">
-              <Badge variant="outline" className="bg-violet-50 text-violet-800 border-violet-200">
+              <Badge
+                variant="outline"
+                className="bg-violet-50 text-violet-800 border-violet-200"
+              >
                 Los reportes premium requieren plan Premium (Acción B)
               </Badge>
             </div>
@@ -139,7 +152,9 @@ export const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sesiones</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Sesiones
+            </CardTitle>
             <Video className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -152,7 +167,9 @@ export const Dashboard = () => {
 
         <Card className="border shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Minutos Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Minutos Totales
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -165,11 +182,15 @@ export const Dashboard = () => {
 
         <Card className="border shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Minutos Restantes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Minutos Restantes
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{mockStats.remainingMinutes}</div>
+            <div className="text-2xl font-bold text-success">
+              {mockStats.remainingMinutes}
+            </div>
             <p className="text-xs text-muted-foreground">
               En tus paquetes activos
             </p>
@@ -178,7 +199,9 @@ export const Dashboard = () => {
 
         <Card className="border shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Coaches Favoritos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Coaches Favoritos
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -237,9 +260,11 @@ export const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold">Próximas sesiones</h2>
-            <Button variant="outline" size="sm">Ver todas</Button>
+            <Button variant="outline" size="sm">
+              Ver todas
+            </Button>
           </div>
-          
+
           <div className="space-y-4">
             {mockUpcomingSessions.length > 0 ? (
               mockUpcomingSessions.map((session) => (
@@ -248,7 +273,7 @@ export const Dashboard = () => {
                   session={session}
                   coach={{
                     user: mockCoachUser,
-                    headline: 'Especialista en Desarrollo Personal'
+                    headline: 'Especialista en Desarrollo Personal',
                   }}
                   userRole={userRole}
                   onJoin={(id) => console.log('Join session:', id)}
@@ -259,7 +284,9 @@ export const Dashboard = () => {
               <Card className="border-dashed border-2 border-muted">
                 <CardContent className="p-8 text-center">
                   <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">No tienes sesiones programadas</h3>
+                  <h3 className="font-semibold mb-2">
+                    No tienes sesiones programadas
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Programa tu primera sesión con un coach
                   </p>
@@ -274,9 +301,11 @@ export const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold">Coaches recomendados</h2>
-            <Button variant="outline" size="sm">Ver más</Button>
+            <Button variant="outline" size="sm">
+              Ver más
+            </Button>
           </div>
-          
+
           <div className="space-y-4">
             {mockRecommendedCoaches.map((coach) => (
               <CoachCard
@@ -301,12 +330,16 @@ export const Dashboard = () => {
             <div className="flex items-center gap-4 p-4 border rounded-lg">
               <div className="w-2 h-2 bg-success rounded-full"></div>
               <div className="flex-1">
-                <p className="font-medium">Sesión completada con Dr. Carlos Mendoza</p>
-                <p className="text-sm text-muted-foreground">Hace 2 horas • Desarrollo Personal</p>
+                <p className="font-medium">
+                  Sesión completada con Dr. Carlos Mendoza
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Hace 2 horas • Desarrollo Personal
+                </p>
               </div>
               <Badge variant="secondary">Completada</Badge>
             </div>
-            
+
             <div className="flex items-center gap-4 p-4 border rounded-lg">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
               <div className="flex-1">

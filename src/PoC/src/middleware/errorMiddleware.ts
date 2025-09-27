@@ -1,5 +1,8 @@
 import { LoggingService } from '../logging/LoggingService';
-import { ExceptionHandler, HandledException } from '../exceptionHandling/ExceptionHandler';
+import {
+  ExceptionHandler,
+  HandledException,
+} from '../exceptionHandling/ExceptionHandler';
 
 export interface ErrorResponse {
   message: string;
@@ -25,18 +28,25 @@ export class ErrorMiddleware {
     }
     return ErrorMiddleware.instance;
   }
-  static handleApiError(error: any, category: string = 'USER', operation: string = 'unknown'): HandledException {
+  static handleApiError(
+    error: any,
+    category: string = 'USER',
+    operation: string = 'unknown'
+  ): HandledException {
     const instance = ErrorMiddleware.getInstance();
-    
+
     return instance.exceptionHandler.handleException(error, {
       category: category as any,
       operation,
     });
   }
 
-  static logError(error: HandledException | ErrorResponse, context?: string): void {
+  static logError(
+    error: HandledException | ErrorResponse,
+    context?: string
+  ): void {
     const instance = ErrorMiddleware.getInstance();
-    
+
     console.error(`[${error.timestamp}] ${context || 'Error'}:`, {
       message: error.message,
       code: error.code,

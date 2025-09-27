@@ -37,7 +37,7 @@ export enum SpecialtyCategory {
   AGRICULTURE = 'AGRICULTURE',
   MECHANICS = 'MECHANICS',
   EDUCATION = 'EDUCATION',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 export interface Availability {
@@ -94,5 +94,5 @@ export enum CoachStatus {
   BUSY = 'BUSY',
   IN_SESSION = 'IN_SESSION',
   OFFLINE = 'OFFLINE',
-  AWAY = 'AWAY'
+  AWAY = 'AWAY',
 }

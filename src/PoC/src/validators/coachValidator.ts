@@ -1,8 +1,18 @@
 import { z } from 'zod';
 
 const timeSlotSchema = z.object({
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido (HH:mm)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido (HH:mm)'),
+  startTime: z
+    .string()
+    .regex(
+      /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      'Formato de hora inválido (HH:mm)'
+    ),
+  endTime: z
+    .string()
+    .regex(
+      /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      'Formato de hora inválido (HH:mm)'
+    ),
 });
 
 const weeklyScheduleSchema = z.object({
@@ -39,11 +49,26 @@ const educationSchema = z.object({
 });
 
 export const createCoachSchema = z.object({
-  bio: z.string().min(50, 'La biografía debe tener al menos 50 caracteres').max(1000, 'La biografía no puede exceder 1000 caracteres'),
-  headline: z.string().min(10, 'El titular debe tener al menos 10 caracteres').max(100, 'El titular no puede exceder 100 caracteres'),
-  specialties: z.array(z.string()).min(1, 'Debe seleccionar al menos una especialidad').max(5, 'Máximo 5 especialidades'),
-  experience: z.number().min(0, 'La experiencia no puede ser negativa').max(50, 'Experiencia máxima: 50 años'),
-  pricePerSession: z.number().min(10, 'Precio mínimo: $10').max(500, 'Precio máximo: $500'),
+  bio: z
+    .string()
+    .min(50, 'La biografía debe tener al menos 50 caracteres')
+    .max(1000, 'La biografía no puede exceder 1000 caracteres'),
+  headline: z
+    .string()
+    .min(10, 'El titular debe tener al menos 10 caracteres')
+    .max(100, 'El titular no puede exceder 100 caracteres'),
+  specialties: z
+    .array(z.string())
+    .min(1, 'Debe seleccionar al menos una especialidad')
+    .max(5, 'Máximo 5 especialidades'),
+  experience: z
+    .number()
+    .min(0, 'La experiencia no puede ser negativa')
+    .max(50, 'Experiencia máxima: 50 años'),
+  pricePerSession: z
+    .number()
+    .min(10, 'Precio mínimo: $10')
+    .max(500, 'Precio máximo: $500'),
   availability: availabilitySchema,
   certifications: z.array(certificationSchema).optional(),
   languages: z.array(z.string()).min(1, 'Debe seleccionar al menos un idioma'),
@@ -62,10 +87,12 @@ export const updateCoachSchema = z.object({
 
 export const coachSearchSchema = z.object({
   specialties: z.array(z.string()).optional(),
-  priceRange: z.object({
-    min: z.number().min(0),
-    max: z.number().min(0),
-  }).optional(),
+  priceRange: z
+    .object({
+      min: z.number().min(0),
+      max: z.number().min(0),
+    })
+    .optional(),
   rating: z.number().min(1).max(5).optional(),
   isOnline: z.boolean().optional(),
   languages: z.array(z.string()).optional(),

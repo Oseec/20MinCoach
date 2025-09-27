@@ -5,8 +5,8 @@
 20minCoach is a professional coaching platform that connects users with experts in different areas through 20-minute video calls. The architecture is designed with layers to ensure scalability, maintainability, and modularity.
 
 ## 🏗️ Layered architecture
-![N-Layer](./diagrams/n-layer.png)
 
+![N-Layer](./diagrams/n-layer.png)
 
 ### 📁 Folder structure
 
@@ -69,6 +69,7 @@ src/
 ## 🎯 Main Features
 
 ### ✨ Design System
+
 - **Semantic tokens** defined in `index.css`
 - **HSL colors** for consistency
 - **Professional gradients** for an attractive UI
@@ -78,22 +79,26 @@ src/
 ### 🔗 Core Services
 
 #### AuthService
+
 - JWT token management
 - Automatic token refresh
 - Secure storage in localStorage
 - Prepared for Okta integration
 
 #### CoachService
+
 - Coach search and filtering
 - Profile management
 - Real-time availability status
 
 #### SessionService
+
 - Session creation and management
 - Joining video calls
 - Rating system
 
 #### WebSocketService
+
 - Real-time communication
 - Automatic reconnection
 - State event management
@@ -101,6 +106,7 @@ src/
 ### 📊 Data Models
 
 #### User
+
 ```typescript
 interface User {
   id: string;
@@ -113,6 +119,7 @@ interface User {
 ```
 
 #### Coach
+
 ```typescript
 interface Coach {
   id: string;
@@ -126,6 +133,7 @@ interface Coach {
 ```
 
 #### Session
+
 ```typescript
 interface Session {
   id: string;
@@ -152,6 +160,7 @@ interface Session {
 ## 🔐 Security
 
 ### Okta Integration Ready
+
 The architecture is prepared to integrate Okta as an identity provider:
 
 1. **AuthService** can be extended to use the Okta SDK
@@ -159,6 +168,7 @@ The architecture is prepared to integrate Okta as an identity provider:
 3. **Roles and permissions** ready for integration
 
 ### Security Features
+
 - Input validation with Zod
 - Secure token handling
 - Route protection
@@ -167,6 +177,7 @@ The architecture is prepared to integrate Okta as an identity provider:
 ## 📱 Implemented Features
 
 ### ✅ Current Version
+
 - ✅ Professional landing page
 - ✅ User dashboard
 - ✅ Coach search with filters
@@ -178,6 +189,7 @@ The architecture is prepared to integrate Okta as an identity provider:
 - ✅ Error management
 
 ### 🔄 Upcoming Features
+
 - 📹 WebRTC integration for video calls
 - 🔔 Real-time notifications system
 - 💳 Payment integration
@@ -188,6 +200,7 @@ The architecture is prepared to integrate Okta as an identity provider:
 ## 🧪 Testing
 
 ### Test Structure
+
 ```
 __tests__/
 ├── components/        # Component tests
@@ -197,10 +210,12 @@ __tests__/
 ```
 
 ### Tools
+
 - **Jest**: Testing framework
 - **React Testing Library**: Component testing
 - **MSW**: Mock Service Worker for APIs
 - **Cypress**: End-to-end testing
+
 ## 📦 Installation & Development
 
 ```bash
@@ -220,17 +235,20 @@ npm run build
 ## 🎨 Design System
 
 ### Main Colors
+
 - **Primary**: Professional Blue (#1e40af)
 - **Secondary**: Trust Green (#059669)
 - **Success**: Coaching Green (#16a34a)
 - **Warning**: Professional Orange (#ea580c)
 
 ### Gradients
+
 - **Hero**: Blue-Green linear gradient
 - **Card**: Subtle gradient for cards
 - **Button**: Gradient for primary buttons
 
 ### Components
+
 - Cards with soft shadows
 - Buttons with hover states
 - Badges for specialties
@@ -240,21 +258,25 @@ npm run build
 ## 🔮 Integration Roadmap
 
 ### Phase 1: Authentication (Okta)
+
 - Okta SDK setup
 - Login/logout flows
 - Session management
 
 ### Phase 2: Video Calls (WebRTC)
+
 - WebRTC integration
 - Waiting room
 - Audio/video controls
 
 ### Phase 3: Real-Time (WebSockets)
+
 - Coach status updates
 - Push notifications
 - Real-time chat
 
 ### Phase 4: Payments (Stripe)
+
 - Payment processing
 - Package management
 - Invoicing

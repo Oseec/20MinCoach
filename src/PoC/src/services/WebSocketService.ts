@@ -11,7 +11,7 @@ export enum WebSocketEventType {
   SESSION_ENDED = 'SESSION_ENDED',
   NOTIFICATION = 'NOTIFICATION',
   USER_TYPING = 'USER_TYPING',
-  CONNECTION_STATUS = 'CONNECTION_STATUS'
+  CONNECTION_STATUS = 'CONNECTION_STATUS',
 }
 
 export class WebSocketService {
@@ -32,13 +32,16 @@ export class WebSocketService {
   }
 
   connect(token: string): void {
-    if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
+    if (
+      this.isConnecting ||
+      (this.ws && this.ws.readyState === WebSocket.OPEN)
+    ) {
       return;
     }
 
     this.isConnecting = true;
     const wsUrl = `${process.env.VITE_WS_URL || 'ws://localhost:3001'}/ws?token=${token}`;
-    
+
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
@@ -75,7 +78,9 @@ export class WebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       setTimeout(() => {
-        console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+        console.log(
+          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+        );
         this.connect(token);
       }, this.reconnectInterval * this.reconnectAttempts);
     }
@@ -128,7 +133,7 @@ export class WebSocketService {
   private emit(eventType: string, payload: any): void {
     const listeners = this.eventListeners.get(eventType);
     if (listeners) {
-      listeners.forEach(callback => callback(payload));
+      listeners.forEach((callback) => callback(payload));
     }
   }
 

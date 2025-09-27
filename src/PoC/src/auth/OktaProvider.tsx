@@ -1,7 +1,7 @@
-import { PropsWithChildren } from "react";
-import { Security } from "@okta/okta-react";
-import { useNavigate } from "react-router-dom";
-import { oktaAuth, buildRestoreOriginalUri } from "./oktaConfig";
+import { PropsWithChildren } from 'react';
+import { Security } from '@okta/okta-react';
+import { useNavigate } from 'react-router-dom';
+import { oktaAuth, buildRestoreOriginalUri } from './oktaConfig';
 
 export default function OktaProvider({ children }: PropsWithChildren) {
   const navigate = useNavigate();

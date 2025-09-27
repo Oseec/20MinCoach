@@ -26,12 +26,12 @@ export enum SessionStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
-  NO_SHOW = 'NO_SHOW'
+  NO_SHOW = 'NO_SHOW',
 }
 
 export enum SessionType {
   INSTANT = 'INSTANT',
-  SCHEDULED = 'SCHEDULED'
+  SCHEDULED = 'SCHEDULED',
 }
 
 export interface SessionConnection {
@@ -73,7 +73,7 @@ export enum PaymentStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }
 
 export interface SessionRating {

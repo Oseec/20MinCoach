@@ -1,4 +1,10 @@
-import { format, formatDistanceToNow, isToday, isTomorrow, isYesterday } from 'date-fns';
+import {
+  format,
+  formatDistanceToNow,
+  isToday,
+  isTomorrow,
+  isYesterday,
+} from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const formatSessionTime = (date: Date): string => {
@@ -30,7 +36,10 @@ export const formatDuration = (minutes: number): string => {
   return `${hours}h ${remainingMinutes}min`;
 };
 
-export const calculateRemainingMinutes = (totalMinutes: number, usedMinutes: number): string => {
+export const calculateRemainingMinutes = (
+  totalMinutes: number,
+  usedMinutes: number
+): string => {
   const remaining = totalMinutes - usedMinutes;
   if (remaining <= 0) {
     return '0min restantes';
@@ -38,12 +47,20 @@ export const calculateRemainingMinutes = (totalMinutes: number, usedMinutes: num
   return `${formatDuration(remaining)} restantes`;
 };
 
-export const isWithinBusinessHours = (date: Date, timezone: string = 'America/Mexico_City'): boolean => {
-  const hour = new Date(date.toLocaleString('en-US', { timeZone: timezone })).getHours();
+export const isWithinBusinessHours = (
+  date: Date,
+  timezone: string = 'America/Mexico_City'
+): boolean => {
+  const hour = new Date(
+    date.toLocaleString('en-US', { timeZone: timezone })
+  ).getHours();
   return hour >= 8 && hour <= 22; // 8 AM to 10 PM
 };
 
-export const getNextAvailableSlot = (availability: any, timezone: string): Date | null => {
+export const getNextAvailableSlot = (
+  availability: any,
+  timezone: string
+): Date | null => {
   // This would calculate the next available time slot based on coach availability
   // Implementation would depend on the specific business logic
   const now = new Date();
@@ -56,6 +73,9 @@ export const formatTimeSlot = (startTime: string, endTime: string): string => {
   return `${startTime} - ${endTime}`;
 };
 
-export const convertToUserTimezone = (date: Date, userTimezone: string): Date => {
+export const convertToUserTimezone = (
+  date: Date,
+  userTimezone: string
+): Date => {
   return new Date(date.toLocaleString('en-US', { timeZone: userTimezone }));
 };

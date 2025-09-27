@@ -1,13 +1,13 @@
-import { 
-  LogEntry, 
-  LogLevel, 
-  LogCategory, 
+import {
+  LogEntry,
+  LogLevel,
+  LogCategory,
   LoggerConfig,
   PaymentLog,
   MatchingLog,
   VideoLog,
   SecurityLog,
-  StandardLog
+  StandardLog,
 } from './LogTypes';
 
 export class LoggingService {
@@ -139,7 +139,10 @@ export class LoggingService {
     this.logBuffer.push(log);
 
     // Console logging in development
-    if (this.config.enableConsole && this.config.environment === 'development') {
+    if (
+      this.config.enableConsole &&
+      this.config.environment === 'development'
+    ) {
       this.logToConsole(log);
     }
 
@@ -151,7 +154,7 @@ export class LoggingService {
 
   private logToConsole(log: LogEntry): void {
     const logMessage = `[${log.timestamp}] ${log.level} [${log.category}] ${log.event_type}`;
-    
+
     switch (log.level) {
       case 'ERROR':
         console.error(logMessage, log.type_info);
@@ -206,7 +209,7 @@ export class LoggingService {
     } else {
       // In development, just log to console
       console.group('📊 Batch Logs Flush');
-      logs.forEach(log => this.logToConsole(log));
+      logs.forEach((log) => this.logToConsole(log));
       console.groupEnd();
     }
   }

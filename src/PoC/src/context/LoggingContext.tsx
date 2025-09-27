@@ -13,9 +13,9 @@ interface LoggingProviderProps {
   config?: LoggerConfig;
 }
 
-export const LoggingProvider: React.FC<LoggingProviderProps> = ({ 
-  children, 
-  config 
+export const LoggingProvider: React.FC<LoggingProviderProps> = ({
+  children,
+  config,
 }) => {
   const logger = LoggingService.getInstance(config);
 
@@ -33,16 +33,16 @@ export const LoggingProvider: React.FC<LoggingProviderProps> = ({
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
       logger.logError(
-        new Error(event.message), 
-        'USER', 
+        new Error(event.message),
+        'USER',
         `Global error at ${event.filename}:${event.lineno}:${event.colno}`
       );
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       logger.logError(
-        new Error(String(event.reason)), 
-        'USER', 
+        new Error(String(event.reason)),
+        'USER',
         'Unhandled promise rejection'
       );
     };
@@ -52,7 +52,10 @@ export const LoggingProvider: React.FC<LoggingProviderProps> = ({
 
     return () => {
       window.removeEventListener('error', handleGlobalError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener(
+        'unhandledrejection',
+        handleUnhandledRejection
+      );
     };
   }, [logger]);
 
@@ -61,9 +64,7 @@ export const LoggingProvider: React.FC<LoggingProviderProps> = ({
   };
 
   return (
-    <LoggingContext.Provider value={value}>
-      {children}
-    </LoggingContext.Provider>
+    <LoggingContext.Provider value={value}>{children}</LoggingContext.Provider>
   );
 };
 

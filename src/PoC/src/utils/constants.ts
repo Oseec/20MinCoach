@@ -87,7 +87,11 @@ export const FILE_CONFIG = {
   MAX_SIZE: 10 * 1024 * 1024, // 10MB
   ALLOWED_TYPES: {
     IMAGE: ['image/jpeg', 'image/png', 'image/webp'],
-    DOCUMENT: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    DOCUMENT: [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ],
   },
 } as const;
 

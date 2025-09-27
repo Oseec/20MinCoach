@@ -1,6 +1,13 @@
 export type LogLevel = 'INFO' | 'DEBUG' | 'WARN' | 'ERROR';
 
-export type LogCategory = 'SESSION' | 'PAYMENT' | 'USER' | 'COACH' | 'MATCHING' | 'VIDEO' | 'SECURITY';
+export type LogCategory =
+  | 'SESSION'
+  | 'PAYMENT'
+  | 'USER'
+  | 'COACH'
+  | 'MATCHING'
+  | 'VIDEO'
+  | 'SECURITY';
 
 export interface BaseLog {
   timestamp: string;

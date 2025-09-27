@@ -9,9 +9,13 @@ export interface AuthMiddleware {
 export class AuthMiddleware {
   private authService = AuthService.getInstance();
 
-  async requireAuth(request: Request, response: Response, next: () => void): Promise<void> {
+  async requireAuth(
+    request: Request,
+    response: Response,
+    next: () => void
+  ): Promise<void> {
     const token = this.authService.getAccessToken();
-    
+
     if (!token) {
       this.redirectToLogin();
       return;
@@ -42,11 +46,11 @@ export class AuthMiddleware {
       // This would check user role from decoded token
       // Implementation depends on how user data is stored/retrieved
       const userRole = this.getUserRoleFromToken();
-      
+
       if (!allowedRoles.includes(userRole)) {
         throw new Error('Insufficient permissions');
       }
-      
+
       next();
     };
   }

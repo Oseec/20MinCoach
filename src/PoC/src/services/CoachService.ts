@@ -1,4 +1,8 @@
-import { CoachResponseDTO, CreateCoachDTO, UpdateCoachDTO } from '../dtos/CoachDTO';
+import {
+  CoachResponseDTO,
+  CreateCoachDTO,
+  UpdateCoachDTO,
+} from '../dtos/CoachDTO';
 import { AuthService } from './AuthService';
 import { ExceptionHandler } from '../exceptionHandling/ExceptionHandler';
 import { LoggingService } from '../logging/LoggingService';
@@ -36,13 +40,15 @@ export class CoachService {
     const token = this.authService.getAccessToken();
     return {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     };
   }
 
-  async searchCoaches(filters: CoachSearchFilters): Promise<CoachResponseDTO[]> {
+  async searchCoaches(
+    filters: CoachSearchFilters
+  ): Promise<CoachResponseDTO[]> {
     const queryParams = new URLSearchParams();
-    
+
     if (filters.specialties?.length) {
       queryParams.append('specialties', filters.specialties.join(','));
     }
@@ -83,7 +89,9 @@ export class CoachService {
     return response.json();
   }
 
-  async createCoachProfile(coachData: CreateCoachDTO): Promise<CoachResponseDTO> {
+  async createCoachProfile(
+    coachData: CreateCoachDTO
+  ): Promise<CoachResponseDTO> {
     const response = await fetch(this.baseUrl, {
       method: 'POST',
       headers: this.getAuthHeaders(),
@@ -97,7 +105,10 @@ export class CoachService {
     return response.json();
   }
 
-  async updateCoachProfile(id: string, updates: UpdateCoachDTO): Promise<CoachResponseDTO> {
+  async updateCoachProfile(
+    id: string,
+    updates: UpdateCoachDTO
+  ): Promise<CoachResponseDTO> {
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),

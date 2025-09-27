@@ -75,9 +75,9 @@ export class AuthService {
     if (token) {
       await fetch(`${this.baseUrl}/logout`, {
         method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json' 
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     }
@@ -95,7 +95,10 @@ export class AuthService {
   setTokens(tokens: AuthTokens): void {
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
-    localStorage.setItem('tokenExpiry', (Date.now() + tokens.expiresIn * 1000).toString());
+    localStorage.setItem(
+      'tokenExpiry',
+      (Date.now() + tokens.expiresIn * 1000).toString()
+    );
   }
 
   clearTokens(): void {

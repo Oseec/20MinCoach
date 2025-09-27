@@ -1,4 +1,4 @@
-import { useOktaAuth } from "@okta/okta-react";
+import { useOktaAuth } from '@okta/okta-react';
 
 export function useHasScope(scope: string) {
   const { authState } = useOktaAuth();

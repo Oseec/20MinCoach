@@ -13,34 +13,36 @@ interface MainLayoutProps {
   currentPath?: string;
 }
 
-export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => {
+export const MainLayout = ({
+  children,
+  user,
+  currentPath,
+}: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         user={user}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notifications={3}
       />
-      
+
       <div className="flex">
-        <Sidebar 
+        <Sidebar
           isOpen={sidebarOpen}
           userRole={user?.role}
           currentPath={currentPath}
         />
-        
+
         <main className="flex-1 lg:ml-64">
-          <div className="container max-w-7xl mx-auto p-6">
-            {children}
-          </div>
+          <div className="container max-w-7xl mx-auto p-6">{children}</div>
         </main>
       </div>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />

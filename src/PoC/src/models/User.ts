@@ -16,7 +16,7 @@ export interface User {
 export enum UserRole {
   CLIENT = 'CLIENT',
   COACH = 'COACH',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
 export interface UserPreferences {

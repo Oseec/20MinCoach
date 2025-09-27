@@ -40,13 +40,17 @@ export class ExceptionHandler {
     const timestamp = new Date().toISOString();
 
     // Log the exception with appropriate category
-    this.logger.logError(error, context.category, JSON.stringify({
-      operation: context.operation,
-      userId: context.userId,
-      sessionId: context.sessionId,
-      correlationId,
-      ...context.additionalInfo,
-    }));
+    this.logger.logError(
+      error,
+      context.category,
+      JSON.stringify({
+        operation: context.operation,
+        userId: context.userId,
+        sessionId: context.sessionId,
+        correlationId,
+        ...context.additionalInfo,
+      })
+    );
 
     // Create standardized exception response
     const handledException: HandledException = {
@@ -72,7 +76,11 @@ export class ExceptionHandler {
   }
 
   // Specific handlers for different types of operations
-  handleSessionException(error: Error, sessionId: string, operation: string): HandledException {
+  handleSessionException(
+    error: Error,
+    sessionId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'SESSION',
       operation,
@@ -80,7 +88,11 @@ export class ExceptionHandler {
     });
   }
 
-  handlePaymentException(error: Error, userId: string, operation: string): HandledException {
+  handlePaymentException(
+    error: Error,
+    userId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'PAYMENT',
       operation,
@@ -88,7 +100,11 @@ export class ExceptionHandler {
     });
   }
 
-  handleVideoException(error: Error, sessionId: string, operation: string): HandledException {
+  handleVideoException(
+    error: Error,
+    sessionId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'VIDEO',
       operation,
@@ -96,7 +112,11 @@ export class ExceptionHandler {
     });
   }
 
-  handleMatchingException(error: Error, userId: string, operation: string): HandledException {
+  handleMatchingException(
+    error: Error,
+    userId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'MATCHING',
       operation,
@@ -104,7 +124,11 @@ export class ExceptionHandler {
     });
   }
 
-  handleUserException(error: Error, userId: string, operation: string): HandledException {
+  handleUserException(
+    error: Error,
+    userId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'USER',
       operation,
@@ -112,7 +136,11 @@ export class ExceptionHandler {
     });
   }
 
-  handleCoachException(error: Error, coachId: string, operation: string): HandledException {
+  handleCoachException(
+    error: Error,
+    coachId: string,
+    operation: string
+  ): HandledException {
     return this.handleException(error, {
       category: 'COACH',
       operation,
@@ -130,7 +158,7 @@ export class ExceptionHandler {
     // HTTP errors
     if (error.response) {
       const status = error.response.status;
-      
+
       switch (status) {
         case 400:
           return this.getBadRequestMessage(context);
@@ -166,11 +194,11 @@ export class ExceptionHandler {
 
   private getErrorCode(error: any, context: ExceptionContext): string {
     const prefix = context.category.toLowerCase();
-    
+
     if (!navigator.onLine) return `${prefix}_network_error`;
     if (error.response) return `${prefix}_http_${error.response.status}`;
     if (error.code === 'ECONNABORTED') return `${prefix}_timeout`;
-    
+
     return `${prefix}_${error.name?.toLowerCase() || 'unknown'}_error`;
   }
 
@@ -178,7 +206,7 @@ export class ExceptionHandler {
     if (error.response?.data) {
       return error.response.data;
     }
-    
+
     return {
       name: error.name,
       message: error.message,
@@ -230,7 +258,10 @@ export class ExceptionHandler {
     }
   }
 
-  private getCategorySpecificMessage(error: any, context: ExceptionContext): string {
+  private getCategorySpecificMessage(
+    error: any,
+    context: ExceptionContext
+  ): string {
     switch (context.category) {
       case 'VIDEO':
         return 'Error en la conexión de video. Verifica tu cámara, micrófono y conexión a internet.';
@@ -239,7 +270,10 @@ export class ExceptionHandler {
       case 'MATCHING':
         return 'No pudimos encontrar un coach disponible en este momento. Intenta más tarde.';
       default:
-        return error.message || 'Ha ocurrido un error inesperado. Intenta nuevamente.';
+        return (
+          error.message ||
+          'Ha ocurrido un error inesperado. Intenta nuevamente.'
+        );
     }
   }
 
@@ -261,10 +295,7 @@ export class ExceptionHandler {
   }
 
   // Wrapper for synchronous operations
-  handleSync<T>(
-    operation: () => T,
-    context: ExceptionContext
-  ): T {
+  handleSync<T>(operation: () => T, context: ExceptionContext): T {
     try {
       return operation();
     } catch (error) {

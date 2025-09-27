@@ -1,8 +1,8 @@
-import { 
-  CreateSessionDTO, 
-  SessionResponseDTO, 
+import {
+  CreateSessionDTO,
+  SessionResponseDTO,
   UpdateSessionDTO,
-  CreateRatingDTO 
+  CreateRatingDTO,
 } from '../dtos/SessionDTO';
 import { AuthService } from './AuthService';
 import { ExceptionHandler } from '../exceptionHandling/ExceptionHandler';
@@ -26,14 +26,16 @@ export class SessionService {
     const token = this.authService.getAccessToken();
     return {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     };
   }
 
-  async createSession(sessionData: CreateSessionDTO): Promise<SessionResponseDTO> {
+  async createSession(
+    sessionData: CreateSessionDTO
+  ): Promise<SessionResponseDTO> {
     try {
       this.logger.logSession('session_creation_attempt');
-      
+
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: this.getAuthHeaders(),
@@ -46,7 +48,7 @@ export class SessionService {
 
       const result = await response.json();
       this.logger.logSession('session_created');
-      
+
       return result;
     } catch (error) {
       throw this.exceptionHandler.handleSessionException(
@@ -81,7 +83,10 @@ export class SessionService {
     return response.json();
   }
 
-  async updateSession(id: string, updates: UpdateSessionDTO): Promise<SessionResponseDTO> {
+  async updateSession(
+    id: string,
+    updates: UpdateSessionDTO
+  ): Promise<SessionResponseDTO> {
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
@@ -98,7 +103,7 @@ export class SessionService {
   async joinSession(id: string): Promise<{ joinUrl: string; token: string }> {
     try {
       this.logger.logSession('session_join_attempt');
-      
+
       const response = await fetch(`${this.baseUrl}/${id}/join`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
@@ -110,7 +115,7 @@ export class SessionService {
 
       const result = await response.json();
       this.logger.logSession('session_joined');
-      
+
       return result;
     } catch (error) {
       throw this.exceptionHandler.handleSessionException(
@@ -134,7 +139,10 @@ export class SessionService {
     return response.json();
   }
 
-  async cancelSession(id: string, reason?: string): Promise<SessionResponseDTO> {
+  async cancelSession(
+    id: string,
+    reason?: string
+  ): Promise<SessionResponseDTO> {
     const response = await fetch(`${this.baseUrl}/${id}/cancel`, {
       method: 'POST',
       headers: this.getAuthHeaders(),

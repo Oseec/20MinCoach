@@ -1,5 +1,5 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useOktaAuth } from "@okta/okta-react";
+import { Navigate, useLocation } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 export function useRoles(): string[] {
   const { authState } = useOktaAuth();
@@ -29,7 +29,7 @@ export default function RequireRole({
 
   // 3) Si sí está autenticado, valida roles
   const roles = ((authState.idToken?.claims as any)?.roles as string[]) ?? [];
-  const ok = roles.some(r => anyOf.includes(r));
+  const ok = roles.some((r) => anyOf.includes(r));
   if (!ok) return <Navigate to="/403" replace />;
 
   return children;

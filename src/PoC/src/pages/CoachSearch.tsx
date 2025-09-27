@@ -8,8 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { CoachCard } from '@/components/coach/CoachCard';
 import { useOktaAuth } from '@okta/okta-react';
 import { hasAllScopes } from '@/auth/RequireScope';
-import { useRoles } from "@/auth/RequireRole";
-
+import { useRoles } from '@/auth/RequireRole';
 
 const mockCoaches = [
   {
@@ -20,14 +19,14 @@ const mockCoaches = [
     specialties: [
       { id: '1', name: 'Desarrollo Personal', category: 'PSYCHOLOGY' },
       { id: '2', name: 'Liderazgo', category: 'BUSINESS' },
-      { id: '3', name: 'Mindfulness', category: 'PSYCHOLOGY' }
+      { id: '3', name: 'Mindfulness', category: 'PSYCHOLOGY' },
     ],
     experience: 8,
     rating: 4.9,
     totalSessions: 156,
     pricePerSession: 45,
     isVerified: true,
-    isOnline: true
+    isOnline: true,
   },
   {
     id: '2',
@@ -37,14 +36,14 @@ const mockCoaches = [
     specialties: [
       { id: '4', name: 'React', category: 'TECHNOLOGY' },
       { id: '5', name: 'Node.js', category: 'TECHNOLOGY' },
-      { id: '6', name: 'AWS', category: 'TECHNOLOGY' }
+      { id: '6', name: 'AWS', category: 'TECHNOLOGY' },
     ],
     experience: 10,
     rating: 4.8,
     totalSessions: 89,
     pricePerSession: 60,
     isVerified: true,
-    isOnline: false
+    isOnline: false,
   },
   {
     id: '3',
@@ -54,33 +53,47 @@ const mockCoaches = [
     specialties: [
       { id: '7', name: 'Terapia TCC', category: 'PSYCHOLOGY' },
       { id: '8', name: 'Manejo del Estrés', category: 'PSYCHOLOGY' },
-      { id: '9', name: 'Ansiedad', category: 'PSYCHOLOGY' }
+      { id: '9', name: 'Ansiedad', category: 'PSYCHOLOGY' },
     ],
     experience: 12,
     rating: 4.95,
     totalSessions: 234,
     pricePerSession: 50,
     isVerified: true,
-    isOnline: true
-  }
+    isOnline: true,
+  },
 ];
 
 const mockUsers = [
-  { firstName: 'Dr. Carlos', lastName: 'Mendoza', profilePictureUrl: undefined },
+  {
+    firstName: 'Dr. Carlos',
+    lastName: 'Mendoza',
+    profilePictureUrl: undefined,
+  },
   { firstName: 'Laura', lastName: 'Silva', profilePictureUrl: undefined },
-  { firstName: 'Dra. Ana', lastName: 'Ruiz', profilePictureUrl: undefined }
+  { firstName: 'Dra. Ana', lastName: 'Ruiz', profilePictureUrl: undefined },
 ];
 
 const specialtyOptions = [
-  'Desarrollo Personal', 'Liderazgo', 'Mindfulness', 'React', 'Node.js', 
-  'AWS', 'Terapia TCC', 'Manejo del Estrés', 'Ansiedad', 'Salud', 
-  'Negocios', 'Derecho', 'Arte'
+  'Desarrollo Personal',
+  'Liderazgo',
+  'Mindfulness',
+  'React',
+  'Node.js',
+  'AWS',
+  'Terapia TCC',
+  'Manejo del Estrés',
+  'Ansiedad',
+  'Salud',
+  'Negocios',
+  'Derecho',
+  'Arte',
 ];
 
 export const CoachSearch = () => {
   const { authState } = useOktaAuth();
   const roles = useRoles();
-  const isPremium = roles.includes("PremiumUser");
+  const isPremium = roles.includes('PremiumUser');
   const canBook = isPremium;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,9 +104,9 @@ export const CoachSearch = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const toggleSpecialty = (specialty: string) => {
-    setSelectedSpecialties(prev => 
-      prev.includes(specialty) 
-        ? prev.filter(s => s !== specialty)
+    setSelectedSpecialties((prev) =>
+      prev.includes(specialty)
+        ? prev.filter((s) => s !== specialty)
         : [...prev, specialty]
     );
   };
@@ -162,7 +175,10 @@ export const CoachSearch = () => {
         {/* Aviso de plan si no puede reservar */}
         {!canBook && (
           <div className="mt-3">
-            <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
+            <Badge
+              variant="outline"
+              className="bg-amber-50 text-amber-800 border-amber-200"
+            >
               Tu plan actual no permite reservar sesiones • Actualiza a Premium
             </Badge>
           </div>
@@ -182,8 +198,8 @@ export const CoachSearch = () => {
                 className="pl-10"
               />
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2"
             >
@@ -209,7 +225,11 @@ export const CoachSearch = () => {
                 {specialtyOptions.map((specialty) => (
                   <Badge
                     key={specialty}
-                    variant={selectedSpecialties.includes(specialty) ? "default" : "outline"}
+                    variant={
+                      selectedSpecialties.includes(specialty)
+                        ? 'default'
+                        : 'outline'
+                    }
                     className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
                     onClick={() => toggleSpecialty(specialty)}
                   >
@@ -264,8 +284,8 @@ export const CoachSearch = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setSelectedSpecialties([]);
                   setPriceRange([0, 100]);
@@ -291,7 +311,9 @@ export const CoachSearch = () => {
           </h2>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Ordenar por:</span>
-            <Button variant="outline" size="sm">Relevancia</Button>
+            <Button variant="outline" size="sm">
+              Relevancia
+            </Button>
           </div>
         </div>
 
