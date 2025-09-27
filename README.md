@@ -1014,7 +1014,7 @@ export default function RequireScope({
   return children;
 }
 ```
-This function allows user access only if it has all scopes needed.
+`RequireScope` allows user access only if it has all scopes needed.
 
 ```ts
 export function RequireAnyScope({
@@ -1034,7 +1034,7 @@ export function RequireAnyScope({
   return ok ? children : <Navigate to={redirectTo} replace />;
 }
 ```
-Allows user access if the user has at least one of the scopes needed.
+`RequireAnyScope` allows user access if the user has at least one of the scopes needed.
 
 ```ts
 export function RequireAuthenticated({
@@ -1051,11 +1051,11 @@ export function RequireAuthenticated({
   );
 }
 ```
-This function protects routes only with login, regardless of scopes. This applies in cases where a page is declared as public and can be accessed by any user, regardless of their permissions.
+`RequireAuthenticated` protects routes only with login, regardless of scopes. This applies in cases where a page is declared as public and can be accessed by any user, regardless of their permissions.
 
 Below is a diagram that illustrates the flow followed by an access request made by the user in the established design:
 
-<img src="./diagrams/accessRequesFlow.png" alt="accessRequesFlow Image" width="400"/>
+<img src="./diagrams/accessRequestFlow.png" alt="accessRequesFlow Image" width="400"/>
 
 
 
