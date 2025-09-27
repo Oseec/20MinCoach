@@ -647,7 +647,7 @@ private getErrorMessage(error: any, context: ExceptionContext): string {
 
 Here´s a diagram of the error handling flow
 
-<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="300"/>
+<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="200"/>
 
 
 #### Logging
@@ -664,8 +664,8 @@ Log flow
 It follows the Singleton pattern to ensure that the entire application uses the same logging instance with a shared configuration.
 
 
-After their creation logs are stored in a buffer (`logBuffer`).  
-Automatically flushes when the buffer reaches the configured batch size or a periodic timer (`flushTimer`) triggers after `flushInterval`.  
+After their creation logs are stored in a buffer `logBuffer`.  
+Automatically flushes when the buffer reaches the configured batch size or a periodic timer `flushTimer` triggers after `flushInterval`.  
 ```ts
 private addLog(log: LogEntry): void {
     this.logBuffer.push(log);
@@ -682,7 +682,7 @@ private addLog(log: LogEntry): void {
   }
 ```
 
-**In Development**: Logs are shown in the browser console (`logToConsole`). 
+**In Development**: Logs are shown in the browser console `logToConsole`. 
 ```ts
 private logToConsole(log: LogEntry): void {
     const logMessage = `[${log.timestamp}] ${log.level} [${log.category}] ${log.event_type}`;
@@ -867,25 +867,183 @@ The time after the last indexation in order to considered a "log-cold" storage v
 | **VIDEO**    |          30 days          |
 | **SECURITY** |         6 months          |
 
-#### Security (not documented yet)
-Design authentication and authorization layers. Me parece que esto ya lo tenemos pero no como layer.
-This is going to be result of the authorization PoC and the Client layer
+#### Security
+Okta is the service we chose to manage the platform’s authentication.
+The code related to this service is located in the following folder: [auth](src/PoC/src/auth)
+
+In this folder, the file [oktaConfig.ts](src/PoC/src/auth/oktaConfig.ts)
+configures the Okta authentication client with the credentials and security parameters defined as environment variables, it returns a function that redirects the user back to the original page after logging in.
+
+[OktaProvider.tsx](src/PoC/src/auth/OktaProvider.tsx) is a React component that authenticates the user when trying to access a page. After a successful login, Okta redirects the user to the route they originally attempted to visit.
+This way, any protected route can automatically verify whether the user is logged in or not.
+```tsx
+export default function OktaProvider({ children }: PropsWithChildren) {
+  const navigate = useNavigate();
+  return (
+    <Security
+      oktaAuth={oktaAuth}
+      restoreOriginalUri={buildRestoreOriginalUri(navigate)}
+    >
+      {children}
+    </Security>
+  );
+}
+```
+`oktaAuth` (authentication client) and `buildRestoreOriginalUri()` (function in charge of redirecting the user) come from [oktaConfig.ts](src/PoC/src/auth/oktaConfig.ts).
+
+[RequireRole.tsx](src/PoC/src/auth/RequireRole.tsx) implements a React hook and component to handle role-based authorization using Okta and React Router. This component protects routes and ensures that only users with certain roles can access them.
+
+While Okta determines whether the user is logged in, we do nothing. This prevents displaying content before knowing the actual state.
+```ts
+if (authState?.isAuthenticated === undefined) {
+  return null; //o un spinner
+}
+```
+
+If the user is not authenticated, they are redirected to `/login`, and a query parameter is added with the original route so that, after logging in, they can return to where they were.
+```ts
+if (!authState?.isAuthenticated) {
+  const target = `/login?from=${encodeURIComponent(location.pathname)}`;
+  return <Navigate to={target} replace />;
+}
+```
+
+The user’s roles are extracted and checked to see if any of them match the allowed roles `(anyOf)`.
+If there is no match, the user is redirected to `/403` (Forbidden).
+```ts
+const roles = ((authState.idToken?.claims as any)?.roles as string[]) ?? [];
+const ok = roles.some((r) => anyOf.includes(r));
+if (!ok) return <Navigate to="/403" replace />;
+```
+
+If all validations pass, the child component is rendered.
+```ts
+return children;
+```
+
+[RequireScope.tsx](src/PoC/src/auth/RequireScope.tsx) implements scope-based protections. It is very similar to `RequireRole.tsx`, but here the focus is on the access token scopes, not the roles.
+
+```ts
+export function hasAllScopes(
+  scopesStr: string[] | undefined,
+  required: string[]
+) {
+  if (!scopesStr) return false;
+  const set = new Set(scopesStr);
+  return required.every((s) => set.has(s));
+}
+```
+`scopesStr` contains the user’s scopes present in the access token, and `require` represents the scopes needed to access the route or resource. This function returns `true` only if all the required scopes are included in `scopesStr`.
+
+`hasAllScopes` is used as the foundation for other functions, which, depending on certain criteria, will determine whether the user is allowed to access the requested route or not.
+
+```ts
+export default function RequireScope({
+  scopes,
+  children,
+  redirectTo = '/403',
+  forceLogin = false, // si quieres forzar formulario aunque haya SSO
+}: {
+  scopes: string[];
+  children: JSX.Element;
+  redirectTo?: string;
+  forceLogin?: boolean;
+}) {
+  const { oktaAuth, authState } = useOktaAuth();
+  const location = useLocation();
+  const redirectingRef = useRef(false);
+
+  // scopes del access token
+  const tokenScopes = (authState?.accessToken?.claims as any)?.scp as
+    | string[]
+    | undefined;
+
+  // Si NO autenticado → ir directo a Okta y volver a la URL actual
+  useEffect(() => {
+    if (authState?.isAuthenticated === false && !redirectingRef.current) {
+      redirectingRef.current = true;
+      const originalUri = location.pathname + location.search + location.hash;
+      oktaAuth.signInWithRedirect({
+        originalUri,
+        extraParams: forceLogin ? { prompt: 'login', max_age: '0' } : undefined,
+      });
+    }
+  }, [authState?.isAuthenticated, oktaAuth, location, forceLogin]);
+
+  if (authState?.isAuthenticated === false) {
+    // Evita render mientras Okta redirige
+    return null;
+  }
+
+  if (authState?.isAuthenticated && !hasAllScopes(tokenScopes, scopes)) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  return children;
+}
+```
+This function allows user access only if it has all scopes needed.
+
+```ts
+export function RequireAnyScope({
+  anyOf,
+  children,
+  redirectTo = '/403',
+}: {
+  anyOf: string[];
+  children: JSX.Element;
+  redirectTo?: string;
+}) {
+  const { authState } = useOktaAuth();
+  const tokenScopes = (authState?.accessToken?.claims as any)?.scp as
+    | string[]
+    | undefined;
+  const ok = !!tokenScopes && anyOf.some((s) => new Set(tokenScopes).has(s));
+  return ok ? children : <Navigate to={redirectTo} replace />;
+}
+```
+Allows user access if the user has at least one of the scopes needed.
+
+```ts
+export function RequireAuthenticated({
+  children,
+  forceLogin = false,
+}: {
+  children: JSX.Element;
+  forceLogin?: boolean;
+}) {
+  return (
+    <RequireScope scopes={[]} forceLogin={forceLogin} redirectTo="/403">
+      {children}
+    </RequireScope>
+  );
+}
+```
+This function protects routes only with login, regardless of scopes. This applies in cases where a page is declared as public and can be accessed by any user, regardless of their permissions.
+
+Below is a diagram that illustrates the flow followed by an access request made by the user in the established design:
+
+<img src="./diagrams/accessRequesFlow.png" alt="accessRequesFlow Image" width="400"/>
+
+
+
 #### Linter Configuration
 The linting strategy in this project combines ESLint and Prettier to ensure consistent, clean, and maintainable code.
-We chose to add Prettier to this setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
+We chose to add Prettier to a ESLint setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
 Prettier runs as an ESLint rule, so formatting errors are reported alongside other lint errors.
 
 
-**ESLint con Flat-Config**
-- The project uses ESLint Flat Config, a modern ESM-based configuration replacing the traditional (`.eslintrc.*`).
+**ESLint on Flat-Config**
+- The project uses ESLint Flat Config, a modern ESM-based configuration replacing the traditional `.eslintrc.*`.
 - Configuration is in [eslint.config.js](src\PoC\eslint.config.js) and defines:
-  - Files to analyze: (`**/*.{ts,tsx}`)
-  - Ignored folders: (`dist`) (Vite build output)
+  - Files to analyze: `**/*.{ts,tsx}`
+  - Ignored folders: `dist` (Vite build output)
   - Plugins:
-    - (`react-hooks`) → enforces correct use of React hooks
-    - (`react-refresh`) → ensures compatibility with Vite Hot Reload
-    - (`prettier`) → allows Prettier to enforce formatting rules through ESLint
-Base rules: (`eslint:recommended`) and (`typescript-eslint/recommended`)
+    - `react-hooks` → enforces correct use of React hooks
+    - `react-refresh` → ensures compatibility with Vite Hot Reload
+    - `prettier` → allows Prettier to enforce formatting rules through ESLint
+
+Base rules: `eslint:recommended` and `typescript-eslint/recommended`
 
 This is the code responsible of setting these ESLint params
 ```js
@@ -926,8 +1084,8 @@ export default tseslint.config(
 ```
 
 **Prettier**
-- Automatically formats all (`.ts`) and (`.tsx`) files.
-- Rules defined in (`.prettierrc.json`):
+- Automatically formats all `.ts` and `.tsx` files.
+- Rules defined in `.prettierrc.json`:
   - Single quotes (')
   - Semicolons (;)
   - 2-space indentation
@@ -948,13 +1106,13 @@ This is the code responsible of setting these Prettier params
 }
 ```
 
-**Naming Conventions**
-Classes, interfaces, types and enum members are named using the (`PascalCase`) convention.
-(`camelCase`) is used for the names of variables and functions.
+**Naming Conventions**:
+Classes, interfaces, types and enum members are named using the `PascalCase` convention.
+`camelCase` is used for the names of variables and functions.
 
-**Linting Commands**
-(`npm run lint`) checks all files and reports errors/warnings, (`npm run lint:fix`) fixes automatically correctable issues, including Prettier formatting.
-If you want to format the entire project according to Prettier rules use (`npm run format`) this formatting is independent of ESLint.
+**Linting Commands**:
+`npm run lint` checks all files and reports errors/warnings, `npm run lint:fix` fixes automatically correctable issues, including Prettier formatting.
+If you want to format the entire project according to Prettier rules use `npm run format` this formatting is independent of ESLint.
 
 
 #### Build and Deployment Pipeline (not documented yet)
