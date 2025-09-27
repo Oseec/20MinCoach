@@ -646,7 +646,8 @@ private getErrorMessage(error: any, context: ExceptionContext): string {
 ```
 
 Here´s a diagram of the error handling flow
-<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="500"/>
+
+<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="300"/>
 
 
 #### Logging
@@ -703,7 +704,7 @@ private logToConsole(log: LogEntry): void {
 ```
 
 
-**In Production**: Logs are sent in bulk to a backend endpoint (`/api/logs`).
+**In Production**: Logs are sent in bulk to a backend endpoint.
 ```ts
 private async flush(): Promise<void> {
     if (this.logBuffer.length === 0) return;
@@ -869,12 +870,93 @@ The time after the last indexation in order to considered a "log-cold" storage v
 #### Security (not documented yet)
 Design authentication and authorization layers. Me parece que esto ya lo tenemos pero no como layer.
 This is going to be result of the authorization PoC and the Client layer
-#### Linter Configuration (not documented yet)
-Select a linting tool
-Define code style rules and conventions
-Include the linter in the project and document guidelines
-Include the linter rules file adding a custom rule of your desire
-No tenemos nada de esto.
+#### Linter Configuration
+The linting strategy in this project combines ESLint and Prettier to ensure consistent, clean, and maintainable code.
+We chose to add Prettier to this setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
+Prettier runs as an ESLint rule, so formatting errors are reported alongside other lint errors.
+
+
+**ESLint con Flat-Config**
+- The project uses ESLint Flat Config, a modern ESM-based configuration replacing the traditional (`.eslintrc.*`).
+- Configuration is in [eslint.config.js](src\PoC\eslint.config.js) and defines:
+  - Files to analyze: (`**/*.{ts,tsx}`)
+  - Ignored folders: (`dist`) (Vite build output)
+  - Plugins:
+    - (`react-hooks`) → enforces correct use of React hooks
+    - (`react-refresh`) → ensures compatibility with Vite Hot Reload
+    - (`prettier`) → allows Prettier to enforce formatting rules through ESLint
+Base rules: (`eslint:recommended`) and (`typescript-eslint/recommended`)
+
+This is the code responsible of setting these ESLint params
+```js
+export default tseslint.config(
+  { ignores: ['dist'] },
+  {
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      eslintConfigPrettier,
+    ],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      prettier,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'react-refresh/only-export-components': 'off',
+      'prettier/prettier': 'error',
+    },
+  }
+);
+```
+
+**Prettier**
+- Automatically formats all (`.ts`) and (`.tsx`) files.
+- Rules defined in (`.prettierrc.json`):
+  - Single quotes (')
+  - Semicolons (;)
+  - 2-space indentation
+  - Max line width: 80 characters
+  - Trailing commas for objects/arrays in multiline
+  - Always use parentheses in arrow functions
+
+This is the code responsible of setting these Prettier params
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always"
+}
+```
+
+**Naming Conventions**
+Classes, interfaces, types and enum members are named using the (`PascalCase`) convention.
+(`camelCase`) is used for the names of variables and functions.
+
+**Linting Commands**
+(`npm run lint`) checks all files and reports errors/warnings, (`npm run lint:fix`) fixes automatically correctable issues, including Prettier formatting.
+If you want to format the entire project according to Prettier rules use (`npm run format`) this formatting is independent of ESLint.
+
+
 #### Build and Deployment Pipeline (not documented yet)
 Design build process for different environments
 Create development, staging, and production builds in the configuration files
