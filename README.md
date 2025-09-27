@@ -360,7 +360,7 @@ try {
 - Use transformers to map incoming DTOs to models, keeping controllers/services clean.
 - Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 - All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
-#### Business (not documented yet)
+#### Business
 **Location**: [src/PoC/src/business](src/PoC/src/business)
 
 **Purpose:**
