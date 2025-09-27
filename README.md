@@ -435,7 +435,92 @@ there are templates of mappers on this folder - [transformers](src/PoC/src/middl
 #### State management (not documented yet)
 Select and design the state management solution
 Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
-#### Styles (not documented yet)
+
+#### Styles
+
+The project uses Tailwind CSS compiled with PostCSS + Autoprefixer. The only global stylesheet is `src/index.css`. This is where Tailwind directives and design tokens (CSS variables in HSL) for colors, radii, shadows, and transitions live. Dark mode is class-based: the UI changes when adding or removing .dark in <html>.
+
+**Expected structure of index.css (summary):**
+
+```tsx
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*light mode*/
+  :root {
+    /* --background, --foreground, --primary, --secondary, ... */
+    /* tokens del proyecto: --coach-*, --session-*, --sidebar-*, etc. */
+    /* --radius, --shadow-soft/medium/strong, --transition-* */
+  }
+
+  /*Dark mode*/
+  .dark {
+
+  }
+
+  /*base styles*/
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; }
+  :where(a,button,[role="button"],input,select,textarea):focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+
+```
+
+***Use in components***
+
+Components only use Tailwind utilities that already point to tokens. The UI should not see token names or hexadecimals.
+
+Practical example:
+
+```tsx
+
+export function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <div className="mt-2">{children}</div>
+      <button className="mt-4 rounded-md bg-primary px-3 py-2 text-primary-foreground transition-[background-color] duration-200 ease-[var(--transition-smooth)] hover:bg-primary/90">
+        Continue
+      </button>
+    </section>
+  );
+}
+
+```
+
+***Light/Dark Mode***
+
+The .dark class in <html> enables the dark theme. The toggle should only change that class and optionally persist the preference.
+
+Useful snippet:
+
+```tsx
+type Theme = "light" | "dark" | "system";
+
+export function setTheme(next: Theme) {
+  const root = document.documentElement;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const effective = next === "system" ? (prefersDark ? "dark" : "light") : next;
+  root.classList.toggle("dark", effective === "dark");
+  localStorage.setItem("theme", next);
+}
+```
+
+***Responsiveness***
+
+The design is mobile-first. It uses grid, flex, and gap with the default breakpoints (sm, md, lg, xl). The container is already centered with padding: 2rem and 2xl: 1400px from tailwind.config. Avoid fixed widths unless clearly necessary.
+
+Example:
+
+```tsx
+<div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">…</div>
+```
 Choose and design how CSS or styles are going to be manage
 Design the responsive rules of the design and how the responsiveness is going to be test
 Design an strategy for dark/light mode support and how to test it. Ojo ahí.
