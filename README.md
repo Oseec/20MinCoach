@@ -406,6 +406,7 @@ This layer is isolated in `src/background/`, with sample code and documentation 
 #### Validators (not documented yet)
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
+
 #### DTOs
 
 At 20minCoach, we never want to couple the UI with the raw format of the backend, for two reasons:
@@ -521,13 +522,28 @@ Example:
 ```tsx
 <div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">…</div>
 ```
-Choose and design how CSS or styles are going to be manage
-Design the responsive rules of the design and how the responsiveness is going to be test
-Design an strategy for dark/light mode support and how to test it. Ojo ahí.
-Provide clear instructions to developers
-#### Utilities (not documented yet)
-Desing the utilities layers modeling with one example is enough. Puede que esto ya se haya conseguido en src/PoC/src/utils
-Singleton pattern might require. Hay que revisar si tiene Singleton.
+
+#### Utilities 
+
+Decision for this project
+
+-Keep constants, formatUtils, timeUtils as stateless modules (no Singleton).
+-Provide one Singleton only where it adds value: a logger with global config and consistent output. 
+
+you can see the example on the folder [LoggerUtils.ts](src/PoC/src/utils/loggerUtils.ts)
+
+Usage anywhere
+
+```tsx
+import { logger } from "@/utils/loggerUtils";
+
+logger.info("Fetching coach", { coachId: id });
+// later, if you need more verbosity in dev:
+import { Logger } from "@/utils/loggerUtils";
+Logger.getInstance().setLevel("debug");
+```
+
+
 #### Exception Handling
 La idea de este layer es tranformar/procesar las excepciones o errores generadas en los niveles más bajos para que sean legibles y amigables para el usuario, priorizando que la aparición de estos no afecten la lógica del resto del "programa". También sirve como frame para el logging layer especialmente para la generación de logs relacionados a errores.
 
