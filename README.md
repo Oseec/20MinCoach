@@ -209,11 +209,8 @@ await handleAsyncOperation(
 );
 
 ```
-[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/middleware/ExceptionHandler.ts)
+[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/exceptionHandling/ExceptionHandler.ts)
 #### Model
-Design the most important model classes, specially for those required for the key design patterns in your solution
-Implement model validation documenting with an example what validator are you going to use and how to use it, provide developers with instructions of how to create more validators
-
 **Location**: [src/PoC/src/models](src/PoC/src/models)
 
 
@@ -222,13 +219,9 @@ Implement model validation documenting with an example what validator are you go
 **Folder Hierarchy**
 
 - [models](src/PoC/src/models) – contains all domain entity definitions
-
 - [Coach.ts](src/PoC/src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
-
 - [User.ts](src/PoC/src/models/User.ts) – User entity with personal info, role, and preferences
-
 - [Session.ts](src/PoC/src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
-
 - [Package.ts](src/PoC/src/models/Package.ts) – Session packages with features, restrictions, and validity
 
 These classes support the Data Model Pattern, representing domain entities without business logic.
@@ -330,7 +323,6 @@ const validated = createSessionSchema.parse(inputData);
 **Folder Hierarchy**:
 - [authMiddleware.ts](src/PoC/src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
 - [errorMiddleware.ts](src/PoC/src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
-- [ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) – Core exception handling logic, categorizes errors, supports async and sync operations.
 - [transformers](src/PoC/src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/PoC/src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/PoC/src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/PoC/src/middleware/transformers/user.mapper.ts)).
 
 **Applied Design Pattern**: Middleware / Interceptor Pattern.
@@ -348,7 +340,7 @@ app.use((req, res, next) => auth.requireAuth(req, res, next));
 - Supports role-based guards via `requireRole()`.
 
 
-**ErrorMiddleware**
+ErrorMiddleware
 ```ts
 try {
   await someServiceOperation();
@@ -362,20 +354,6 @@ try {
 - Produces standardized error responses with timestamp, correlationId, code, and message.
 - Logs errors and security events via [LogginService](src/PoC/src/services/LoggingService.ts).
 
-**ExceptionHandler**
-```ts
-const handler = ExceptionHandler.getInstance();
-const result = await handler.handleAsync(() => someAsyncOperation(), {
-  category: 'SESSION',
-  operation: 'create_session',
-  userId: '123',
-});
-
-```
-- Encapsulates business logic for exception classification.
-- Handles network, HTTP, timeout, and domain-specific errors.
-- Can wrap synchronous `(handleSync)` or asynchronous `(handleAsync)` operations.
-
 **Developer Guidelines**
 
 - Middleware should not contain business logic; that belongs in services.
@@ -383,9 +361,62 @@ const result = await handler.handleAsync(() => someAsyncOperation(), {
 - Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 - All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
 #### Business (not documented yet)
-Study the theory of domain driven design and what technology is available in the choosen language to achive such paradigm. Indicar qué tecnología permite lograr el paradigma.
-Implement domain-specific rules and validation
-Provide implementation templates or examples in the source code to guide software engineers
+**Location**: [src/PoC/src/business](src/PoC/src/business)
+
+**Purpose:**
+
+Centralize the domain-specific rules and business validations that define how the system behaves beyond data structure or persistence. This layer encapsulates the core logic of the domain, ensuring that models (data) and services (integration/API) respect the business constraints of the application.
+
+**Domain Driven Design (DDD) Theory**:
+Domain Driven Design promotes the separation of concerns by isolating domain logic into its own layer. Instead of mixing rules into [models](src/PoC/src/models) or [services](src/PoC/src/services), business logic resides in [business](src/PoC/src/business). This makes rules reusable, testable, and easier to evolve as requirements change.
+
+**Technology for TypeScript/React stack**:
+
+- `TypeScript` - allows us to enforce domain types and constraints at compile-time.
+- `Zod` (already explained in [model](#Model)) - complements by enforcing runtime validation.
+- `Business Rules` - will be implemented in the [business](src/PoC/src/business) folder, decoupled from UI and API integration.
+
+**Examples of future Domain-Specific Rules**:
+
+SessionRules.ts
+```ts
+import { Session } from "../models/Session";
+
+export function canScheduleSession(session: Session): boolean {
+  const now = new Date();
+  return session.scheduledAt > now && session.duration >= 15 && session.duration <= 180;
+}
+
+```
+PackageRules.ts
+```ts
+import { Package } from "../models/Package";
+
+export function isPackageValid(pkg: Package): boolean {
+  return pkg.sessions > 0 && pkg.validUntil > new Date();
+}
+
+```
+**Implementation Templates**:
+
+Developers can create new business rules by:
+1. Importing the related model.
+2. Defining a pure function (no side effects) that encodes the rule.
+3. Returning a boolean, a transformed object, or throwing an error depending on the business requirement.
+```ts
+//Example for future UserRules.ts
+import { CreateUserInput } from "../validators/userValidator";
+
+export function canRegisterAsCoach(user: CreateUserInput): boolean {
+  const age = new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
+  return user.role === "COACH" ? age >= 18 : true;
+}
+
+```
+**Developer Guidelines:**
+- Keep models pure - only structure, no logic.
+- Use [validators](src/PoC/src/validators) only for input validation (runtime safety).
+- Always reference business rules from [services](src/PoC/src/services) to ensure consistent enforcement across the app.
 #### Services (not documented yet)
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
