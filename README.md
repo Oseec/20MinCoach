@@ -368,6 +368,7 @@ try {
 Centralize the domain-specific rules and business validations that define how the system behaves beyond data structure or persistence. This layer encapsulates the core logic of the domain, ensuring that models (data) and services (integration/API) respect the business constraints of the application.
 
 **Domain Driven Design (DDD) Theory**:
+
 Domain Driven Design promotes the separation of concerns by isolating domain logic into its own layer. Instead of mixing rules into [models](src/PoC/src/models) or [services](src/PoC/src/services), business logic resides in [business](src/PoC/src/business). This makes rules reusable, testable, and easier to evolve as requirements change.
 
 **Technology for TypeScript/React stack**:
