@@ -411,8 +411,8 @@ Provide at least one example of the validator and proper guidelines as explained
 
 At 20minCoach, we never want to couple the UI with the raw format of the backend, for two reasons:
 
--The backend may use different field names (snake_case) and formats that aren't ideal for the UI (dates as ISO strings, ambiguous flags, etc.).
--If the backend changes, we don't want to break the entire UI. The change should be contained in a single place.
+- The backend may use different field names (snake_case) and formats that aren't ideal for the UI (dates as ISO strings, ambiguous flags, etc.).
+- If the backend changes, we don't want to break the entire UI. The change should be contained in a single place.
 
 Use only within `src/services/` (raw requests/responses) and `src/middleware/transformers/` (mappings).
 Ex: the backend sends created_at as an ISO string → that's a DTO.
@@ -525,12 +525,12 @@ Example:
 
 #### Utilities 
 
-Decision for this project
+Decision for this project:
 
--Keep constants, formatUtils, timeUtils as stateless modules (no Singleton).
--Provide one Singleton only where it adds value: a logger with global config and consistent output. 
+- Keep constants, formatUtils, timeUtils as stateless modules (no Singleton).
+- Provide one Singleton only where it adds value: a logger with global config and consistent output. 
 
-you can see the example on the folder [LoggerUtils.ts](src/PoC/src/utils/loggerUtils.ts)
+you can see the example on this file [LoggerUtils.ts](src/PoC/src/utils/loggerUtils.ts)
 
 Usage anywhere
 
