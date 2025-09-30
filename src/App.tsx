@@ -12,8 +12,8 @@ import RequireRole from './auth/RequireRole';
 
 import { useOktaAuth, LoginCallback } from '@okta/okta-react';
 import RequireScope, { RequireAuthenticated } from './auth/RequireScope';
-import ActionA from './pages/actionA';
-import ActionB from './pages/actionB';
+import ActionA from './pages/ActionA';
+import ActionB from './pages/ActionB';
 import Forbidden from './pages/Forbidden';
 import Debug from './pages/Debug';
 
