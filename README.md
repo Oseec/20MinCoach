@@ -1227,16 +1227,45 @@ Classes, interfaces, types and enum members are named using the `PascalCase` con
 `npm run lint` checks all files and reports errors/warnings, `npm run lint:fix` fixes automatically correctable issues, including Prettier formatting.
 If you want to format the entire project according to Prettier rules use `npm run format` this formatting is independent of ESLint.
 
-#### Build and Deployment Pipeline (not documented yet)
+#### Build and Deployment Pipeline
+Continuous integration is achieved with the implementation of a pipeline => [ci-cd.yml](./.github/workflows/ci-cd.yml).
+This pipeline is in charge only of CI, CD (continuous deployment) is achieved with Vercel.
 
-Design build process for different environments
-Create development, staging, and production builds in the configuration files
-Create deployment documentation guidelines in the readme.md
-Add environment variable files
-Add pipeline for runing unit test
-Document instructions for developers on how to run the app, run the test and the deployment
-Tampoco tenemos nada de esto.
+```yml
+jobs:
+  # -----------------------------
+  # CI: Build + Test
+  # -----------------------------
+  build-and-test:
+    runs-on: ubuntu-latest
 
-Prueba2222
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build project
+        run: npm run build
+```
+This pipeline builds and tests the project. `vitest` is used for unit tests and `ESLint` is used for linting.
+The configuration of the linting tool is described in the previous layer.
+
+`vitest` tests files are located on [test](./src/test) in this files we have three tests. One for CoachCard, MainLayout and SessionCard.
+
+After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`.
 
 ## Consulta: Para lo de Maze, lo invitamos al team para que revise el heatmap y las grabaciones, mostramos eso nosotros en la revisión, o lo montamos en la docu?
