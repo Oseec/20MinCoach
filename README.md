@@ -2,22 +2,26 @@
 
 Este va a ser el principal documento encargado de la documentación del Caso 1.
 
-
 ## Tabla de Contenidos
+
 - [Diseño](#diseño)
 
 ## Diseño
+
 Esta sección se encarga de definir y explicar el diseño que se seguirá en la realización del Caso 1.
 
 (En el enunciado esta sección se divide en dos: Design Document y Detailed Layer Design Requirements.
-Así que nosotros también la vamos a dividir en dos, en cada sección o sub-sección de este documento agragaremos la "respuesta" o lo que pide 
+Así que nosotros también la vamos a dividir en dos, en cada sección o sub-sección de este documento agragaremos la "respuesta" o lo que pide
 su respectiva sección del enunciado. Las voy a enlistar...)
 
 (Más adelante podríamos cambiarle los nombres a estas secciones. De momento le pongo estos para mantener la claridad)
+
 ### Design Document
+
 (Esta seccion se divide en tres apartados: Technology Research and Selection, N-Layer Architecture Design y Visual Components Strategy)
 
 #### Technology Research and Selection
+
 A rasgos generales esta sección pide hacer una investigación sobre las tecnologías que vamos a utilizar en nuestro diseño:
 
 - Research modern frontend frameworks and libraries
@@ -34,6 +38,7 @@ pero brindemos una buena justificación. Esta sección no debería de ser muy la
 en este diseño.
 
 #### N-Layer Architecture Design
+
 Acá va el diagrama de layers.
 Talvez podríamos mostrar los layers con cajas y relacionarlos con flechas. Sería bueno tratar de agregarles un par de patrones de diseño
 para la comunicación entre ellos.
@@ -42,15 +47,20 @@ Por ahí podríamos agregar un listado de las responsabilidades de cada layer ab
 Document this before the architecture diagram. <- Talvez podríamos acomodar el diagrama de clases abajo de la lista de responsabilidades.
 
 #### Visual Components Strategy
-Esta sección no me quedó muy clara la verdad: 
+
+Esta sección no me quedó muy clara la verdad:
+
 - Develop a component organization strategy, this might be lead by the technology choose
 - Design how to achive a reusable component library structure, those are steps for the developers
 - Create a component development workflow based on the technology selected, those are steps for the developers
 - Establish component testing methodology, this is not theory, are steps for the developers
 
 ### Detailed Layer Design Requirements
+
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
+
 #### Visual Components
+
 **Location** : [src/PoC/src/components](src/PoC/src/components)
 
 **Purpose** :Centralize the visual structure of the application, composing layouts, domain-specific components, and reusable UI components under principles of consistency, accessibility, and responsiveness.
@@ -61,9 +71,9 @@ Esta sección indica las especificaciones esperadas de cada layer. Estrategias q
 
 - layout/ global layouts ([View layouts folder ](src/PoC/src/components/layout))
 
-- coach/  domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
+- coach/ domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
 
-- session/  domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
+- session/ domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
 
 **Applied Design Pattern** : Composite Pattern
 
@@ -72,29 +82,32 @@ The [main layout ](src/PoC/src/components/layout/MainLayout.tsx) acts as a Compo
 - PageContent is dynamically injected via React Router and corresponds to any file inside [src/pages ](src/PoC/src/pages/). These are the actual screens rendered inside the layout.
 
 Example: [main layout ](src/PoC/src/components/layout/MainLayout.tsx)
+
 ```tsx
-export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => {
+export const MainLayout = ({
+  children,
+  user,
+  currentPath,
+}: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         user={user}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         notifications={3}
       />
-      
+
       <div className="flex">
-        <Sidebar 
+        <Sidebar
           isOpen={sidebarOpen}
           userRole={user?.role}
           currentPath={currentPath}
         />
-        
+
         <main className="flex-1 lg:ml-64">
-          <div className="container max-w-7xl mx-auto p-6">
-            {children}
-          </div>
+          <div className="container max-w-7xl mx-auto p-6">{children}</div>
         </main>
       </div>
     </div>
@@ -102,7 +115,7 @@ export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => 
 };
 ```
 
-![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)  
+![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)
 
 **Reusability Guidelines**
 
@@ -120,13 +133,13 @@ export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => 
 
 - Tailwind breakpoints (sm:, md:, lg:) are used throughout.
 - Example from [main layout ](src/PoC/src/components/layout/MainLayout.tsx):
+
 ```tsx
 <main className="flex-1 lg:ml-64">
-  <div className="container max-w-7xl mx-auto p-6">
-    {children}
-  </div>
+  <div className="container max-w-7xl mx-auto p-6">{children}</div>
 </main>
 ```
+
 - Sidebar switches from fixed (lg:ml-64) to mobile overlay depending on viewport.
 
 **Developer Rules**
@@ -138,13 +151,14 @@ export const MainLayout = ({ children, user, currentPath }: MainLayoutProps) => 
 3. Global layout - [layout](src/PoC/src/components/layout/)
 
 4. Every component must be:
+   - Responsive
 
-    - Responsive
+   - Accessible
 
-    - Accessible
+   - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 
-    - Free of business logic (business logic lives in [services](src/PoC/src/services/))
 #### Controllers
+
 **Location** : [src/PoC/src/hooks](src/PoC/src/hooks)
 
 **Purpose** : Centralize application logic connecting services and domain data to UI components.  
@@ -153,10 +167,10 @@ They follow dependency injection principles for flexibility and testability.
 
 **Folder Hierarchy**
 
-- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior  
-- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments 
-- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications  
-- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling  
+- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior
+- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments
+- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications
+- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling
 
 **Applied Design Pattern**: Mediator Pattern via Custom Hooks
 
@@ -170,7 +184,7 @@ This allows hooks to remain flexible and testable.
 **Hook-based Connectors**
 
 Hooks act as a bridge between UI components and services or shared state.  
-They manage asynchronous operations, event handling, and derived state.  
+They manage asynchronous operations, event handling, and derived state.
 
 Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
 
@@ -182,37 +196,42 @@ Hooks return only what is necessary to the components: **state variables, callba
 const isMobile = useIsMobile();
 
 //Usage in a component
-<div className={isMobile ? "p-4" : "p-8"}>Responsive Content</div>
+<div className={isMobile ? 'p-4' : 'p-8'}>Responsive Content</div>;
 ```
+
 **useToast Hook** toast notification controller
+
 ```ts
 const { toast, dismiss } = useToast();
 
 //Usage in a component
 <Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
 ```
+
 Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
 **useLogger Hook** – logging and error handling controller
+
 ```ts
 const { logUserAction, handleAsyncOperation } = useLogger();
 
 //Log an action
-logUserAction("Clicked Save Button");
+logUserAction('Clicked Save Button');
 
 //Handle async operation with error handling
 await handleAsyncOperation(
   () => saveSessionData(session),
-  "SESSION",
-  "save_session",
+  'SESSION',
+  'save_session',
   user.id,
   session.id
 );
-
 ```
-[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/exceptionHandling/ExceptionHandler.ts)
-#### Model
-**Location**: [src/PoC/src/models](src/PoC/src/models)
 
+[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/exceptionHandling/ExceptionHandler.ts)
+
+#### Model
+
+**Location**: [src/PoC/src/models](src/PoC/src/models)
 
 **Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/PoC/src/models/User.ts), [Coach](src/PoC/src/models/Coach.ts), [Session](src/PoC/src/models/Session.ts), [SessionPackage](src/PoC/src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
 
@@ -236,29 +255,37 @@ We use Zod for runtime input validation. Validators live in a separate layer: [s
 import { createCoachSchema } from '../validators/coachValidator';
 
 const newCoachInput = {
-  bio: "Experienced fitness coach with 10+ years in training.",
-  headline: "Fitness & Wellness Expert",
-  specialties: ["HEALTH", "PSYCHOLOGY"],
+  bio: 'Experienced fitness coach with 10+ years in training.',
+  headline: 'Fitness & Wellness Expert',
+  specialties: ['HEALTH', 'PSYCHOLOGY'],
   experience: 10,
   pricePerSession: 50,
   availability: {
-    timezone: "America/Bogota",
-    weeklySchedule: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] },
-    instantAvailable: true
+    timezone: 'America/Bogota',
+    weeklySchedule: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    },
+    instantAvailable: true,
   },
-  languages: ["English", "Spanish"],
+  languages: ['English', 'Spanish'],
 };
 
 try {
   const validCoach = createCoachSchema.parse(newCoachInput);
-  console.log("Coach is valid:", validCoach);
+  console.log('Coach is valid:', validCoach);
 } catch (err) {
   if (err instanceof Error) {
-    console.error("Validation error:", err);
+    console.error('Validation error:', err);
   }
 }
-
 ```
+
 **Explanation**:
 
 - createCoachSchema.parse(input) validates the input.
@@ -268,26 +295,32 @@ try {
 **How to Create More Validators**
 
 1. Import Zod:
+
 ```ts
 import { z } from 'zod';
 ```
+
 2. Define schemas for fields:
+
 ```ts
 const timeSlotSchema = z.object({
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
 });
 ```
+
 3. Compose complex schemas:
+
 ```ts
 const weeklyScheduleSchema = z.object({
   monday: z.array(timeSlotSchema),
   tuesday: z.array(timeSlotSchema),
   // ...
 });
-
 ```
+
 4. Create main entity schema:
+
 ```ts
 export const createSessionSchema = z.object({
   clientId: z.string(),
@@ -295,17 +328,18 @@ export const createSessionSchema = z.object({
   scheduledAt: z.date(),
   duration: z.number().min(15).max(180),
 });
-
 ```
+
 5. Infer TypeScript type for type safety:
+
 ```ts
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
-
 ```
+
 6. Use schema in services/controllers:
+
 ```ts
 const validated = createSessionSchema.parse(inputData);
-
 ```
 
 **Developer Guidelines**
@@ -315,12 +349,15 @@ const validated = createSessionSchema.parse(inputData);
 - Always use model types for consistency.
 - Use Zod `z.enum()` for enum validation.
 - When adding a new model, create a matching validator if input validation is required.
+
 #### Middleware
+
 **Location**: [src/PoC/src/middleware](src/PoC/src/middleware)
 
 **Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
 
 **Folder Hierarchy**:
+
 - [authMiddleware.ts](src/PoC/src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
 - [errorMiddleware.ts](src/PoC/src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
 - [transformers](src/PoC/src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/PoC/src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/PoC/src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/PoC/src/middleware/transformers/user.mapper.ts)).
@@ -331,25 +368,26 @@ Middleware functions as a pipeline to intercept, validate, log, or transform req
 
 **Examples**
 AuthMiddleware
+
 ```ts
 const auth = new AuthMiddleware();
 app.use((req, res, next) => auth.requireAuth(req, res, next));
-
 ```
+
 - Checks access token and refreshes if expired.
 - Supports role-based guards via `requireRole()`.
 
-
 ErrorMiddleware
+
 ```ts
 try {
   await someServiceOperation();
 } catch (err) {
-  const handled = ErrorMiddleware.createErrorHandler("SESSION")(err);
+  const handled = ErrorMiddleware.createErrorHandler('SESSION')(err);
   console.error(handled);
 }
-
 ```
+
 - Wraps any service/controller operation.
 - Produces standardized error responses with timestamp, correlationId, code, and message.
 - Logs errors and security events via [LogginService](src/PoC/src/services/LoggingService.ts).
@@ -360,7 +398,9 @@ try {
 - Use transformers to map incoming DTOs to models, keeping controllers/services clean.
 - Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 - All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
+
 #### Business
+
 **Location**: [src/PoC/src/business](src/PoC/src/business)
 
 **Purpose:**
@@ -380,54 +420,66 @@ Domain Driven Design promotes the separation of concerns by isolating domain log
 **Examples of future Domain-Specific Rules**:
 
 SessionRules.ts
+
 ```ts
-import { Session } from "../models/Session";
+import { Session } from '../models/Session';
 
 export function canScheduleSession(session: Session): boolean {
   const now = new Date();
-  return session.scheduledAt > now && session.duration >= 15 && session.duration <= 180;
+  return (
+    session.scheduledAt > now &&
+    session.duration >= 15 &&
+    session.duration <= 180
+  );
 }
-
 ```
+
 PackageRules.ts
+
 ```ts
-import { Package } from "../models/Package";
+import { Package } from '../models/Package';
 
 export function isPackageValid(pkg: Package): boolean {
   return pkg.sessions > 0 && pkg.validUntil > new Date();
 }
-
 ```
+
 **Implementation Templates**:
 
 Developers can create new business rules by:
+
 1. Importing the related model.
 2. Defining a pure function (no side effects) that encodes the rule.
 3. Returning a boolean, a transformed object, or throwing an error depending on the business requirement.
+
 ```ts
 //Example for future UserRules.ts
-import { CreateUserInput } from "../validators/userValidator";
+import { CreateUserInput } from '../validators/userValidator';
 
 export function canRegisterAsCoach(user: CreateUserInput): boolean {
-  const age = new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
-  return user.role === "COACH" ? age >= 18 : true;
+  const age =
+    new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
+  return user.role === 'COACH' ? age >= 18 : true;
 }
-
 ```
+
 **Developer Guidelines:**
+
 - Keep models pure - only structure, no logic.
 - Use [validators](src/PoC/src/validators) only for input validation (runtime safety).
 - Always reference business rules from [services](src/PoC/src/services) to ensure consistent enforcement across the app.
+
 #### Services (not documented yet)
+
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
-
 
 #### Background/Jobs/Listeners
 
 ## Consulta: Puedo o debo documentarlo aunque no lo implemente?, creo que es una buena opcion implementarlo/documentarlo por el tema de notificar cuando el usuario cerro la aplicacion, sea web, o en el futuro se diseñe tambien mobile; por ejemplo, notificaciones como “tu sesión empieza en 5 min”, o tambien por el tema de poder ver la actividad reciente sin recargar. Sin embargo, ahorita debido a las pocas funciones y requerimientos que tenemos, no es tan primordial implementaro, ademas entiendo que requiere backend. Aunque podria ser buena idea documentarlo para implementaciones futuras, ya que si mejoraria bastante el UI.
 
 Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
+
 - Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
 - Publish these events to a decoupled Event Bus (Pub/Sub) consumed by UI modules.
 - Implements periodic jobs with React Query (polling and invalidation upon return of focus/online).
@@ -436,6 +488,7 @@ Its a layer that handles everything that happens "in the background" without dir
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
 #### Validators (not documented yet)
+
 Correlate this section with the model design
 Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 
@@ -452,6 +505,7 @@ Ex: the backend sends created_at as an ISO string → that's a DTO.
 If you need a DTO in the UI, something is wrong: add a mapper.
 
 Mappers are invoked on services:
+
 ```tsx
 //CoachService.ts
 
@@ -462,10 +516,11 @@ async getCoachById(id: string): Promise<Coach> {
   return coachMapper.fromDTO(dto); // <- mapping
 }
 ```
-there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers) 
 
+there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers)
 
 #### State management (not documented yet)
+
 Select and design the state management solution
 Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
 
@@ -505,15 +560,20 @@ The project uses Tailwind CSS compiled with PostCSS + Autoprefixer. The only glo
 
 ```
 
-***Use in components***
+**_Use in components_**
 
 Components only use Tailwind utilities that already point to tokens. The UI should not see token names or hexadecimals.
 
 Practical example:
 
 ```tsx
-
-export function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
+export function InfoCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4">
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -524,28 +584,27 @@ export function InfoCard({ title, children }: { title: string; children: React.R
     </section>
   );
 }
-
 ```
 
-***Light/Dark Mode***
+**_Light/Dark Mode_**
 
 The .dark class in <html> enables the dark theme. The toggle should only change that class and optionally persist the preference.
 
 Useful snippet:
 
 ```tsx
-type Theme = "light" | "dark" | "system";
+type Theme = 'light' | 'dark' | 'system';
 
 export function setTheme(next: Theme) {
   const root = document.documentElement;
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const effective = next === "system" ? (prefersDark ? "dark" : "light") : next;
-  root.classList.toggle("dark", effective === "dark");
-  localStorage.setItem("theme", next);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const effective = next === 'system' ? (prefersDark ? 'dark' : 'light') : next;
+  root.classList.toggle('dark', effective === 'dark');
+  localStorage.setItem('theme', next);
 }
 ```
 
-***Responsiveness***
+**_Responsiveness_**
 
 The design is mobile-first. It uses grid, flex, and gap with the default breakpoints (sm, md, lg, xl). The container is already centered with padding: 2rem and 2xl: 1400px from tailwind.config. Avoid fixed widths unless clearly necessary.
 
@@ -555,33 +614,34 @@ Example:
 <div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">…</div>
 ```
 
-#### Utilities 
+#### Utilities
 
 Decision for this project:
 
 - Keep constants, formatUtils, timeUtils as stateless modules (no Singleton).
-- Provide one Singleton only where it adds value: a logger with global config and consistent output. 
+- Provide one Singleton only where it adds value: a logger with global config and consistent output.
 
 you can see the example on this file [LoggerUtils.ts](src/PoC/src/utils/loggerUtils.ts)
 
 Usage anywhere
 
 ```tsx
-import { logger } from "@/utils/loggerUtils";
+import { logger } from '@/utils/loggerUtils';
 
-logger.info("Fetching coach", { coachId: id });
+logger.info('Fetching coach', { coachId: id });
 // later, if you need more verbosity in dev:
-import { Logger } from "@/utils/loggerUtils";
-Logger.getInstance().setLevel("debug");
+import { Logger } from '@/utils/loggerUtils';
+Logger.getInstance().setLevel('debug');
 ```
 
-
 #### Exception Handling
+
 The idea of this layer is to transform/process exceptions or errors generated at the lower levels so that they become readable and user-friendly, prioritizing that their occurrence does not affect the logic of the rest of the program. It also serves as a framework for the logging layer, especially for the generation of error-related logs.
 
 [ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) is the class in charge of processing all exceptions
 
 This class implements a Singleton pattern since only one instance of the class is needed.
+
 ```ts
 static getInstance(): ExceptionHandler {
     if (!ExceptionHandler.instance) {
@@ -592,6 +652,7 @@ static getInstance(): ExceptionHandler {
 ```
 
 The following method is the core of this class. It logs errors, transforms them to uniform objects returned as HandleException, therefore only friendly and meaningful mesagges are shown to the user. It also adapts messages deppending to each category (SESSION, PAYMENT, VIDEO, etc.) and enriches with metadata in order to provide helpful log messages.
+
 ```ts
 handleException(
     error: Error | any,
@@ -629,9 +690,11 @@ handleException(
       });
     }
 ```
+
 **correlationId** allows an error trace from the client to server logs.
 
 Custom user-messages are generated in the following method (there are other messages for different error types).
+
 ```ts
 private getErrorMessage(error: any, context: ExceptionContext): string {
     // Network errors
@@ -642,7 +705,7 @@ private getErrorMessage(error: any, context: ExceptionContext): string {
     // HTTP errors
     if (error.response) {
       const status = error.response.status;
-      
+
       switch (status) {
         case 400:
           return this.getBadRequestMessage(context);
@@ -681,8 +744,8 @@ Here´s a diagram of the error handling flow
 
 <img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="200"/>
 
-
 #### Logging
+
 This logging layer is designed to provide request, conectivity and user interaction tracking.
 It provides a source of data for future business intelligence metrics scoped to enhance user experience.
 
@@ -690,14 +753,13 @@ Log flow
 
 <img src="./diagrams/logFlow.png" alt="logFlow Image" width="500"/>
 
-
 [LoggingService.ts](src/PoC/src/logging/LoggingService.ts): centralized logging class that standardizes how logs are created, buffered, and sent to the backend system in this design.
 
 It follows the Singleton pattern to ensure that the entire application uses the same logging instance with a shared configuration.
 
-
 After their creation logs are stored in a buffer `logBuffer`.  
-Automatically flushes when the buffer reaches the configured batch size or a periodic timer `flushTimer` triggers after `flushInterval`.  
+Automatically flushes when the buffer reaches the configured batch size or a periodic timer `flushTimer` triggers after `flushInterval`.
+
 ```ts
 private addLog(log: LogEntry): void {
     this.logBuffer.push(log);
@@ -714,11 +776,12 @@ private addLog(log: LogEntry): void {
   }
 ```
 
-**In Development**: Logs are shown in the browser console `logToConsole`. 
+**In Development**: Logs are shown in the browser console `logToConsole`.
+
 ```ts
 private logToConsole(log: LogEntry): void {
     const logMessage = `[${log.timestamp}] ${log.level} [${log.category}] ${log.event_type}`;
-    
+
     switch (log.level) {
       case 'ERROR':
         console.error(logMessage, log.type_info);
@@ -735,8 +798,8 @@ private logToConsole(log: LogEntry): void {
   }
 ```
 
-
 **In Production**: Logs are sent in bulk to a backend endpoint.
+
 ```ts
 private async flush(): Promise<void> {
     if (this.logBuffer.length === 0) return;
@@ -777,21 +840,21 @@ private async flush(): Promise<void> {
 
 Log Types and Tags
 
-| Category     | Description               |     Tag     |
-|--------------|---------------------------|-------------|
-| **SESSION**  | Video session logs        | INFO/DEBUG  |
-| **PAYMENT**  | Financial transactions    | WARN/ERROR  |
-| **USER**     | User actions              | INFO        |
-| **COACH**    | Coach actions             | INFO        |
-| **MATCHING** | Matching algorithm        | DEBUG       |
-| **VIDEO**    | Video quality metrics     | ERROR/WARN  |
-
+| Category     | Description            | Tag        |
+| ------------ | ---------------------- | ---------- |
+| **SESSION**  | Video session logs     | INFO/DEBUG |
+| **PAYMENT**  | Financial transactions | WARN/ERROR |
+| **USER**     | User actions           | INFO       |
+| **COACH**    | Coach actions          | INFO       |
+| **MATCHING** | Matching algorithm     | DEBUG      |
+| **VIDEO**    | Video quality metrics  | ERROR/WARN |
 
 Log Structure
 
 The creation of these log types is declared in this file => [LogTypes.ts](src/PoC/src/types/LogTypes.ts)
 
 Base Log Information
+
 ```ts
 export interface BaseLog {
   timestamp: string;
@@ -802,21 +865,23 @@ export interface BaseLog {
   type_info: Record<string, any>;
 }
 ```
+
 This info is going to be present on every log type. No matter what tag it has.
 **type_info** is going to be extra information related to the log type and tag.
 
-
 COACH, USER and SESSION logs are considered simple logs, these usually inform of session initialization or users log-Ins.
 Therefore **type_info** wont add relevant information to these logs.
+
 ```ts
 export interface StandardLog extends BaseLog {
   type_info: {};
 }
 ```
 
-The following types are considered complex logs. Therefore **type_info** is defined as such: 
+The following types are considered complex logs. Therefore **type_info** is defined as such:
 
 PAYMENT
+
 ```ts
 export interface PaymentLog extends BaseLog {
   category: 'PAYMENT';
@@ -832,7 +897,9 @@ export interface PaymentLog extends BaseLog {
   };
 }
 ```
+
 MATCHING
+
 ```ts
 export interface MatchingLog extends BaseLog {
   category: 'MATCHING';
@@ -852,6 +919,7 @@ export interface MatchingLog extends BaseLog {
 ```
 
 VIDEO
+
 ```ts
 export interface VideoLog extends BaseLog {
   category: 'VIDEO';
@@ -880,26 +948,27 @@ This ensures that older logs remain accessible for investigation, audits, and re
 S3 lifecycle rules automatically move objects to Glacier/Deep Archive for further cost reduction.
 
 Lifecycle transitions:
+
 - 0–1 year: S3 Standard-IA (Infrequent Access).
 - 1–7 years: Glacier.
 - 7+ years: Glacier Deep Archive (optional).
-
 
 Retention and Storage Strategy
 Once a log is considered cold storage it'll be transfered to S3.
 The time after the last indexation in order to considered a "log-cold" storage vary for each category.
 
-| Category     |       Time Until Cold     |
-|--------------|---------------------------|
-| **SESSION**  |          30 days          |
-| **PAYMENT**  |         6 months          |
-| **USER**     |         6 months          |
-| **COACH**    |         6 months          |
-| **MATCHING** |          30 days          |
-| **VIDEO**    |          30 days          |
-| **SECURITY** |         6 months          |
+| Category     | Time Until Cold |
+| ------------ | --------------- |
+| **SESSION**  | 30 days         |
+| **PAYMENT**  | 6 months        |
+| **USER**     | 6 months        |
+| **COACH**    | 6 months        |
+| **MATCHING** | 30 days         |
+| **VIDEO**    | 30 days         |
+| **SECURITY** | 6 months        |
 
 #### Security
+
 Okta is the service we chose to manage the platform’s authentication.
 The code related to this service is located in the following folder: [auth](src/PoC/src/auth)
 
@@ -908,6 +977,7 @@ configures the Okta authentication client with the credentials and security para
 
 [OktaProvider.tsx](src/PoC/src/auth/OktaProvider.tsx) is a React component that authenticates the user when trying to access a page. After a successful login, Okta redirects the user to the route they originally attempted to visit.
 This way, any protected route can automatically verify whether the user is logged in or not.
+
 ```tsx
 export default function OktaProvider({ children }: PropsWithChildren) {
   const navigate = useNavigate();
@@ -921,11 +991,13 @@ export default function OktaProvider({ children }: PropsWithChildren) {
   );
 }
 ```
+
 `oktaAuth` (authentication client) and `buildRestoreOriginalUri()` (function in charge of redirecting the user) come from [oktaConfig.ts](src/PoC/src/auth/oktaConfig.ts).
 
 [RequireRole.tsx](src/PoC/src/auth/RequireRole.tsx) implements a React hook and component to handle role-based authorization using Okta and React Router. This component protects routes and ensures that only users with certain roles can access them.
 
 While Okta determines whether the user is logged in, we do nothing. This prevents displaying content before knowing the actual state.
+
 ```ts
 if (authState?.isAuthenticated === undefined) {
   return null; //o un spinner
@@ -933,6 +1005,7 @@ if (authState?.isAuthenticated === undefined) {
 ```
 
 If the user is not authenticated, they are redirected to `/login`, and a query parameter is added with the original route so that, after logging in, they can return to where they were.
+
 ```ts
 if (!authState?.isAuthenticated) {
   const target = `/login?from=${encodeURIComponent(location.pathname)}`;
@@ -942,6 +1015,7 @@ if (!authState?.isAuthenticated) {
 
 The user’s roles are extracted and checked to see if any of them match the allowed roles `(anyOf)`.
 If there is no match, the user is redirected to `/403` (Forbidden).
+
 ```ts
 const roles = ((authState.idToken?.claims as any)?.roles as string[]) ?? [];
 const ok = roles.some((r) => anyOf.includes(r));
@@ -949,6 +1023,7 @@ if (!ok) return <Navigate to="/403" replace />;
 ```
 
 If all validations pass, the child component is rendered.
+
 ```ts
 return children;
 ```
@@ -965,6 +1040,7 @@ export function hasAllScopes(
   return required.every((s) => set.has(s));
 }
 ```
+
 `scopesStr` contains the user’s scopes present in the access token, and `require` represents the scopes needed to access the route or resource. This function returns `true` only if all the required scopes are included in `scopesStr`.
 
 `hasAllScopes` is used as the foundation for other functions, which, depending on certain criteria, will determine whether the user is allowed to access the requested route or not.
@@ -1014,6 +1090,7 @@ export default function RequireScope({
   return children;
 }
 ```
+
 `RequireScope` allows user access only if it has all scopes needed.
 
 ```ts
@@ -1034,6 +1111,7 @@ export function RequireAnyScope({
   return ok ? children : <Navigate to={redirectTo} replace />;
 }
 ```
+
 `RequireAnyScope` allows user access if the user has at least one of the scopes needed.
 
 ```ts
@@ -1051,21 +1129,21 @@ export function RequireAuthenticated({
   );
 }
 ```
+
 `RequireAuthenticated` protects routes only with login, regardless of scopes. This applies in cases where a page is declared as public and can be accessed by any user, regardless of their permissions.
 
 Below is a diagram that illustrates the flow followed by an access request made by the user in the established design:
 
 <img src="./diagrams/accessRequestFlow.png" alt="accessRequesFlow Image" width="400"/>
 
-
-
 #### Linter Configuration
+
 The linting strategy in this project combines ESLint and Prettier to ensure consistent, clean, and maintainable code.
 We chose to add Prettier to a ESLint setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
 Prettier runs as an ESLint rule, so formatting errors are reported alongside other lint errors.
 
-
 **ESLint on Flat-Config**
+
 - The project uses ESLint Flat Config, a modern ESM-based configuration replacing the traditional `.eslintrc.*`.
 - Configuration is in [eslint.config.js](src\PoC\eslint.config.js) and defines:
   - Files to analyze: `**/*.{ts,tsx}`
@@ -1078,6 +1156,7 @@ Prettier runs as an ESLint rule, so formatting errors are reported alongside oth
 Base rules: `eslint:recommended` and `typescript-eslint/recommended`
 
 This is the code responsible of setting these ESLint params
+
 ```js
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -1116,6 +1195,7 @@ export default tseslint.config(
 ```
 
 **Prettier**
+
 - Automatically formats all `.ts` and `.tsx` files.
 - Rules defined in `.prettierrc.json`:
   - Single quotes (')
@@ -1126,6 +1206,7 @@ export default tseslint.config(
   - Always use parentheses in arrow functions
 
 This is the code responsible of setting these Prettier params
+
 ```json
 {
   "semi": true,
@@ -1146,8 +1227,8 @@ Classes, interfaces, types and enum members are named using the `PascalCase` con
 `npm run lint` checks all files and reports errors/warnings, `npm run lint:fix` fixes automatically correctable issues, including Prettier formatting.
 If you want to format the entire project according to Prettier rules use `npm run format` this formatting is independent of ESLint.
 
-
 #### Build and Deployment Pipeline (not documented yet)
+
 Design build process for different environments
 Create development, staging, and production builds in the configuration files
 Create deployment documentation guidelines in the readme.md

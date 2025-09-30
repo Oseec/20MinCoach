@@ -13,8 +13,8 @@ export default defineConfig(({ mode }) => ({
     Boolean
   ),
   test: {
-    globals: true,          // usar describe, it, expect sin importar nada
-    environment: 'jsdom',   // simular navegador (para React o DOM APIs)
+    globals: true, // usar describe, it, expect sin importar nada
+    environment: 'jsdom', // simular navegador (para React o DOM APIs)
     coverage: {
       provider: 'istanbul', // o 'v8'
       reporter: ['text', 'html'],
