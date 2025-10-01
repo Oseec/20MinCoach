@@ -69,175 +69,138 @@ Esta sección no me quedó muy clara la verdad:
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 
 #### Visual Components
+All visual components are in [/src/components](src/components/).
+Use them as building blocks, never re-invent styles.
 
-**Location** : [src/PoC/src/components](src/PoC/src/components)
+**Cards**
 
-**Purpose** :Centralize the visual structure of the application, composing layouts, domain-specific components, and reusable UI components under principles of consistency, accessibility, and responsiveness.
+Base card is defined in [/src/components/ui/card.tsx](src/components/ui/card.tsx)
 
-**Folder Hierarchy**
+It already includes `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription`.
 
-- ui/ base reusable components ([View ui folder](src/PoC/src/components/ui))
+To build a domain card (e.g. coach profile), import and compose these parts.
 
-- layout/ global layouts ([View layouts folder ](src/PoC/src/components/layout))
+Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx)
+:
 
-- coach/ domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
-
-- session/ domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
-
-**Applied Design Pattern** : Composite Pattern
-
-The [main layout ](src/PoC/src/components/layout/MainLayout.tsx) acts as a Composite, organizing and composing subcomponents ([header](src/PoC/src/components/layout/Header.tsx)), ([sidebar ](src/PoC/src/components/layout/Sidebar.tsx)) along with the dynamic page content (children).
-
-- PageContent is dynamically injected via React Router and corresponds to any file inside [src/pages ](src/PoC/src/pages/). These are the actual screens rendered inside the layout.
-
-Example: [main layout ](src/PoC/src/components/layout/MainLayout.tsx)
-
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 ```tsx
-export const MainLayout = ({
-  children,
-  user,
-  currentPath,
-}: MainLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Header
-        user={user}
-        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-        notifications={3}
-      />
-
-      <div className="flex">
-        <Sidebar
-          isOpen={sidebarOpen}
-          userRole={user?.role}
-          currentPath={currentPath}
-        />
-
-        <main className="flex-1 lg:ml-64">
-          <div className="container max-w-7xl mx-auto p-6">{children}</div>
-        </main>
-      </div>
-    </div>
-  );
-};
+<Card>
+  <CardContent>…coach info…</CardContent>
+  <CardFooter>
+    <Button>Ver perfil</Button>
+    <Button>Conectar ahora</Button>
+  </CardFooter>
+</Card>
 ```
 
-![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)
+**Rule**: always extend from ui/card.tsx. Do not duplicate card markup or styles.
 
-**Reusability Guidelines**
+**Sidebar**
 
-- Generic components - [ui](src/PoC/src/components/ui/)
-- Domain-specific components - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
-- Global layouts - [layout](src/PoC/src/components/layout/)
+The sidebar system is already implemented in [/src/components/layout/Sidebar.tsx](/src/components/layout/Sidebar.tsx).
 
-**Accessibility**
+Use <SidebarProvider> at the root, and <Sidebar>, <SidebarContent>, <SidebarMenu>, <SidebarMenuItem> etc. to build navigation.
 
-- Buttons and inputs should include ARIA attributes (aria-label, aria-expanded, etc.).
-- All interactive elements must be keyboard accessible (tabIndex).
-- Minimum contrast ratio: 4.5:1 (WCAG 2.1).
+Toggle is done with <SidebarTrigger>.
+
+Responsive behavior is built in: desktop = fixed, mobile = overlay.
+
+Example:
+```tsx
+<SidebarProvider>
+  <Sidebar>
+    <SidebarContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton isActive>Dashboard</SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarContent>
+  </Sidebar>
+
+  <SidebarInset>{children}</SidebarInset>
+</SidebarProvider>
+
+```
+
+**Rule**: never implement your own sidebar; always extend this system.
+
+**Reusability and Accessibility**
+
+- For new components, always place them in the right folder:
+  - [ui/](src/components/ui) - generic reusable (e.g. `Button`, `Card`)
+  - [coach/](src/components/coach) - coach domain components (e.g. [CoachCard](src/components/coach/CoachCard.tsx))
+  - [session/](src/components/session) - session domain components
+
+All interactive elements must have ARIA attributes:
+```tsx
+<button aria-label="Open sidebar" aria-expanded={isOpen}>Menu</button>
+```
+
+Keyboard accessibility: ensure tabIndex=0 on links and buttons.
 
 **Responsiveness**
 
-- Tailwind breakpoints (sm:, md:, lg:) are used throughout.
-- Example from [main layout ](src/PoC/src/components/layout/MainLayout.tsx):
+Use Tailwind breakpoints (`sm:`, `md:`, `lg:`) consistently.
+Do not hardcode widths; use container/grid utilities.
+Sidebar and Card components already include mobile → desktop transitions.
 
+**Developer rules**
+
+- No business logic in components. Data must come via props.
+- Only use Tailwind tokens (colors, shadows, transitions) defined in index.css. Never use raw hex values.
+- Example of token usage:
 ```tsx
-<main className="flex-1 lg:ml-64">
-  <div className="container max-w-7xl mx-auto p-6">{children}</div>
-</main>
+<div className="bg-card text-card-foreground shadow-[var(--shadow-soft)]">
+  …
+</div>
 ```
-
-- Sidebar switches from fixed (lg:ml-64) to mobile overlay depending on viewport.
-
-**Developer Rules**
-
-1. Generic - [ui](src/PoC/src/components/ui/)
-
-2. Domain-specific - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
-
-3. Global layout - [layout](src/PoC/src/components/layout/)
-
-4. Every component must be:
-   - Responsive
-
-   - Accessible
-
-   - Free of business logic (business logic lives in [services](src/PoC/src/services/))
-
 #### Controllers
 
-**Location** : [src/PoC/src/hooks](src/PoC/src/hooks)
-
-**Purpose** : Centralize application logic connecting services and domain data to UI components.  
-Controllers encapsulate data fetching, state management, and side effects while exposing clean APIs to components via hooks.  
-They follow dependency injection principles for flexibility and testability.
-
-**Folder Hierarchy**
-
-- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior
-- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments
-- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications
-- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling
-
-**Applied Design Pattern**: Mediator Pattern via Custom Hooks
-
-Each hook functions as a mediator between the UI and services.
+All controller logic is implemented as custom React hooks inside [/src/hooks](/src/hooks/).
+These hooks connect UI components with domain services while following dependency injection principles.
 
 **Dependency Injection**
 
-Services are injected or accessed via singletons (e.g., [AuthService](src/PoC/src/services/AuthService.ts), [CoachService](src/PoC/src/services/CoachService.ts), [SessionService](src/PoC/src/services/SessionService.ts), [LoggingService](src/PoC/src/services/LoggingService.ts)) instead of being hardcoded inside hooks.  
-This allows hooks to remain flexible and testable.
+Hooks must always call services via their singletons instead of hardcoding logic.
+Example: `CoachService.getInstance()` is used inside a hook instead of directly importing fetch logic.
+This keeps hooks testable and ensures consistency across the app.
 
-**Hook-based Connectors**
+**Available Hooks**
 
-Hooks act as a bridge between UI components and services or shared state.  
-They manage asynchronous operations, event handling, and derived state.
-
-Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
-
-**Examples**
-
-**useIsMobile Hook** – viewport detection
-
+[use-mobile.tsx](src/hooks/use-mobile.tsx)– detects viewport size to handle responsive UI.
 ```tsx
 const isMobile = useIsMobile();
-
-//Usage in a component
-<div className={isMobile ? 'p-4' : 'p-8'}>Responsive Content</div>;
+<div className={isMobile ? "p-4" : "p-8"}>Responsive content</div>
 ```
 
-**useToast Hook** toast notification controller
-
-```ts
-const { toast, dismiss } = useToast();
-
-//Usage in a component
-<Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
+use-toast.ts – manages toast notifications.
+```tsx
+const { toast } = useToast();
+<Button onClick={() => toast({ title: "Profile saved!" })}>Save</Button>
 ```
 
-Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
-**useLogger Hook** – logging and error handling controller
-
-```ts
+[useLogger.ts](src/hooks/useLogger.ts)– connects UI with [LoggingService](src/logging/LoggingService.ts) and [ExceptionHandler](src/exceptionHandling/ExceptionHandler.ts).
+```tsx
 const { logUserAction, handleAsyncOperation } = useLogger();
 
-//Log an action
-logUserAction('Clicked Save Button');
+logUserAction("Clicked Save Button");
 
-//Handle async operation with error handling
 await handleAsyncOperation(
-  () => saveSessionData(session),
-  'SESSION',
-  'save_session',
-  user.id,
-  session.id
+  () => CoachService.getInstance().getCoachById("123"),
+  "COACH",
+  "fetch_by_id",
+  user.id
 );
 ```
+**Rules for Developers**
 
-[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/exceptionHandling/ExceptionHandler.ts)
-
+- Do not place fetch/business logic inside components. Always wrap it in a hook.
+- When you need service calls (e.g., coaches, sessions, auth), always inject via Service.getInstance().
+- Hooks must only return state, callbacks, or utilities to the component.
+- For errors, always go through useLogger.handleError or useLogger.handleAsyncOperation, never try/catch silently.
+- Add new hooks inside /src/hooks following the same pattern.
 #### Model
 
 **Location**: [src/PoC/src/models](src/PoC/src/models)
