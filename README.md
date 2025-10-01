@@ -200,7 +200,7 @@ await handleAsyncOperation(
 - When you need service calls (e.g., coaches, sessions, auth), always inject via Service.getInstance().
 - Hooks must only return state, callbacks, or utilities to the component.
 - For errors, always go through useLogger.handleError or useLogger.handleAsyncOperation, never try/catch silently.
-- Add new hooks inside /src/hooks following the same pattern.
+- Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
 #### Model
 
 **Location**: [src/PoC/src/models](src/PoC/src/models)
