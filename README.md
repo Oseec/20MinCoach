@@ -1154,7 +1154,7 @@ npm install --save-dev eslint-config-prettier eslint-plugin-prettier
     "format": "prettier --write ."
   }
 }
-
+```
 
 **ESLint on Flat-Config**
 
