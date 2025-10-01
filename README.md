@@ -21,22 +21,31 @@ su respectiva sección del enunciado. Las voy a enlistar...)
 (Esta seccion se divide en tres apartados: Technology Research and Selection, N-Layer Architecture Design y Visual Components Strategy)
 
 #### Technology Research and Selection
+For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required.
 
-A rasgos generales esta sección pide hacer una investigación sobre las tecnologías que vamos a utilizar en nuestro diseño:
+`React` provides flexibility, is very popular and allows scalability for projects of any size. React's Virtual DOM is a lightweight copy of the actual DOM, which allows it to efficiently update only the changed components rather than re-rendering the entire page. This results in faster rendering and smoother user experiences. 
 
-- Research modern frontend frameworks and libraries
-- Compare technologies such as React, TailWind, Vue, Angular and similar for this specific use case
-- Evaluate state management solutions such as Redux or Mutex
-- Research real-time communication technologies (WebRockets, WebRTC, Notification Services)
-- Select testing frameworks and tools
-- Choose styling methodologies and tools
-- Choose a linter and unit test technology
-- Document your technology choices with justification
+`TailWind` in this platform is used as a CSS framework. It provides CSS utilities for quick web development and easy personalization. It is going to be used alongside `React`.
 
-El último "task" nos indica lo que agregaremos a esta sección. Tratemos de ser concisos. No ingresemos documentación innecesaria
-pero brindemos una buena justificación. Esta sección no debería de ser muy larga. Solo para indicarle al "programador" lo que se utiliza
-en este diseño.
+`Angular` is a complete framework that would stablish a pre-defined architecture. This would limit our freedom to implement extra features to the platform in a future. Plus it has a more "steep" learning curve, this affets our efficiency.
 
+`Vue` for this case-scenario, is a better option than `Angular` because it provides more flexibility and is less complex. But is not better than `React`.
+
+The following technologies will provide real-time communication:
+`Lovable Cloud/Supabase Realtime` for instant notification in the platform
+`Resend` for emails (reminders or confirmations)
+
+For testing and linting `Vitest` and `ESLint` will be implemented. These two are going to be configured on a pipeline for auto testing and linting after every push into the repo.
+
+The following **styling methodologies** are key features of this design:
+- Utility-First CSS
+- Design Tokens / CSS Variables
+- Component Variants Pattern
+- Mobile-First Responsive Design
+
+`Tailwind CSS` is used as the primary styling framework with JIT compiler, `tailwindcss-animate` for pre-built animation utilities, `shadcn/ui` as a provider of pre-defined UI components and `class-variance-authority (CVA)` for Component Variants Pattern.
+
+This creates a themeable, maintainable system where colors/styles are centralized and consistently applied across the platform.
 #### N-Layer Architecture Design
 
 Acá va el diagrama de layers.
