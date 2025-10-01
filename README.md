@@ -82,9 +82,9 @@ To build a domain card (e.g. coach profile), import and compose these parts.
 
 Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx)
 :
-
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 ```tsx
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+
 <Card>
   <CardContent>…coach info…</CardContent>
   <CardFooter>
@@ -94,7 +94,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 </Card>
 ```
 
-**Rule**: always extend from ui/card.tsx. Do not duplicate card markup or styles.
+Always extend from ui/card.tsx. Do not duplicate card markup or styles.
 
 **Sidebar**
 
@@ -124,7 +124,7 @@ Example:
 
 ```
 
-**Rule**: never implement your own sidebar; always extend this system.
+Never implement your own sidebar; always extend this system.
 
 **Reusability and Accessibility**
 
@@ -144,12 +144,12 @@ Keyboard accessibility: ensure tabIndex=0 on links and buttons.
 
 Use Tailwind breakpoints (`sm:`, `md:`, `lg:`) consistently.
 Do not hardcode widths; use container/grid utilities.
-Sidebar and Card components already include mobile → desktop transitions.
+Sidebar and Card components already include mobile - desktop transitions.
 
 **Developer rules**
 
 - No business logic in components. Data must come via props.
-- Only use Tailwind tokens (colors, shadows, transitions) defined in index.css. Never use raw hex values.
+- Only use Tailwind tokens (colors, shadows, transitions) defined in [index](src/index.css). Never use raw hex values.
 - Example of token usage:
 ```tsx
 <div className="bg-card text-card-foreground shadow-[var(--shadow-soft)]">
