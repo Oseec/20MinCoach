@@ -21,7 +21,7 @@ su respectiva sección del enunciado. Las voy a enlistar...)
 (Esta seccion se divide en tres apartados: Technology Research and Selection, N-Layer Architecture Design y Visual Components Strategy)
 
 #### Technology Research and Selection
-For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required.
+For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required. Everything is developt on Vite + React + TypeScript.
 
 `React` provides flexibility, is very popular and allows scalability for projects of any size. React's Virtual DOM is a lightweight copy of the actual DOM, which allows it to efficiently update only the changed components rather than re-rendering the entire page. This results in faster rendering and smoother user experiences. 
 
@@ -54,6 +54,8 @@ para la comunicación entre ellos.
 Por ahí podríamos agregar un listado de las responsabilidades de cada layer abajo del diagrama.
 
 Document this before the architecture diagram. <- Talvez podríamos acomodar el diagrama de clases abajo de la lista de responsabilidades.
+
+<img src="./diagrams/Case1Architecture.jpg" alt="architecture Image" width="400"/>
 
 #### Visual Components Strategy
 
