@@ -71,175 +71,138 @@ Esta sección no me quedó muy clara la verdad:
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 
 #### Visual Components
+All visual components are in [/src/components](src/components/).
+Use them as building blocks, never re-invent styles.
 
-**Location** : [src/PoC/src/components](src/PoC/src/components)
+**Cards**
 
-**Purpose** :Centralize the visual structure of the application, composing layouts, domain-specific components, and reusable UI components under principles of consistency, accessibility, and responsiveness.
+Base card is defined in [/src/components/ui/card.tsx](src/components/ui/card.tsx)
 
-**Folder Hierarchy**
+It already includes `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription`.
 
-- ui/ base reusable components ([View ui folder](src/PoC/src/components/ui))
+To build a domain card (e.g. coach profile), import and compose these parts.
 
-- layout/ global layouts ([View layouts folder ](src/PoC/src/components/layout))
-
-- coach/ domain-specific components for coaches ([View coach folder ](src/PoC/src/components/coach))
-
-- session/ domain-specific components for sessions ([View session folder ](src/PoC/src/components/session))
-
-**Applied Design Pattern** : Composite Pattern
-
-The [main layout ](src/PoC/src/components/layout/MainLayout.tsx) acts as a Composite, organizing and composing subcomponents ([header](src/PoC/src/components/layout/Header.tsx)), ([sidebar ](src/PoC/src/components/layout/Sidebar.tsx)) along with the dynamic page content (children).
-
-- PageContent is dynamically injected via React Router and corresponds to any file inside [src/pages ](src/PoC/src/pages/). These are the actual screens rendered inside the layout.
-
-Example: [main layout ](src/PoC/src/components/layout/MainLayout.tsx)
-
+Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx)
+:
 ```tsx
-export const MainLayout = ({
-  children,
-  user,
-  currentPath,
-}: MainLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header
-        user={user}
-        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-        notifications={3}
-      />
-
-      <div className="flex">
-        <Sidebar
-          isOpen={sidebarOpen}
-          userRole={user?.role}
-          currentPath={currentPath}
-        />
-
-        <main className="flex-1 lg:ml-64">
-          <div className="container max-w-7xl mx-auto p-6">{children}</div>
-        </main>
-      </div>
-    </div>
-  );
-};
+<Card>
+  <CardContent>…coach info…</CardContent>
+  <CardFooter>
+    <Button>Ver perfil</Button>
+    <Button>Conectar ahora</Button>
+  </CardFooter>
+</Card>
 ```
 
-![Main Layout Diagram](src/PoC/diagrams/Main-Layout-Diagram.png)
+Always extend from ui/card.tsx. Do not duplicate card markup or styles.
 
-**Reusability Guidelines**
+**Sidebar**
 
-- Generic components - [ui](src/PoC/src/components/ui/)
-- Domain-specific components - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
-- Global layouts - [layout](src/PoC/src/components/layout/)
+The sidebar system is already implemented in [/src/components/layout/Sidebar.tsx](/src/components/layout/Sidebar.tsx).
 
-**Accessibility**
+Use <SidebarProvider> at the root, and <Sidebar>, <SidebarContent>, <SidebarMenu>, <SidebarMenuItem> etc. to build navigation.
 
-- Buttons and inputs should include ARIA attributes (aria-label, aria-expanded, etc.).
-- All interactive elements must be keyboard accessible (tabIndex).
-- Minimum contrast ratio: 4.5:1 (WCAG 2.1).
+Toggle is done with <SidebarTrigger>.
+
+Responsive behavior is built in: desktop = fixed, mobile = overlay.
+
+Example:
+```tsx
+<SidebarProvider>
+  <Sidebar>
+    <SidebarContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton isActive>Dashboard</SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarContent>
+  </Sidebar>
+
+  <SidebarInset>{children}</SidebarInset>
+</SidebarProvider>
+
+```
+
+Never implement your own sidebar; always extend this system.
+
+**Reusability and Accessibility**
+
+- For new components, always place them in the right folder:
+  - [ui/](src/components/ui) - generic reusable (e.g. `Button`, `Card`)
+  - [coach/](src/components/coach) - coach domain components (e.g. [CoachCard](src/components/coach/CoachCard.tsx))
+  - [session/](src/components/session) - session domain components
+
+All interactive elements must have ARIA attributes:
+```tsx
+<button aria-label="Open sidebar" aria-expanded={isOpen}>Menu</button>
+```
+
+Keyboard accessibility: ensure tabIndex=0 on links and buttons.
 
 **Responsiveness**
 
-- Tailwind breakpoints (sm:, md:, lg:) are used throughout.
-- Example from [main layout ](src/PoC/src/components/layout/MainLayout.tsx):
+Use Tailwind breakpoints (`sm:`, `md:`, `lg:`) consistently.
+Do not hardcode widths; use container/grid utilities.
+Sidebar and Card components already include mobile - desktop transitions.
 
+**Developer rules**
+
+- No business logic in components. Data must come via props.
+- Only use Tailwind tokens (colors, shadows, transitions) defined in [index](src/index.css). Never use raw hex values.
+- Example of token usage:
 ```tsx
-<main className="flex-1 lg:ml-64">
-  <div className="container max-w-7xl mx-auto p-6">{children}</div>
-</main>
+<div className="bg-card text-card-foreground shadow-[var(--shadow-soft)]">
+  …
+</div>
 ```
-
-- Sidebar switches from fixed (lg:ml-64) to mobile overlay depending on viewport.
-
-**Developer Rules**
-
-1. Generic - [ui](src/PoC/src/components/ui/)
-
-2. Domain-specific - [coach](src/PoC/src/components/coach/) or [session](src/PoC/src/components/session/)
-
-3. Global layout - [layout](src/PoC/src/components/layout/)
-
-4. Every component must be:
-   - Responsive
-
-   - Accessible
-
-   - Free of business logic (business logic lives in [services](src/PoC/src/services/))
-
 #### Controllers
 
-**Location** : [src/PoC/src/hooks](src/PoC/src/hooks)
-
-**Purpose** : Centralize application logic connecting services and domain data to UI components.  
-Controllers encapsulate data fetching, state management, and side effects while exposing clean APIs to components via hooks.  
-They follow dependency injection principles for flexibility and testability.
-
-**Folder Hierarchy**
-
-- [hooks](src/PoC/src/hooks) - contains all controller hooks for domain features and app behavior
-- [use-mobile.tsx](src/PoC/src/hooks/use-mobile.tsx) - detects viewport for responsive adjustments
-- [use-toast.ts](src/PoC/src/hooks/use-toast.ts) - manages toast notifications
-- [use-logger.tsx](src/PoC/src/hooks/useLogger.ts) - orchestrates logging and error handling
-
-**Applied Design Pattern**: Mediator Pattern via Custom Hooks
-
-Each hook functions as a mediator between the UI and services.
+All controller logic is implemented as custom React hooks inside [/src/hooks](/src/hooks/).
+These hooks connect UI components with domain services while following dependency injection principles.
 
 **Dependency Injection**
 
-Services are injected or accessed via singletons (e.g., [AuthService](src/PoC/src/services/AuthService.ts), [CoachService](src/PoC/src/services/CoachService.ts), [SessionService](src/PoC/src/services/SessionService.ts), [LoggingService](src/PoC/src/services/LoggingService.ts)) instead of being hardcoded inside hooks.  
-This allows hooks to remain flexible and testable.
+Hooks must always call services via their singletons instead of hardcoding logic.
+Example: `CoachService.getInstance()` is used inside a hook instead of directly importing fetch logic.
+This keeps hooks testable and ensures consistency across the app.
 
-**Hook-based Connectors**
+**Available Hooks**
 
-Hooks act as a bridge between UI components and services or shared state.  
-They manage asynchronous operations, event handling, and derived state.
-
-Hooks return only what is necessary to the components: **state variables, callbacks, and utility functions**.
-
-**Examples**
-
-**useIsMobile Hook** – viewport detection
-
+[use-mobile.tsx](src/hooks/use-mobile.tsx)– detects viewport size to handle responsive UI.
 ```tsx
 const isMobile = useIsMobile();
-
-//Usage in a component
-<div className={isMobile ? 'p-4' : 'p-8'}>Responsive Content</div>;
+<div className={isMobile ? "p-4" : "p-8"}>Responsive content</div>
 ```
 
-**useToast Hook** toast notification controller
-
-```ts
-const { toast, dismiss } = useToast();
-
-//Usage in a component
-<Button onClick={() => toast({ title: "Saved!" })}>Save</Button>
+use-toast.ts – manages toast notifications.
+```tsx
+const { toast } = useToast();
+<Button onClick={() => toast({ title: "Profile saved!" })}>Save</Button>
 ```
 
-Internally, [useToast](src/PoC/src/hooks/use-toast.ts) uses a reducer and memory state to manage multiple notifications and ensure only one is displayed at a time.
-**useLogger Hook** – logging and error handling controller
-
-```ts
+[useLogger.ts](src/hooks/useLogger.ts)– connects UI with [LoggingService](src/logging/LoggingService.ts) and [ExceptionHandler](src/exceptionHandling/ExceptionHandler.ts).
+```tsx
 const { logUserAction, handleAsyncOperation } = useLogger();
 
-//Log an action
-logUserAction('Clicked Save Button');
+logUserAction("Clicked Save Button");
 
-//Handle async operation with error handling
 await handleAsyncOperation(
-  () => saveSessionData(session),
-  'SESSION',
-  'save_session',
-  user.id,
-  session.id
+  () => CoachService.getInstance().getCoachById("123"),
+  "COACH",
+  "fetch_by_id",
+  user.id
 );
 ```
+**Rules for Developers**
 
-[useLogger](src/PoC/src/hooks/useLogger.ts) connects UI events with the [LoggingService](src/PoC/src/services/LoggingService.ts) and [ExceptionHandler](src/PoC/src/exceptionHandling/ExceptionHandler.ts)
-
+- Do not place fetch/business logic inside components. Always wrap it in a hook.
+- When you need service calls (e.g., coaches, sessions, auth), always inject via Service.getInstance().
+- Hooks must only return state, callbacks, or utilities to the component.
+- For errors, always go through useLogger.handleError or useLogger.handleAsyncOperation, never try/catch silently.
+- Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
 #### Model
 
 **Location**: [src/PoC/src/models](src/PoC/src/models)
@@ -487,8 +450,6 @@ Create the client for the security layer, this is going to be functional code. E
 
 #### Background/Jobs/Listeners
 
-## Consulta: Puedo o debo documentarlo aunque no lo implemente?, creo que es una buena opcion implementarlo/documentarlo por el tema de notificar cuando el usuario cerro la aplicacion, sea web, o en el futuro se diseñe tambien mobile; por ejemplo, notificaciones como “tu sesión empieza en 5 min”, o tambien por el tema de poder ver la actividad reciente sin recargar. Sin embargo, ahorita debido a las pocas funciones y requerimientos que tenemos, no es tan primordial implementaro, ademas entiendo que requiere backend. Aunque podria ser buena idea documentarlo para implementaciones futuras, ya que si mejoraria bastante el UI.
-
 Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
 
 - Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
@@ -498,10 +459,6 @@ Its a layer that handles everything that happens "in the background" without dir
 
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
-#### Validators (not documented yet)
-
-Correlate this section with the model design
-Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 
 #### DTOs
 
@@ -530,100 +487,83 @@ async getCoachById(id: string): Promise<Coach> {
 
 there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers)
 
-#### State management (not documented yet)
 
-Select and design the state management solution
-Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
+***DTO-light policy:*** 
+
+keep DTOs only where a transformation is actually needed.
+- If an endpoint already returns the exact shape you want, the service can return it as is (after a Zod .parse()), no mapper file.
+- If any field needs conversion (date parsing, renames, coercions), create a small mapper for that endpoint’s payload and keep DTO types private to the service layer.
+
 
 #### Styles
 
-The project uses Tailwind CSS compiled with PostCSS + Autoprefixer. The only global stylesheet is `src/index.css`. This is where Tailwind directives and design tokens (CSS variables in HSL) for colors, radii, shadows, and transitions live. Dark mode is class-based: the UI changes when adding or removing .dark in <html>.
+The UI is styled with Tailwind CSS. Design tokens (HSL CSS variables) live in `src/index.css` under `:root` (light) and `.dark` (dark). Tailwind maps those tokens to semantic classes `bg-background`, `text-foreground`, `bg-primary`, `bg-card`, etc. so components don’t hard-code colors or write custom CSS for theme switching.
 
-**Expected structure of index.css (summary):**
+**How you should write styles here:**
 
-```tsx
+- Prefer semantic Tailwind classes bound to tokens: `bg-background`, `text-foreground`, `border-border`, `bg-primary text-primary-foreground`, `bg-card text-card-foreground`.
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+- Build mobile-first; add breakpoints only where layout needs them: `sm:`, `md:`, `lg:`, `xl:`. Use `grid`, `flex`, `gap`, `w-full`, `max-w-*`, `min-w-0`.
 
-@layer base {
-  /*light mode*/
-  :root {
-    /* --background, --foreground, --primary, --secondary, ... */
-    /* tokens del proyecto: --coach-*, --session-*, --sidebar-*, etc. */
-    /* --radius, --shadow-soft/medium/strong, --transition-* */
-  }
+- Keep accessibility by default: semantic HTML elements, visible focus rings (don’t remove them), adequate contrast (foreground/background pairs), and keyboard operability.
 
-  /*Dark mode*/
-  .dark {
+- When you repeat the same utility cluster more than twice. Use props for variants; keep styling expressed in Tailwind classes.
 
-  }
+- Only add a small CSS Module next to a component if utilities become unwieldy (rare).
 
-  /*base styles*/
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground antialiased; }
-  :where(a,button,[role="button"],input,select,textarea):focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-  }
-}
+***Dark/Light mode — what you do vs. what the app does:***
 
+- The app toggles dark mode by adding/removing `.dark` on `<html>`. The tokens in `index.css` change values under that class.
 
-```
+- You, in components, just use the semantic classes listed above. Do not write conditional color logic or theme checks in components; if a color looks wrong, you likely bypassed tokens.
 
-**_Use in components_**
+***Responsiveness — practical rules:***
 
-Components only use Tailwind utilities that already point to tokens. The UI should not see token names or hexadecimals.
+- Start with the smallest layout: base classes without prefixes. Enhance with `sm:` and up.
 
-Practical example:
+- Prefer responsive grids/lists over fixed widths; bump columns at larger breakpoints.
+
+- Preserve focus styles from `index.css` (they already work in both themes). For icon-only buttons, add an `aria-label`. Keep touch targets comfortable with padding.
+
+**Component template**
 
 ```tsx
-export function InfoCard({
-  title,
-  children,
-}: {
+
+type InfoCardProps = {
   title: string;
   children: React.ReactNode;
-}) {
+  onAction?: () => void;
+  actionLabel?: string; //required if onAction is provided
+};
+
+export function InfoCard({ title, children, onAction, actionLabel }: InfoCardProps) {
   return (
-    <section className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <div className="mt-2">{children}</div>
-      <button className="mt-4 rounded-md bg-primary px-3 py-2 text-primary-foreground transition-[background-color] duration-200 ease-[var(--transition-smooth)] hover:bg-primary/90">
-        Continue
-      </button>
+    <section
+      className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4 sm:p-6"
+      aria-label={title}
+    >
+      <header className="flex items-start justify-between gap-4">
+        <h3 className="text-base sm:text-lg font-semibold leading-tight">{title}</h3>
+        {onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground transition-[background-color] duration-200 ease-[var(--transition-smooth)] hover:bg-primary/90"
+            aria-label={actionLabel}
+          >
+            Action
+          </button>
+        )}
+      </header>
+
+      <div className="mt-3 sm:mt-4 grid gap-3">{children}</div>
     </section>
   );
 }
+
+
 ```
 
-**_Light/Dark Mode_**
-
-The .dark class in <html> enables the dark theme. The toggle should only change that class and optionally persist the preference.
-
-Useful snippet:
-
-```tsx
-type Theme = 'light' | 'dark' | 'system';
-
-export function setTheme(next: Theme) {
-  const root = document.documentElement;
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const effective = next === 'system' ? (prefersDark ? 'dark' : 'light') : next;
-  root.classList.toggle('dark', effective === 'dark');
-  localStorage.setItem('theme', next);
-}
-```
-
-**_Responsiveness_**
-
-The design is mobile-first. It uses grid, flex, and gap with the default breakpoints (sm, md, lg, xl). The container is already centered with padding: 2rem and 2xl: 1400px from tailwind.config. Avoid fixed widths unless clearly necessary.
-
-Example:
-
-```tsx
-<div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">…</div>
-```
 
 #### Utilities
 
