@@ -47,15 +47,23 @@ The following **styling methodologies** are key features of this design:
 
 This creates a themeable, maintainable system where colors/styles are centralized and consistently applied across the platform.
 #### N-Layer Architecture Design
+This architecture consist of four main layers:
+- Presentation
+- Application
+- Bussiness
+- Infrastructure
 
-Acá va el diagrama de layers.
-Talvez podríamos mostrar los layers con cajas y relacionarlos con flechas. Sería bueno tratar de agregarles un par de patrones de diseño
-para la comunicación entre ellos.
-Por ahí podríamos agregar un listado de las responsabilidades de cada layer abajo del diagrama.
+And an external layer of Authentication.
 
-Document this before the architecture diagram. <- Talvez podríamos acomodar el diagrama de clases abajo de la lista de responsabilidades.
+Independency between layers is our main goal in this architecture, therefore the `Presentation Layer` is only responsable for interactions with the user. Is made of the web pages and the components that are used in every page. In order to handle user inputs this layer interacts with the `Application Layer` which is in charge of routing between pages, handling the state of the platform and giving context to other entities.
 
-![Texto alternativo](./diagrams/Case1Architecture.pdf)
+`Application Layer` interacts directly with the `Bussiness Layer` which can be deffined as the core of this architecture, it encapsulates the domain logic, validates processes, holds models and provides services that represent the behavior of the platform. The `Infrastructure Layer` is an auxiliar for the interaction of the `Bussiness Layer` and the Back-End or extrenal services like the authentication.
+
+The authentication is an external layer that can be exchange easily. At first this is provided by **Okta**.
+
+![Texto alternativo](./diagrams/Case1Architecture.jpg)
+
+ If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1Architecture.pdf)
 
 
 #### Visual Components Strategy
