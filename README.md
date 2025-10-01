@@ -448,8 +448,6 @@ Create the client for the security layer, this is going to be functional code. E
 
 #### Background/Jobs/Listeners
 
-## Consulta: Puedo o debo documentarlo aunque no lo implemente?, creo que es una buena opcion implementarlo/documentarlo por el tema de notificar cuando el usuario cerro la aplicacion, sea web, o en el futuro se diseñe tambien mobile; por ejemplo, notificaciones como “tu sesión empieza en 5 min”, o tambien por el tema de poder ver la actividad reciente sin recargar. Sin embargo, ahorita debido a las pocas funciones y requerimientos que tenemos, no es tan primordial implementaro, ademas entiendo que requiere backend. Aunque podria ser buena idea documentarlo para implementaciones futuras, ya que si mejoraria bastante el UI.
-
 Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
 
 - Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
@@ -459,10 +457,6 @@ Its a layer that handles everything that happens "in the background" without dir
 
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
-#### Validators (not documented yet)
-
-Correlate this section with the model design
-Provide at least one example of the validator and proper guidelines as explained in model. Me parece que esto ya está.
 
 #### DTOs
 
@@ -491,100 +485,77 @@ async getCoachById(id: string): Promise<Coach> {
 
 there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers)
 
-#### State management (not documented yet)
 
-Select and design the state management solution
-Include this on either the architecture diagram or class diagram. Hay que ver cómo lo metemos en alguno de esos diagramas.
 
 #### Styles
 
-The project uses Tailwind CSS compiled with PostCSS + Autoprefixer. The only global stylesheet is `src/index.css`. This is where Tailwind directives and design tokens (CSS variables in HSL) for colors, radii, shadows, and transitions live. Dark mode is class-based: the UI changes when adding or removing .dark in <html>.
+The UI is styled with Tailwind CSS. Design tokens (HSL CSS variables) live in `src/index.css` under `:root` (light) and `.dark` (dark). Tailwind maps those tokens to semantic classes `bg-background`, `text-foreground`, `bg-primary`, `bg-card`, etc. so components don’t hard-code colors or write custom CSS for theme switching.
 
-**Expected structure of index.css (summary):**
+**How you should write styles here:**
 
-```tsx
+- Prefer semantic Tailwind classes bound to tokens: `bg-background`, `text-foreground`, `border-border`, `bg-primary text-primary-foreground`, `bg-card text-card-foreground`.
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+- Build mobile-first; add breakpoints only where layout needs them: `sm:`, `md:`, `lg:`, `xl:`. Use `grid`, `flex`, `gap`, `w-full`, `max-w-*`, `min-w-0`.
 
-@layer base {
-  /*light mode*/
-  :root {
-    /* --background, --foreground, --primary, --secondary, ... */
-    /* tokens del proyecto: --coach-*, --session-*, --sidebar-*, etc. */
-    /* --radius, --shadow-soft/medium/strong, --transition-* */
-  }
+- Keep accessibility by default: semantic HTML elements, visible focus rings (don’t remove them), adequate contrast (foreground/background pairs), and keyboard operability.
 
-  /*Dark mode*/
-  .dark {
+- When you repeat the same utility cluster more than twice. Use props for variants; keep styling expressed in Tailwind classes.
 
-  }
+- Only add a small CSS Module next to a component if utilities become unwieldy (rare).
 
-  /*base styles*/
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground antialiased; }
-  :where(a,button,[role="button"],input,select,textarea):focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-  }
-}
+***Dark/Light mode — what you do vs. what the app does:***
 
+- The app toggles dark mode by adding/removing `.dark` on `<html>`. The tokens in `index.css` change values under that class.
 
-```
+- You, in components, just use the semantic classes listed above. Do not write conditional color logic or theme checks in components; if a color looks wrong, you likely bypassed tokens.
 
-**_Use in components_**
+***Responsiveness — practical rules:***
 
-Components only use Tailwind utilities that already point to tokens. The UI should not see token names or hexadecimals.
+- Start with the smallest layout: base classes without prefixes. Enhance with `sm:` and up.
 
-Practical example:
+- Prefer responsive grids/lists over fixed widths; bump columns at larger breakpoints.
+
+- Preserve focus styles from `index.css` (they already work in both themes). For icon-only buttons, add an `aria-label`. Keep touch targets comfortable with padding.
+
+**Component template**
 
 ```tsx
-export function InfoCard({
-  title,
-  children,
-}: {
+
+type InfoCardProps = {
   title: string;
   children: React.ReactNode;
-}) {
+  onAction?: () => void;
+  actionLabel?: string; //required if onAction is provided
+};
+
+export function InfoCard({ title, children, onAction, actionLabel }: InfoCardProps) {
   return (
-    <section className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <div className="mt-2">{children}</div>
-      <button className="mt-4 rounded-md bg-primary px-3 py-2 text-primary-foreground transition-[background-color] duration-200 ease-[var(--transition-smooth)] hover:bg-primary/90">
-        Continue
-      </button>
+    <section
+      className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4 sm:p-6"
+      aria-label={title}
+    >
+      <header className="flex items-start justify-between gap-4">
+        <h3 className="text-base sm:text-lg font-semibold leading-tight">{title}</h3>
+        {onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground transition-[background-color] duration-200 ease-[var(--transition-smooth)] hover:bg-primary/90"
+            aria-label={actionLabel}
+          >
+            Action
+          </button>
+        )}
+      </header>
+
+      <div className="mt-3 sm:mt-4 grid gap-3">{children}</div>
     </section>
   );
 }
+
+
 ```
 
-**_Light/Dark Mode_**
-
-The .dark class in <html> enables the dark theme. The toggle should only change that class and optionally persist the preference.
-
-Useful snippet:
-
-```tsx
-type Theme = 'light' | 'dark' | 'system';
-
-export function setTheme(next: Theme) {
-  const root = document.documentElement;
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const effective = next === 'system' ? (prefersDark ? 'dark' : 'light') : next;
-  root.classList.toggle('dark', effective === 'dark');
-  localStorage.setItem('theme', next);
-}
-```
-
-**_Responsiveness_**
-
-The design is mobile-first. It uses grid, flex, and gap with the default breakpoints (sm, md, lg, xl). The container is already centered with padding: 2rem and 2xl: 1400px from tailwind.config. Avoid fixed widths unless clearly necessary.
-
-Example:
-
-```tsx
-<div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">…</div>
-```
 
 #### Utilities
 
