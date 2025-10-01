@@ -486,6 +486,12 @@ async getCoachById(id: string): Promise<Coach> {
 there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers)
 
 
+***DTO-light policy:*** 
+
+keep DTOs only where a transformation is actually needed.
+- If an endpoint already returns the exact shape you want, the service can return it as is (after a Zod .parse()), no mapper file.
+- If any field needs conversion (date parsing, renames, coercions), create a small mapper for that endpoint’s payload and keep DTO types private to the service layer.
+
 
 #### Styles
 
