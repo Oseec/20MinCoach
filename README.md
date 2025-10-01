@@ -20,7 +20,7 @@ su respectiva sección del enunciado. Las voy a enlistar...)
 
 (Esta seccion se divide en tres apartados: Technology Research and Selection, N-Layer Architecture Design y Visual Components Strategy)
 
-#### Technology Research and Selection
+### Technology Research and Selection
 For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required. Everything is developt on Vite + React + TypeScript.
 
 `React` provides flexibility, is very popular and allows scalability for projects of any size. React's Virtual DOM is a lightweight copy of the actual DOM, which allows it to efficiently update only the changed components rather than re-rendering the entire page. This results in faster rendering and smoother user experiences. 
@@ -46,7 +46,7 @@ The following **styling methodologies** are key features of this design:
 `Tailwind CSS` is used as the primary styling framework with JIT compiler, `tailwindcss-animate` for pre-built animation utilities, `shadcn/ui` as a provider of pre-defined UI components and `class-variance-authority (CVA)` for Component Variants Pattern.
 
 This creates a themeable, maintainable system where colors/styles are centralized and consistently applied across the platform.
-#### N-Layer Architecture Design
+### N-Layer Architecture Design
 This architecture consist of four main layers:
 - Presentation
 - Application
@@ -66,7 +66,7 @@ The authentication is an external layer that can be exchange easily. At first th
 If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1Architecture.pdf)
 
 
-#### Visual Components Strategy
+### Visual Components Strategy
 
 Esta sección no me quedó muy clara la verdad:
 
@@ -79,7 +79,7 @@ Esta sección no me quedó muy clara la verdad:
 
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 
-#### Visual Components
+### Visual Components
 All visual components are in [/src/components](src/components/).
 Use them as building blocks, never re-invent styles.
 
@@ -167,7 +167,7 @@ Sidebar and Card components already include mobile - desktop transitions.
   …
 </div>
 ```
-#### Controllers
+### Controllers
 
 All controller logic is implemented as custom React hooks inside [/src/hooks](/src/hooks/).
 These hooks connect UI components with domain services while following dependency injection principles.
@@ -212,7 +212,7 @@ await handleAsyncOperation(
 - Hooks must only return state, callbacks, or utilities to the component.
 - For errors, always go through useLogger.handleError or useLogger.handleAsyncOperation, never try/catch silently.
 - Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
-#### Model
+### Model
 
 **Location**: [src/models](src/models)
 
@@ -333,7 +333,7 @@ const validated = createSessionSchema.parse(inputData);
 - Use Zod `z.enum()` for enum validation.
 - When adding a new model, create a matching validator if input validation is required.
 
-#### Middleware
+### Middleware
 
 **Location**: [src/middleware](src/middleware)
 
@@ -382,7 +382,7 @@ try {
 - Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 - All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
 
-#### Business
+### Business
 
 **Location**: [src/business](src/business)
 
@@ -452,12 +452,12 @@ export function canRegisterAsCoach(user: CreateUserInput): boolean {
 - Use [validators](src/validators) only for input validation (runtime safety).
 - Always reference business rules from [services](src/services) to ensure consistent enforcement across the app.
 
-#### Services (not documented yet)
+### Services (not documented yet)
 
 Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
 Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
 
-#### Background/Jobs/Listeners
+### Background/Jobs/Listeners
 
 Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
 
@@ -469,7 +469,7 @@ Its a layer that handles everything that happens "in the background" without dir
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
 
-#### DTOs
+### DTOs
 
 At 20minCoach, we never want to couple the UI with the raw format of the backend, for two reasons:
 
@@ -504,7 +504,7 @@ keep DTOs only where a transformation is actually needed.
 - If any field needs conversion (date parsing, renames, coercions), create a small mapper for that endpoint’s payload and keep DTO types private to the service layer.
 
 
-#### Styles
+### Styles
 
 The UI is styled with Tailwind CSS. Design tokens (HSL CSS variables) live in `src/index.css` under `:root` (light) and `.dark` (dark). Tailwind maps those tokens to semantic classes `bg-background`, `text-foreground`, `bg-primary`, `bg-card`, etc. so components don’t hard-code colors or write custom CSS for theme switching.
 
@@ -574,7 +574,7 @@ export function InfoCard({ title, children, onAction, actionLabel }: InfoCardPro
 ```
 
 
-#### Utilities
+### Utilities
 
 Decision for this project:
 
@@ -594,7 +594,7 @@ import { Logger } from '@/utils/loggerUtils';
 Logger.getInstance().setLevel('debug');
 ```
 
-#### Exception Handling
+### Exception Handling
 
 The idea of this layer is to transform/process exceptions or errors generated at the lower levels so that they become readable and user-friendly, prioritizing that their occurrence does not affect the logic of the rest of the program. It also serves as a framework for the logging layer, especially for the generation of error-related logs.
 
@@ -704,7 +704,7 @@ Here´s a diagram of the error handling flow
 
 <img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="200"/>
 
-#### Logging
+### Logging
 
 This logging layer is designed to provide request, conectivity and user interaction tracking.
 It provides a source of data for future business intelligence metrics scoped to enhance user experience.
@@ -927,7 +927,7 @@ The time after the last indexation in order to considered a "log-cold" storage v
 | **VIDEO**    | 30 days         |
 | **SECURITY** | 6 months        |
 
-#### Security
+### Security
 
 Okta is the service we chose to manage the platform’s authentication.
 The code related to this service is located in the following folder: [auth](src/auth)
@@ -1096,7 +1096,7 @@ Below is a diagram that illustrates the flow followed by an access request made 
 
 <img src="./diagrams/accessRequestFlow.png" alt="accessRequesFlow Image" width="400"/>
 
-#### Linter Configuration
+### Linter Configuration
 
 The linting strategy in this project combines ESLint and Prettier to ensure consistent, clean, and maintainable code.
 We chose to add Prettier to a ESLint setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
@@ -1131,6 +1131,7 @@ npm install --save-dev eslint-config-prettier eslint-plugin-prettier
   }
 }
 ```
+If any exceptions are needed consider adding `'~~-~~/~~': 'off'`
 
 5. Create `.prettierrc.json` and add:
 ```json
@@ -1243,7 +1244,7 @@ If you want to format the entire project according to Prettier rules use `npm ru
 
 
 
-#### Build and Deployment Pipeline
+### Build and Deployment Pipeline
 Continuous integration is achieved with the implementation of a pipeline => [ci-cd.yml](./.github/workflows/ci-cd.yml).
 This pipeline is in charge only of CI, CD (continuous deployment) is achieved with Vercel.
 
