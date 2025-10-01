@@ -55,7 +55,7 @@ Por ahí podríamos agregar un listado de las responsabilidades de cada layer ab
 
 Document this before the architecture diagram. <- Talvez podríamos acomodar el diagrama de clases abajo de la lista de responsabilidades.
 
-![Texto alternativo](./diagrams/Case1Architecture.jpg)
+![Texto alternativo](./diagrams/Case1Architecture.pdf)
 
 
 #### Visual Components Strategy
