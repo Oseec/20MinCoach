@@ -1,24 +1,12 @@
 # 20MinCoach
+This is the documentation of the design of **20MinCoach** which is described [here](https://github.com/vsurak/cursostec/tree/master/diseno).
 
-Este va a ser el principal documento encargado de la documentación del Caso 1.
+### Table of Contents
+- [General Design Features](#general-design-features)
+- [Detailed Layer Design](#detailed-layer-design)
 
-## Tabla de Contenidos
-
-- [Diseño](#diseño)
-
-## Diseño
-
-Esta sección se encarga de definir y explicar el diseño que se seguirá en la realización del Caso 1.
-
-(En el enunciado esta sección se divide en dos: Design Document y Detailed Layer Design Requirements.
-Así que nosotros también la vamos a dividir en dos, en cada sección o sub-sección de este documento agragaremos la "respuesta" o lo que pide
-su respectiva sección del enunciado. Las voy a enlistar...)
-
-(Más adelante podríamos cambiarle los nombres a estas secciones. De momento le pongo estos para mantener la claridad)
-
-### Design Document
-
-(Esta seccion se divide en tres apartados: Technology Research and Selection, N-Layer Architecture Design y Visual Components Strategy)
+## General Design Features
+This section describes general features of the platform's design, such as technologies used and architecture.
 
 #### Technology Research and Selection
 For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required. Everything is developt on Vite + React + TypeScript.
@@ -75,7 +63,7 @@ Esta sección no me quedó muy clara la verdad:
 - Create a component development workflow based on the technology selected, those are steps for the developers
 - Establish component testing methodology, this is not theory, are steps for the developers
 
-### Detailed Layer Design Requirements
+## Detailed Layer Design
 
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 
