@@ -63,7 +63,7 @@ The authentication is an external layer that can be exchange easily. At first th
 
 ![Texto alternativo](./diagrams/Case1Architecture.jpg)
 
- If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1Architecture.pdf)
+If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1Architecture.pdf)
 
 
 #### Visual Components Strategy
@@ -214,23 +214,23 @@ await handleAsyncOperation(
 - Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
 #### Model
 
-**Location**: [src/PoC/src/models](src/PoC/src/models)
+**Location**: [src/models](src/models)
 
-**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/PoC/src/models/User.ts), [Coach](src/PoC/src/models/Coach.ts), [Session](src/PoC/src/models/Session.ts), [SessionPackage](src/PoC/src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
+**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/models/User.ts), [Coach](src/models/Coach.ts), [Session](src/models/Session.ts), [SessionPackage](src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
 
 **Folder Hierarchy**
 
-- [models](src/PoC/src/models) – contains all domain entity definitions
-- [Coach.ts](src/PoC/src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
-- [User.ts](src/PoC/src/models/User.ts) – User entity with personal info, role, and preferences
-- [Session.ts](src/PoC/src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
-- [Package.ts](src/PoC/src/models/Package.ts) – Session packages with features, restrictions, and validity
+- [models](src/models) – contains all domain entity definitions
+- [Coach.ts](src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
+- [User.ts](src/models/User.ts) – User entity with personal info, role, and preferences
+- [Session.ts](src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
+- [Package.ts](src/models/Package.ts) – Session packages with features, restrictions, and validity
 
 These classes support the Data Model Pattern, representing domain entities without business logic.
 
 **Model Validation**
 
-We use Zod for runtime input validation. Validators live in a separate layer: [src/PoC/src/validator](src/PoC/src/validators)
+We use Zod for runtime input validation. Validators live in a separate layer: [src/validator](src/validators)
 
 **Example**: Coach Validation
 
@@ -335,15 +335,15 @@ const validated = createSessionSchema.parse(inputData);
 
 #### Middleware
 
-**Location**: [src/PoC/src/middleware](src/PoC/src/middleware)
+**Location**: [src/middleware](src/middleware)
 
 **Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
 
 **Folder Hierarchy**:
 
-- [authMiddleware.ts](src/PoC/src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
-- [errorMiddleware.ts](src/PoC/src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
-- [transformers](src/PoC/src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/PoC/src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/PoC/src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/PoC/src/middleware/transformers/user.mapper.ts)).
+- [authMiddleware.ts](src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
+- [errorMiddleware.ts](src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
+- [transformers](src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/middleware/transformers/user.mapper.ts)).
 
 **Applied Design Pattern**: Middleware / Interceptor Pattern.
 
@@ -373,7 +373,7 @@ try {
 
 - Wraps any service/controller operation.
 - Produces standardized error responses with timestamp, correlationId, code, and message.
-- Logs errors and security events via [LogginService](src/PoC/src/services/LoggingService.ts).
+- Logs errors and security events via [LogginService](src/services/LoggingService.ts).
 
 **Developer Guidelines**
 
@@ -384,7 +384,7 @@ try {
 
 #### Business
 
-**Location**: [src/PoC/src/business](src/PoC/src/business)
+**Location**: [src/business](src/business)
 
 **Purpose:**
 
@@ -392,13 +392,13 @@ Centralize the domain-specific rules and business validations that define how th
 
 **Domain Driven Design (DDD) Theory**:
 
-Domain Driven Design promotes the separation of concerns by isolating domain logic into its own layer. Instead of mixing rules into [models](src/PoC/src/models) or [services](src/PoC/src/services), business logic resides in [business](src/PoC/src/business). This makes rules reusable, testable, and easier to evolve as requirements change.
+Domain Driven Design promotes the separation of concerns by isolating domain logic into its own layer. Instead of mixing rules into [models](src/models) or [services](src/services), business logic resides in [business](src/business). This makes rules reusable, testable, and easier to evolve as requirements change.
 
 **Technology for TypeScript/React stack**:
 
 - `TypeScript` - allows us to enforce domain types and constraints at compile-time.
 - `Zod` (already explained in [model](#Model)) - complements by enforcing runtime validation.
-- `Business Rules` - will be implemented in the [business](src/PoC/src/business) folder, decoupled from UI and API integration.
+- `Business Rules` - will be implemented in the [business](src/business) folder, decoupled from UI and API integration.
 
 **Examples of future Domain-Specific Rules**:
 
@@ -449,8 +449,8 @@ export function canRegisterAsCoach(user: CreateUserInput): boolean {
 **Developer Guidelines:**
 
 - Keep models pure - only structure, no logic.
-- Use [validators](src/PoC/src/validators) only for input validation (runtime safety).
-- Always reference business rules from [services](src/PoC/src/services) to ensure consistent enforcement across the app.
+- Use [validators](src/validators) only for input validation (runtime safety).
+- Always reference business rules from [services](src/services) to ensure consistent enforcement across the app.
 
 #### Services (not documented yet)
 
@@ -494,7 +494,7 @@ async getCoachById(id: string): Promise<Coach> {
 }
 ```
 
-there are templates of mappers on this folder - [transformers](src/PoC/src/middleware/transformers)
+there are templates of mappers on this folder - [transformers](src/middleware/transformers)
 
 
 ***DTO-light policy:*** 
@@ -581,7 +581,7 @@ Decision for this project:
 - Keep constants, formatUtils, timeUtils as stateless modules (no Singleton).
 - Provide one Singleton only where it adds value: a logger with global config and consistent output.
 
-you can see the example on this file [LoggerUtils.ts](src/PoC/src/utils/loggerUtils.ts)
+you can see the example on this file [LoggerUtils.ts](src/utils/loggerUtils.ts)
 
 Usage anywhere
 
@@ -598,7 +598,7 @@ Logger.getInstance().setLevel('debug');
 
 The idea of this layer is to transform/process exceptions or errors generated at the lower levels so that they become readable and user-friendly, prioritizing that their occurrence does not affect the logic of the rest of the program. It also serves as a framework for the logging layer, especially for the generation of error-related logs.
 
-[ExceptionHandler.ts](src/PoC/src/middleware/ExceptionHandler.ts) is the class in charge of processing all exceptions
+[ExceptionHandler.ts](src/middleware/ExceptionHandler.ts) is the class in charge of processing all exceptions
 
 This class implements a Singleton pattern since only one instance of the class is needed.
 
@@ -713,7 +713,7 @@ Log flow
 
 <img src="./diagrams/logFlow.png" alt="logFlow Image" width="500"/>
 
-[LoggingService.ts](src/PoC/src/logging/LoggingService.ts): centralized logging class that standardizes how logs are created, buffered, and sent to the backend system in this design.
+[LoggingService.ts](src/logging/LoggingService.ts): centralized logging class that standardizes how logs are created, buffered, and sent to the backend system in this design.
 
 It follows the Singleton pattern to ensure that the entire application uses the same logging instance with a shared configuration.
 
@@ -811,7 +811,7 @@ Log Types and Tags
 
 Log Structure
 
-The creation of these log types is declared in this file => [LogTypes.ts](src/PoC/src/types/LogTypes.ts)
+The creation of these log types is declared in this file => [LogTypes.ts](src/types/LogTypes.ts)
 
 Base Log Information
 
@@ -930,12 +930,12 @@ The time after the last indexation in order to considered a "log-cold" storage v
 #### Security
 
 Okta is the service we chose to manage the platform’s authentication.
-The code related to this service is located in the following folder: [auth](src/PoC/src/auth)
+The code related to this service is located in the following folder: [auth](src/auth)
 
-In this folder, the file [oktaConfig.ts](src/PoC/src/auth/oktaConfig.ts)
+In this folder, the file [oktaConfig.ts](src/auth/oktaConfig.ts)
 configures the Okta authentication client with the credentials and security parameters defined as environment variables, it returns a function that redirects the user back to the original page after logging in.
 
-[OktaProvider.tsx](src/PoC/src/auth/OktaProvider.tsx) is a React component that authenticates the user when trying to access a page. After a successful login, Okta redirects the user to the route they originally attempted to visit.
+[OktaProvider.tsx](src/auth/OktaProvider.tsx) is a React component that authenticates the user when trying to access a page. After a successful login, Okta redirects the user to the route they originally attempted to visit.
 This way, any protected route can automatically verify whether the user is logged in or not.
 
 ```tsx
@@ -952,9 +952,9 @@ export default function OktaProvider({ children }: PropsWithChildren) {
 }
 ```
 
-`oktaAuth` (authentication client) and `buildRestoreOriginalUri()` (function in charge of redirecting the user) come from [oktaConfig.ts](src/PoC/src/auth/oktaConfig.ts).
+`oktaAuth` (authentication client) and `buildRestoreOriginalUri()` (function in charge of redirecting the user) come from [oktaConfig.ts](src/auth/oktaConfig.ts).
 
-[RequireRole.tsx](src/PoC/src/auth/RequireRole.tsx) implements a React hook and component to handle role-based authorization using Okta and React Router. This component protects routes and ensures that only users with certain roles can access them.
+[RequireRole.tsx](src/auth/RequireRole.tsx) implements a React hook and component to handle role-based authorization using Okta and React Router. This component protects routes and ensures that only users with certain roles can access them.
 
 While Okta determines whether the user is logged in, we do nothing. This prevents displaying content before knowing the actual state.
 
@@ -988,7 +988,7 @@ If all validations pass, the child component is rendered.
 return children;
 ```
 
-[RequireScope.tsx](src/PoC/src/auth/RequireScope.tsx) implements scope-based protections. It is very similar to `RequireRole.tsx`, but here the focus is on the access token scopes, not the roles.
+[RequireScope.tsx](src/auth/RequireScope.tsx) implements scope-based protections. It is very similar to `RequireRole.tsx`, but here the focus is on the access token scopes, not the roles.
 
 ```ts
 export function hasAllScopes(
@@ -1102,10 +1102,64 @@ The linting strategy in this project combines ESLint and Prettier to ensure cons
 We chose to add Prettier to a ESLint setup in order to format code to a consistent style (indentation, quotes, semicolons, trailing commas, etc.).
 Prettier runs as an ESLint rule, so formatting errors are reported alongside other lint errors.
 
+**ESLint and Prettier Configuration**
+1. Install ESLint
+```bash
+npm install eslint --save-dev
+```
+2. Install Prettier
+```bash
+npm install --save-dev --save-exact prettier
+```
+3. Integrate ESLint with Prettier
+```bash
+npm install --save-dev eslint-config-prettier eslint-plugin-prettier
+```
+- **eslint-config-prettier** disables ESLint rules that may conflict with Prettier.
+- **eslint-plugin-prettier** runs Prettier as an ESLint rule, reporting formatting issues as linting errors.
+
+4. Update `eslint.config.js` with:
+```js
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
+```
+
+5. Create `.prettierrc.json` and add:
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always"
+}
+```
+
+6. Add scripts for convenience
+```json
+{
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  }
+}
+
+
 **ESLint on Flat-Config**
 
 - The project uses ESLint Flat Config, a modern ESM-based configuration replacing the traditional `.eslintrc.*`.
-- Configuration is in [eslint.config.js](src\PoC\eslint.config.js) and defines:
+- Configuration is in [eslint.config.js](src\eslint.config.js) and defines:
   - Files to analyze: `**/*.{ts,tsx}`
   - Ignored folders: `dist` (Vite build output)
   - Plugins:
@@ -1186,6 +1240,8 @@ Classes, interfaces, types and enum members are named using the `PascalCase` con
 **Linting Commands**:
 `npm run lint` checks all files and reports errors/warnings, `npm run lint:fix` fixes automatically correctable issues, including Prettier formatting.
 If you want to format the entire project according to Prettier rules use `npm run format` this formatting is independent of ESLint.
+
+
 
 #### Build and Deployment Pipeline
 Continuous integration is achieved with the implementation of a pipeline => [ci-cd.yml](./.github/workflows/ci-cd.yml).
