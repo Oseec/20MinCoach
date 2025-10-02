@@ -403,28 +403,28 @@ import { wsClient } from "@/background/listeners/wsClient";
 import { attachSessionListener } from "@/background/listeners/sessionListener";
 import { startLightPolling } from "@/background/jobs/polling";
 import { attachVisibilitySync } from "@/background/jobs/visibilitySync";
-// import { registerSW } from "@/background/sw/swRegistration";
+//import { registerSW } from "@/background/sw/swRegistration";
 
 const disposers: Array<() => void> = [];
 
 function bootBackground(queryClient: QueryClient) {
-  // 1) WebSocket + listeners
+  //WebSocket + listeners
   wsClient.connect();
   disposers.push(() => wsClient.close());
   disposers.push(attachSessionListener());
 
-  // 2) Polling ligero y revalidación al foco/online
+  //Light polling and revalidation on focus/online
   disposers.push(startLightPolling(queryClient));
   disposers.push(attachVisibilitySync(queryClient));
 
-  // 3) Service worker (opcional demo)
-  // registerSW();
+  //Service worker
+  //registerSW();
 }
 
-// al montar el <App/> (tú ya pasas QueryClient):
+//when mounting the <App/> (you already pass QueryClient):
 bootBackground(queryClient);
 
-// al desmontar (si aplica HMR o cleanup):
+//when disassembling (if HMR or cleanup applies):
 if (import.meta.hot) {
   import.meta.hot.dispose(() => disposers.forEach(d => d()));
 }
