@@ -493,9 +493,9 @@ export class AuthService {
 }
 ```
 This example sets the standard for all services:
-- Singleton pattern (getInstance())
-- Centralized baseUrl
-- fetch requests with JSON
+- Singleton pattern (`getInstance()`)
+- Centralized `baseUrl`
+- `fetch` requests with JSON
 - Consistent error handling
 - DTOs for typed request/response
 
