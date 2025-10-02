@@ -42,8 +42,8 @@ export const Sidebar = ({
   currentPath = "",
 }: SidebarProps) => {
   const navigate = useNavigate();
-  const roles = useRoles();                         // from RequireRole.tsx
-  const isPremium = roles.includes("PremiumUser");  // same check your guard uses
+  const roles = useRoles();                         
+  const isPremium = roles.includes("PremiumUser");  
 
   const goDashboard = () => {
     if (isPremium) {
@@ -54,7 +54,7 @@ export const Sidebar = ({
   };
 
 const clientMenuItems = [
-  { icon: Home, label: 'Dashboard', path: '/dashboard' },
+  { icon: Home, label: 'Dashboard', onClick: goDashboard },
   { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
   { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
   { icon: CreditCard, label: 'Paquetes', path: '/packages' },
@@ -67,8 +67,8 @@ const clientMenuItems = [
   return (
     <aside
       className={cn(
-        'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 transform border-r bg-background transition-transform duration-200 ease-in-out lg:translate-x-0',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+        "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 transform border-r bg-background transition-transform duration-200 ease-in-out lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
       <div className="flex h-full flex-col">
@@ -76,17 +76,34 @@ const clientMenuItems = [
           <nav className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path;
+              const targetPath = "path" in item ? item.path : undefined;
+              const isActive = targetPath ? currentPath === targetPath : false;
+
+              const handleClick =
+                "onClick" in item && item.onClick
+                  ? item.onClick
+                  : () => targetPath && navigate(targetPath);
+
+              // visually indicate “premium required” without disabling
+              const looksDisabled =
+                item.label === "Dashboard" && !isPremium && userRole !== "COACH";
 
               return (
                 <Button
-                  key={item.path}
-                  variant={isActive ? 'secondary' : 'ghost'}
+                  key={item.label}
+                  type="button"
+                  onClick={handleClick}
+                  variant={isActive ? "secondary" : "ghost"}
                   className={cn(
-                    'w-full justify-start gap-3 h-12',
-                    isActive &&
-                      'bg-secondary text-secondary-foreground font-medium'
+                    "w-full justify-start gap-3 h-12",
+                    isActive && "bg-secondary text-secondary-foreground font-medium",
+                    looksDisabled && "opacity-60"
                   )}
+                  title={
+                    item.label === "Dashboard" && !isPremium
+                      ? "Premium required"
+                      : undefined
+                  }
                 >
                   <Icon className="h-5 w-5" />
                   {item.label}
@@ -96,8 +113,7 @@ const clientMenuItems = [
           </nav>
         </div>
 
-        {/* Status indicator for coaches */}
-        {userRole === 'COACH' && (
+        {userRole === "COACH" && (
           <div className="border-t p-4">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-success animate-pulse-gentle" />
