@@ -415,7 +415,7 @@ export function ruleName(entity: SomeModel): boolean {
 
 ### Services 
 
-**Location**: src/services
+**Location**: [src/services](src/services)
 
 **Purpose**
 Encapsulate all API integrations and abstract communication with the backend into reusable client classes. This layer ensures that UI components and business rules never call fetch directly, but instead consume typed service methods.
