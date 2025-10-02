@@ -78,14 +78,17 @@ Extend only from `ui/` components. Example:
 
 ```tsx
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 <Card>
-  <CardContent>…coach info…</CardContent>
+  <CardContent>...content here...</CardContent>
   <CardFooter>
-    <Button>Ver perfil</Button>
-    <Button>Conectar ahora</Button>
+    <Button>Primary</Button>
+    <Button variant="outline">Secondary</Button>
   </CardFooter>
 </Card>;
+</Card>
+
 ```
 
 Always use Tailwind tokens (bg-card, text-card-foreground, shadow-soft). Never use raw CSS values.
@@ -382,59 +385,33 @@ Domain Driven Design promotes the separation of concerns by isolating domain log
 
 - `TypeScript` - allows us to enforce domain types and constraints at compile-time.
 - `Zod` (already explained in [model](#Model)) - complements by enforcing runtime validation.
-- `Business Rules` - will be implemented in the [business](src/business) folder, decoupled from UI and API integration.
+- `Business Rules` - are implemented in the [business](src/business) folder, decoupled from UI and API integration.
 
-**Examples of future Domain-Specific Rules**:
-
-SessionRules.ts
-
+Template:All new rules must follow [TemplateRules.ts](src/business/TemplateRules.ts). This enforces consistency and prevents developers from wiring rules ad-hoc.
 ```ts
-import { Session } from '../models/Session';
+import { SomeModel } from '../models/SomeModel';
 
-export function canScheduleSession(session: Session): boolean {
-  const now = new Date();
-  return (
-    session.scheduledAt > now &&
-    session.duration >= 15 &&
-    session.duration <= 180
-  );
+export function ruleName(entity: SomeModel): boolean {
+  //implement domain rule
+  return true;
 }
 ```
 
-PackageRules.ts
+**How to create a new rule**:
 
-```ts
-import { Package } from '../models/Package';
+- Copy [TemplateRules.ts](src/business/TemplateRules.ts).
+- Rename the file and the exported function according to the domain (e.g., SessionRules.ts, PackageRules.ts).
+- Import the related model.
+- Implement the rule as a pure function (no side effects).
+- Return a boolean, transformed object, or throw an error depending on the business requirement.
 
-export function isPackageValid(pkg: Package): boolean {
-  return pkg.sessions > 0 && pkg.validUntil > new Date();
-}
-```
+**Developer Guidelines**:
 
-**Implementation Templates**:
+- Models = only structure, no logic.
+- Validators = runtime input validation, live in [src/validators](src/validators).
+- Business rules = reusable logic, always placed in [src/business](src/business).
+- Services = must consume business rules, not duplicate them.
 
-Developers can create new business rules by:
-
-1. Importing the related model.
-2. Defining a pure function (no side effects) that encodes the rule.
-3. Returning a boolean, a transformed object, or throwing an error depending on the business requirement.
-
-```ts
-//Example for future UserRules.ts
-import { CreateUserInput } from '../validators/userValidator';
-
-export function canRegisterAsCoach(user: CreateUserInput): boolean {
-  const age =
-    new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
-  return user.role === 'COACH' ? age >= 18 : true;
-}
-```
-
-**Developer Guidelines:**
-
-- Keep models pure - only structure, no logic.
-- Use [validators](src/validators) only for input validation (runtime safety).
-- Always reference business rules from [services](src/services) to ensure consistent enforcement across the app.
 
 ### Services (not documented yet)
 
