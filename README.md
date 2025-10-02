@@ -413,27 +413,122 @@ export function ruleName(entity: SomeModel): boolean {
 - Services = must consume business rules, not duplicate them.
 
 
-### Services (not documented yet)
+### Services 
 
-Design API client abstraction layer, providing templates of how APis are going to be integrated into the future. Me parece que hay que crear un tipo de diagrama para esto.
-Create the client for the security layer, this is going to be functional code. Este me parece que ya está.
+**Location**: src/services
+
+**Purpose**
+Encapsulate all API integrations and abstract communication with the backend into reusable client classes. This layer ensures that UI components and business rules never call fetch directly, but instead consume typed service methods.
+
+**Design**
+
+- Each service is a Singleton class (via `getInstance()`).
+- All HTTP requests use the built-in `fetch` API with JSON.
+- Authentication headers are injected automatically through [AuthService](src/services/AuthService.ts).
+- Exceptions are routed through [ExceptionHandler](src/exceptionHandling/ExceptionHandler.ts).
+- Logs are written via [LoggingService](src/logging/LoggingService.ts).
+- Real-time communication is handled separately by [WebSocketService](src/services/WebSocketService.ts).
+
+**Service Standard**
+
+All new services must follow the same structure and conventions as [AuthService.ts](src/services/AuthService.ts).
+
+Example – [AuthService.ts](src/services/AuthService.ts)
+```ts
+import { CreateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export class AuthService {
+  private static instance: AuthService;
+  private baseUrl = '/api/auth';
+
+  static getInstance(): AuthService {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
+
+  async login(credentials: LoginCredentials): Promise<{
+    user: UserResponseDTO;
+    tokens: AuthTokens;
+  }> {
+    const response = await fetch(`${this.baseUrl}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) throw new Error('Login failed');
+    return response.json();
+  }
+
+  async register(userData: CreateUserDTO): Promise<{
+    user: UserResponseDTO;
+    tokens: AuthTokens;
+  }> {
+    const response = await fetch(`${this.baseUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) throw new Error('Registration failed');
+    return response.json();
+  }
+
+  getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
+  }
+}
+```
+This example sets the standard for all services:
+- Singleton pattern (getInstance())
+- Centralized baseUrl
+- fetch requests with JSON
+- Consistent error handling
+- DTOs for typed request/response
+
+**Implemented Clients**
+
+- [AuthService.ts](src/services/AuthService.ts) - authentication, tokens, login/logout.
+- [CoachService.ts](src/services/CoachService.ts) - search, create, update coach profiles.
+- [SessionService.ts](src/services/SessionService.ts) - session lifecycle: create, join, end, cancel, rate.
+- [WebSocketService.ts](src/services/WebSocketService.ts) - real-time events (coach status, invitations, notifications).
 
 ### Background/Jobs/Listeners
 
 **Location:**
 
-```tsx
-src / background / events / eventBus.ts;
-types.ts;
-listeners / wsClient.ts;
-sessionListener.ts;
-jobs / polling.ts;
-visibilitySync.ts;
-sw / service - worker.ts;
-swRegistration.ts;
-notifications / pushClient.ts;
-```
 
+```tsx
+src/
+  background/
+    events/
+      eventBus.ts               
+      types.ts                  
+    listeners/
+      wsClient.ts               
+      sessionListener.ts               
+    jobs/
+      polling.ts                
+      visibilitySync.ts         
+    sw/
+      service-worker.ts         
+      swRegistration.ts         
+    notifications/
+      pushClient.ts             
+```
 **_How to start/plug in the layer in our application_**
 
 ```tsx
