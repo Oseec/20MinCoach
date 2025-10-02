@@ -374,14 +374,62 @@ Create the client for the security layer, this is going to be functional code. E
 
 ### Background/Jobs/Listeners
 
-Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
+src/
+  background/
+    events/
+      eventBus.ts               
+      types.ts                  
+    listeners/
+      wsClient.ts               
+      sessionListener.ts               
+    jobs/
+      polling.ts                
+      visibilitySync.ts         
+    sw/
+      service-worker.ts         
+      swRegistration.ts         
+    notifications/
+      pushClient.ts             
 
-- Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
-- Publish these events to a decoupled Event Bus (Pub/Sub) consumed by UI modules.
-- Implements periodic jobs with React Query (polling and invalidation upon return of focus/online).
-- It provides a Service Worker template and Push notifications when the app is in the background.
+***How to start/plug in the layer in our application***
 
-This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
+```tsx
+
+import { wsClient } from "@/background/listeners/wsClient";
+import { attachSessionListener } from "@/background/listeners/sessionListener";
+import { startLightPolling } from "@/background/jobs/polling";
+import { attachVisibilitySync } from "@/background/jobs/visibilitySync";
+// import { registerSW } from "@/background/sw/swRegistration";
+
+const disposers: Array<() => void> = [];
+
+function bootBackground(queryClient: QueryClient) {
+  // 1) WebSocket + listeners
+  wsClient.connect();
+  disposers.push(() => wsClient.close());
+  disposers.push(attachSessionListener());
+
+  // 2) Polling ligero y revalidación al foco/online
+  disposers.push(startLightPolling(queryClient));
+  disposers.push(attachVisibilitySync(queryClient));
+
+  // 3) Service worker (opcional demo)
+  // registerSW();
+}
+
+// al montar el <App/> (tú ya pasas QueryClient):
+bootBackground(queryClient);
+
+// al desmontar (si aplica HMR o cleanup):
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => disposers.forEach(d => d()));
+}
+
+
+```
+
+
+This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach background layer (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
 
 ### DTOs
