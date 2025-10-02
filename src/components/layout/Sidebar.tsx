@@ -9,7 +9,7 @@ import {
   Video,
   Clock,
 } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRoles } from "@/auth/RequireRole";
@@ -42,6 +42,7 @@ export const Sidebar = ({
   currentPath = "",
 }: SidebarProps) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const roles = useRoles();                         
   const isPremium = roles.includes("PremiumUser");  
 
@@ -54,7 +55,7 @@ export const Sidebar = ({
   };
 
 const clientMenuItems = [
-  { icon: Home, label: 'Dashboard', onClick: goDashboard },
+  { icon: Home, label: 'Dashboard', path: "/dashboard", onClick: goDashboard },
   { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
   { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
   { icon: CreditCard, label: 'Paquetes', path: '/packages' },
@@ -73,44 +74,33 @@ const clientMenuItems = [
     >
       <div className="flex h-full flex-col">
         <div className="flex-1 overflow-auto p-4">
-          <nav className="space-y-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const targetPath = "path" in item ? item.path : undefined;
-              const isActive = targetPath ? currentPath === targetPath : false;
+      <nav className="space-y-2">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = "path" in item && pathname === item.path;  
 
-              const handleClick =
-                "onClick" in item && item.onClick
-                  ? item.onClick
-                  : () => targetPath && navigate(targetPath);
+          const handleClick =
+            "onClick" in item && item.onClick
+              ? item.onClick
+              : () => "path" in item && navigate(item.path);
 
-              // visually indicate “premium required” without disabling
-              const looksDisabled =
-                item.label === "Dashboard" && !isPremium && userRole !== "COACH";
-
-              return (
-                <Button
-                  key={item.label}
-                  type="button"
-                  onClick={handleClick}
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start gap-3 h-12",
-                    isActive && "bg-secondary text-secondary-foreground font-medium",
-                    looksDisabled && "opacity-60"
-                  )}
-                  title={
-                    item.label === "Dashboard" && !isPremium
-                      ? "Premium required"
-                      : undefined
-                  }
-                >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </nav>
+          return (
+            <Button
+              key={item.label}
+              type="button"
+              onClick={handleClick}
+              variant={isActive ? "secondary" : "ghost"}
+              className={cn(
+                "w-full justify-start gap-3 h-12",
+                isActive && "bg-secondary text-secondary-foreground font-medium"
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {item.label}
+            </Button>
+          );
+        })}
+      </nav>
         </div>
 
         {userRole === "COACH" && (
