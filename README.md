@@ -1382,4 +1382,4 @@ The configuration of the linting tool is described in the previous layer.
 
 `vitest` tests files are located on [test](./src/test) in this files we have three tests. One for CoachCard, MainLayout and SessionCard.
 
-After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`.
+After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`: https://20-min-coach.vercel.app/.
