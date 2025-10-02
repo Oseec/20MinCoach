@@ -374,6 +374,7 @@ Create the client for the security layer, this is going to be functional code. E
 
 ### Background/Jobs/Listeners
 
+```tsx
 src/
   background/
     events/
@@ -390,6 +391,7 @@ src/
       swRegistration.ts         
     notifications/
       pushClient.ts             
+```
 
 ***How to start/plug in the layer in our application***
 
