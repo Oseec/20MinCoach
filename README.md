@@ -374,6 +374,8 @@ Create the client for the security layer, this is going to be functional code. E
 
 ### Background/Jobs/Listeners
 
+**Location:**
+
 ```tsx
 src/
   background/
