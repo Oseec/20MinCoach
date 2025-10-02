@@ -1383,3 +1383,17 @@ The configuration of the linting tool is described in the previous layer.
 `vitest` tests files are located on [test](./src/test) in this files we have three tests. One for CoachCard, MainLayout and SessionCard.
 
 After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`: https://20-min-coach.vercel.app/.
+
+### User Testing 
+
+We validated the usability of the prototype through a Maze test.
+
+The tasks tested were:
+
+- Filter by React experience
+- Filter online coaches
+- Log out
+
+These tasks were selected because they reflect essential user interactions in the platform (search, filtering, and authentication flows).
+
+The complete Maze results can be found here: [Maze Results](https://app.maze.co/report/20mincoach/t5q897mfyzneea/e952e157)
