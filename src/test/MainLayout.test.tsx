@@ -11,6 +11,7 @@ vi.mock('@okta/okta-react', () => ({
 
 vi.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/' }),
+  useNavigate: () => vi.fn(),
 }));
 
 test('renderiza children y toggle de sidebar', () => {
