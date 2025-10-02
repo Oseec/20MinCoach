@@ -193,6 +193,8 @@ await handleAsyncOperation(
   user.id
 );
 ```
+Hooks that interact with services (e.g., [useLogger.ts](src/hooks/useLogger.ts)) must inject them via `Service.getInstance()`.
+Utility hooks (e.g., [use-mobile.tsx](src/hooks/use-mobile.tsx), [use-toast.tsx](src/hooks/use-toast.ts)) don’t need dependency injection because they don’t depend on services.
 **Rules for Developers**
 
 - Do not place fetch/business logic inside components. Always wrap it in a hook.
@@ -202,124 +204,50 @@ await handleAsyncOperation(
 - Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
 ### Model
 
-**Location**: [src/models](src/models)
+All domain models live in [/src/models](src/models/).
 
-**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/models/User.ts), [Coach](src/models/Coach.ts), [Session](src/models/Session.ts), [SessionPackage](src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
+They define the application entities and their structure. Models are pure data containers (no business logic).
 
-**Folder Hierarchy**
+- [User.ts](src/models/User.ts) – basic user info, role, preferences.
+- [Coach.ts](src/models/Coach.ts) – coach profile, specialties, availability, certifications.
+- [Session.ts](src/models/Session.ts) – scheduling, connection, payment, recording.
+- [Package.ts](src/models/Package.ts) – session bundles with limits and validity.
 
-- [models](src/models) – contains all domain entity definitions
-- [Coach.ts](src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
-- [User.ts](src/models/User.ts) – User entity with personal info, role, and preferences
-- [Session.ts](src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
-- [Package.ts](src/models/Package.ts) – Session packages with features, restrictions, and validity
-
-These classes support the Data Model Pattern, representing domain entities without business logic.
+When creating a new domain entity, add it as a TypeScript file inside [/src/models](src/models/) and keep it free of business logic.
 
 **Model Validation**
 
-We use Zod for runtime input validation. Validators live in a separate layer: [src/validator](src/validators)
+Input validation is handled with Zod in [/src/validators](src/validators/).
+
+Each validator enforces integrity rules for its corresponding model.
+
+[coachValidator.ts](src/validators/coachValidator.ts) – validates Coach input.
+
+[userValidator.ts](src/validators/userValidator.ts) – validates User input.
 
 **Example**: Coach Validation
-
 ```ts
 import { createCoachSchema } from '../validators/coachValidator';
 
-const newCoachInput = {
+const input = {
   bio: 'Experienced fitness coach with 10+ years in training.',
   headline: 'Fitness & Wellness Expert',
   specialties: ['HEALTH', 'PSYCHOLOGY'],
   experience: 10,
   pricePerSession: 50,
-  availability: {
-    timezone: 'America/Bogota',
-    weeklySchedule: {
-      monday: [],
-      tuesday: [],
-      wednesday: [],
-      thursday: [],
-      friday: [],
-      saturday: [],
-      sunday: [],
-    },
-    instantAvailable: true,
-  },
+  availability: { timezone: 'America/Bogota', weeklySchedule: { monday: [] }, instantAvailable: true },
   languages: ['English', 'Spanish'],
 };
 
-try {
-  const validCoach = createCoachSchema.parse(newCoachInput);
-  console.log('Coach is valid:', validCoach);
-} catch (err) {
-  if (err instanceof Error) {
-    console.error('Validation error:', err);
-  }
-}
+const validCoach = createCoachSchema.parse(input);
 ```
+The `.parse()` method throws detailed errors if the input is invalid. Always run `.parse()` before persisting or using external input.
 
-**Explanation**:
-
-- createCoachSchema.parse(input) validates the input.
-- Throws detailed errors if the input is invalid.
-- Developers can catch the error to provide feedback or prevent invalid data from being saved.
-
-**How to Create More Validators**
-
-1. Import Zod:
-
-```ts
-import { z } from 'zod';
-```
-
-2. Define schemas for fields:
-
-```ts
-const timeSlotSchema = z.object({
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-});
-```
-
-3. Compose complex schemas:
-
-```ts
-const weeklyScheduleSchema = z.object({
-  monday: z.array(timeSlotSchema),
-  tuesday: z.array(timeSlotSchema),
-  // ...
-});
-```
-
-4. Create main entity schema:
-
-```ts
-export const createSessionSchema = z.object({
-  clientId: z.string(),
-  coachId: z.string(),
-  scheduledAt: z.date(),
-  duration: z.number().min(15).max(180),
-});
-```
-
-5. Infer TypeScript type for type safety:
-
-```ts
-export type CreateSessionInput = z.infer<typeof createSessionSchema>;
-```
-
-6. Use schema in services/controllers:
-
-```ts
-const validated = createSessionSchema.parse(inputData);
-```
-
-**Developer Guidelines**
-
-- Keep models pure (no business logic).
-- Validators should be separate from models.
-- Always use model types for consistency.
-- Use Zod `z.enum()` for enum validation.
-- When adding a new model, create a matching validator if input validation is required.
+**How to Work with Models & Validators**
+- Models: only structure, no logic.
+- Validators: keep them in [/src/validators](src/validators/) and use them in services or controllers before consuming data.
+- Use `z.infer` to derive TypeScript types from schemas and prevent type drift.
+- When adding a new model, always add a matching validator in [/src/validators](src/validators/).
 
 ### Middleware
 
@@ -361,7 +289,7 @@ try {
 
 - Wraps any service/controller operation.
 - Produces standardized error responses with timestamp, correlationId, code, and message.
-- Logs errors and security events via [LogginService](src/services/LoggingService.ts).
+- Logs errors and security events via [LogginService](src/logging/LoggingService.ts).
 
 **Developer Guidelines**
 
