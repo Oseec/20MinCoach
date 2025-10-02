@@ -388,6 +388,7 @@ Domain Driven Design promotes the separation of concerns by isolating domain log
 - `Business Rules` - are implemented in the [business](src/business) folder, decoupled from UI and API integration.
 
 Template:All new rules must follow [TemplateRules.ts](src/business/TemplateRules.ts). This enforces consistency and prevents developers from wiring rules ad-hoc.
+
 ```ts
 import { SomeModel } from '../models/SomeModel';
 
@@ -412,8 +413,7 @@ export function ruleName(entity: SomeModel): boolean {
 - Business rules = reusable logic, always placed in [src/business](src/business).
 - Services = must consume business rules, not duplicate them.
 
-
-### Services 
+### Services
 
 **Location**: [src/services](src/services)
 
@@ -434,6 +434,7 @@ Encapsulate all API integrations and abstract communication with the backend int
 All new services must follow the same structure and conventions as [AuthService.ts](src/services/AuthService.ts).
 
 Example – [AuthService.ts](src/services/AuthService.ts)
+
 ```ts
 import { CreateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
 
@@ -492,7 +493,9 @@ export class AuthService {
   }
 }
 ```
+
 This example sets the standard for all services:
+
 - Singleton pattern (`getInstance()`)
 - Centralized `baseUrl`
 - `fetch` requests with JSON
@@ -510,25 +513,18 @@ This example sets the standard for all services:
 
 **Location:**
 
-
 ```tsx
-src/
-  background/
-    events/
-      eventBus.ts               
-      types.ts                  
-    listeners/
-      wsClient.ts               
-      sessionListener.ts               
-    jobs/
-      polling.ts                
-      visibilitySync.ts         
-    sw/
-      service-worker.ts         
-      swRegistration.ts         
-    notifications/
-      pushClient.ts             
+src / background / events / eventBus.ts;
+types.ts;
+listeners / wsClient.ts;
+sessionListener.ts;
+jobs / polling.ts;
+visibilitySync.ts;
+sw / service - worker.ts;
+swRegistration.ts;
+notifications / pushClient.ts;
 ```
+
 **_How to start/plug in the layer in our application_**
 
 ```tsx
@@ -1384,7 +1380,7 @@ The configuration of the linting tool is described in the previous layer.
 
 After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`: https://20-min-coach.vercel.app/.
 
-### User Testing 
+### User Testing
 
 We validated the usability of the prototype through a Maze test.
 

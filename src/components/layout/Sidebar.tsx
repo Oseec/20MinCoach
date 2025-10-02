@@ -9,10 +9,10 @@ import {
   Video,
   Clock,
 } from 'lucide-react';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useRoles } from "@/auth/RequireRole";
+import { useRoles } from '@/auth/RequireRole';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -21,10 +21,20 @@ interface SidebarProps {
 }
 
 type MenuItem =
-  | { icon: any; label: string; path: string; onClick?: never; disabled?: boolean }
-  | { icon: any; label: string; onClick: () => void; path?: never; disabled?: boolean };
-
-
+  | {
+      icon: any;
+      label: string;
+      path: string;
+      onClick?: never;
+      disabled?: boolean;
+    }
+  | {
+      icon: any;
+      label: string;
+      onClick: () => void;
+      path?: never;
+      disabled?: boolean;
+    };
 
 const coachMenuItems = [
   { icon: Home, label: 'Dashboard', path: '/coach/dashboard' },
@@ -38,72 +48,78 @@ const coachMenuItems = [
 
 export const Sidebar = ({
   isOpen = true,
-  userRole = "CLIENT",
-  currentPath = "",
+  userRole = 'CLIENT',
+  currentPath = '',
 }: SidebarProps) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const roles = useRoles();                         
-  const isPremium = roles.includes("PremiumUser");  
+  const roles = useRoles();
+  const isPremium = roles.includes('PremiumUser');
 
   const goDashboard = () => {
     if (isPremium) {
-      navigate("/dashboard");
+      navigate('/dashboard');
     } else {
-      navigate("/403"); // or show a toast and stay put
+      navigate('/403'); // or show a toast and stay put
     }
   };
 
-const clientMenuItems = [
-  { icon: Home, label: 'Dashboard', path: "/dashboard", onClick: goDashboard },
-  { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
-  { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
-  { icon: CreditCard, label: 'Paquetes', path: '/packages' },
-  { icon: MessageSquare, label: 'Mensajes', path: '/messages' },
-  { icon: Settings, label: 'Configuración', path: '/settings' },
-];
+  const clientMenuItems = [
+    {
+      icon: Home,
+      label: 'Dashboard',
+      path: '/dashboard',
+      onClick: goDashboard,
+    },
+    { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
+    { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
+    { icon: CreditCard, label: 'Paquetes', path: '/packages' },
+    { icon: MessageSquare, label: 'Mensajes', path: '/messages' },
+    { icon: Settings, label: 'Configuración', path: '/settings' },
+  ];
 
-  const menuItems = userRole === "COACH" ? coachMenuItems : clientMenuItems;
+  const menuItems = userRole === 'COACH' ? coachMenuItems : clientMenuItems;
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 transform border-r bg-background transition-transform duration-200 ease-in-out lg:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 transform border-r bg-background transition-transform duration-200 ease-in-out lg:translate-x-0',
+        isOpen ? 'translate-x-0' : '-translate-x-full'
       )}
     >
       <div className="flex h-full flex-col">
         <div className="flex-1 overflow-auto p-4">
-      <nav className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = "path" in item && pathname === item.path;  
+          <nav className="space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = 'path' in item && pathname === item.path;
 
-          const handleClick =
-            "onClick" in item && item.onClick
-              ? item.onClick
-              : () => "path" in item && navigate(item.path);
+              const handleClick =
+                'onClick' in item && item.onClick
+                  ? item.onClick
+                  : () => 'path' in item && navigate(item.path);
 
-          return (
-            <Button
-              key={item.label}
-              type="button"
-              onClick={handleClick}
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start gap-3 h-12",
-                isActive && "bg-secondary text-secondary-foreground font-medium"
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              {item.label}
-            </Button>
-          );
-        })}
-      </nav>
+              return (
+                <Button
+                  key={item.label}
+                  type="button"
+                  onClick={handleClick}
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  className={cn(
+                    'w-full justify-start gap-3 h-12',
+                    isActive &&
+                      'bg-secondary text-secondary-foreground font-medium'
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </nav>
         </div>
 
-        {userRole === "COACH" && (
+        {userRole === 'COACH' && (
           <div className="border-t p-4">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-success animate-pulse-gentle" />
