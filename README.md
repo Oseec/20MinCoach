@@ -55,13 +55,58 @@ If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1A
 
 ### Visual Components Strategy
 
-Esta sección no me quedó muy clara la verdad:
+**Organization Strategy**
 
-- Develop a component organization strategy, this might be lead by the technology choose
-- Design how to achive a reusable component library structure, those are steps for the developers
-- Create a component development workflow based on the technology selected, those are steps for the developers
-- Establish component testing methodology, this is not theory, are steps for the developers
+- Place generic reusable components inside [/src/components/ui](src/components/ui/) (e.g., `Button`, `Card`, `Alert`).
+- Place layout components inside /src/components/layout(e.g., `Sidebar`, `MainLayout`).
+- Place domain-specific components in their domain folder:
+  - [/coach](src/components/coach)
+  - [/session](src/components/session)
 
+Never duplicate UI markup. Always extend from `ui/` primitives.
+
+**Reusable Library Structure**
+
+Extend only from `ui/` components. Example:
+```tsx
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+
+<Card>
+  <CardContent>…coach info…</CardContent>
+  <CardFooter>
+    <Button>Ver perfil</Button>
+    <Button>Conectar ahora</Button>
+  </CardFooter>
+</Card>
+```
+Always use Tailwind tokens (bg-card, text-card-foreground, shadow-soft). Never use raw CSS values.
+
+Keep accessibility defaults: ARIA attributes on interactive elements, focus styles, keyboard navigation enabled.
+
+**Development Workflow**
+
+- Create the component in the correct folder (ui/, coach/, session/).
+- Define props for all dynamic data. Do not hardcode.
+- Apply Tailwind classes using design tokens (`bg-background`, `text-foreground`, `shadow-[var(--shadow-soft)]`).
+- Add responsive classes (`sm:`, `md:`, `lg:`) where needed.
+- Ensure accessibility with ARIA roles and keyboard navigation.
+
+**Testing Methodology**
+
+- All tests are in [/src/test](src/test).
+- Name tests after the component: ComponentName.test.tsx.
+- Use `@testing-library/react` + `vitest`.
+- Every test must check:
+  - Props rendering (text, numbers, conditional labels).
+  - Accessibility (ARIA roles, focus, labels).
+  - Events (clicks, state toggles).
+  - Variants (online/offline, active/inactive).
+
+Example:
+```tsx
+render(<CoachCard coach={mockCoach} user={mockUser} />);
+expect(screen.getByText('Coach de Liderazgo')).toBeInTheDocument();
+```
 ## Detailed Layer Design
 
 ### Visual Components
@@ -76,8 +121,7 @@ It already includes `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitl
 
 To build a domain card (e.g. coach profile), import and compose these parts.
 
-Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx)
-:
+Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx):
 ```tsx
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
@@ -96,9 +140,9 @@ Always extend from ui/card.tsx. Do not duplicate card markup or styles.
 
 The sidebar system is already implemented in [/src/components/layout/Sidebar.tsx](/src/components/layout/Sidebar.tsx).
 
-Use <SidebarProvider> at the root, and <Sidebar>, <SidebarContent>, <SidebarMenu>, <SidebarMenuItem> etc. to build navigation.
+Use `<SidebarProvider>` at the root, and `<Sidebar>`, `<SidebarContent>`, `<SidebarMenu>`, `<SidebarMenuItem>` etc. to build navigation.
 
-Toggle is done with <SidebarTrigger>.
+Toggle is done with `<SidebarTrigger>`.
 
 Responsive behavior is built in: desktop = fixed, mobile = overlay.
 
@@ -190,6 +234,8 @@ await handleAsyncOperation(
   user.id
 );
 ```
+Hooks that interact with services (e.g., [useLogger.ts](src/hooks/useLogger.ts)) must inject them via `Service.getInstance()`.
+Utility hooks (e.g., [use-mobile.tsx](src/hooks/use-mobile.tsx), [use-toast.tsx](src/hooks/use-toast.ts)) don’t need dependency injection because they don’t depend on services.
 **Rules for Developers**
 
 - Do not place fetch/business logic inside components. Always wrap it in a hook.
@@ -199,140 +245,63 @@ await handleAsyncOperation(
 - Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
 ### Model
 
-**Location**: [src/models](src/models)
+All domain models live in [/src/models](src/models/).
 
-**Purpose**: Define the domain entities and data structures for the application. Models represent core concepts ([User](src/models/User.ts), [Coach](src/models/Coach.ts), [Session](src/models/Session.ts), [SessionPackage](src/models/Package.ts)) and are used across services, controllers, and UI components. Validation is applied via Zod to enforce data integrity and guide developers in consistent usage.
+They define the application entities and their structure. Models are pure data containers (no business logic).
 
-**Folder Hierarchy**
+- [User.ts](src/models/User.ts) – basic user info, role, preferences.
+- [Coach.ts](src/models/Coach.ts) – coach profile, specialties, availability, certifications.
+- [Session.ts](src/models/Session.ts) – scheduling, connection, payment, recording.
+- [Package.ts](src/models/Package.ts) – session bundles with limits and validity.
 
-- [models](src/models) – contains all domain entity definitions
-- [Coach.ts](src/models/Coach.ts) – Coach entity with specialties, availability, certifications, and ratings
-- [User.ts](src/models/User.ts) – User entity with personal info, role, and preferences
-- [Session.ts](src/models/Session.ts) – Session entity with scheduling, connection, payment, and recording details
-- [Package.ts](src/models/Package.ts) – Session packages with features, restrictions, and validity
-
-These classes support the Data Model Pattern, representing domain entities without business logic.
+When creating a new domain entity, add it as a TypeScript file inside [/src/models](src/models/) and keep it free of business logic.
 
 **Model Validation**
 
-We use Zod for runtime input validation. Validators live in a separate layer: [src/validator](src/validators)
+Input validation is handled with Zod in [/src/validators](src/validators/).
+
+Each validator enforces integrity rules for its corresponding model.
+
+- [coachValidator.ts](src/validators/coachValidator.ts) – validates Coach input.
+- [userValidator.ts](src/validators/userValidator.ts) – validates User input.
 
 **Example**: Coach Validation
-
 ```ts
 import { createCoachSchema } from '../validators/coachValidator';
 
-const newCoachInput = {
+const input = {
   bio: 'Experienced fitness coach with 10+ years in training.',
   headline: 'Fitness & Wellness Expert',
   specialties: ['HEALTH', 'PSYCHOLOGY'],
   experience: 10,
   pricePerSession: 50,
-  availability: {
-    timezone: 'America/Bogota',
-    weeklySchedule: {
-      monday: [],
-      tuesday: [],
-      wednesday: [],
-      thursday: [],
-      friday: [],
-      saturday: [],
-      sunday: [],
-    },
-    instantAvailable: true,
-  },
+  availability: { timezone: 'America/Bogota', weeklySchedule: { monday: [] }, instantAvailable: true },
   languages: ['English', 'Spanish'],
 };
 
-try {
-  const validCoach = createCoachSchema.parse(newCoachInput);
-  console.log('Coach is valid:', validCoach);
-} catch (err) {
-  if (err instanceof Error) {
-    console.error('Validation error:', err);
-  }
-}
+const validCoach = createCoachSchema.parse(input);
 ```
+The `.parse()` method throws detailed errors if the input is invalid. Always run `.parse()` before persisting or using external input.
 
-**Explanation**:
-
-- createCoachSchema.parse(input) validates the input.
-- Throws detailed errors if the input is invalid.
-- Developers can catch the error to provide feedback or prevent invalid data from being saved.
-
-**How to Create More Validators**
-
-1. Import Zod:
-
-```ts
-import { z } from 'zod';
-```
-
-2. Define schemas for fields:
-
-```ts
-const timeSlotSchema = z.object({
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-});
-```
-
-3. Compose complex schemas:
-
-```ts
-const weeklyScheduleSchema = z.object({
-  monday: z.array(timeSlotSchema),
-  tuesday: z.array(timeSlotSchema),
-  // ...
-});
-```
-
-4. Create main entity schema:
-
-```ts
-export const createSessionSchema = z.object({
-  clientId: z.string(),
-  coachId: z.string(),
-  scheduledAt: z.date(),
-  duration: z.number().min(15).max(180),
-});
-```
-
-5. Infer TypeScript type for type safety:
-
-```ts
-export type CreateSessionInput = z.infer<typeof createSessionSchema>;
-```
-
-6. Use schema in services/controllers:
-
-```ts
-const validated = createSessionSchema.parse(inputData);
-```
-
-**Developer Guidelines**
-
-- Keep models pure (no business logic).
-- Validators should be separate from models.
-- Always use model types for consistency.
-- Use Zod `z.enum()` for enum validation.
-- When adding a new model, create a matching validator if input validation is required.
+**How to Work with Models & Validators**
+- Models: only structure, no logic.
+- Validators: keep them in [/src/validators](src/validators/) and use them in services or controllers before consuming data.
+- Use `z.infer` to derive TypeScript types from schemas and prevent type drift.
+- When adding a new model, always add a matching validator in [/src/validators](src/validators/).
 
 ### Middleware
 
-**Location**: [src/middleware](src/middleware)
+All middleware lives in[src/middleware](src/middleware)
 
-**Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
+They centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies before passing control to services or controllers.
 
-**Folder Hierarchy**:
-
-- [authMiddleware.ts](src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
-- [errorMiddleware.ts](src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
+- [authMiddleware.ts](src/middleware/authMiddleware.ts) – authentication, token refresh, role-based access control.
+- [errorMiddleware.ts](src/middleware/errorMiddleware.ts)– standardizes error handling, converts exceptions to structured responses, logs errors.
 - [transformers](src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/middleware/transformers/user.mapper.ts)).
 
 **Applied Design Pattern**: Middleware / Interceptor Pattern.
 
-Middleware functions as a pipeline to intercept, validate, log, or transform requests/responses.
+Functions as a pipeline to intercept, validate, log, or transform requests/responses.
 
 **Examples**
 AuthMiddleware
@@ -358,14 +327,14 @@ try {
 
 - Wraps any service/controller operation.
 - Produces standardized error responses with timestamp, correlationId, code, and message.
-- Logs errors and security events via [LogginService](src/services/LoggingService.ts).
+- Logs errors and security events via the [Logging layer](src/logging/LoggingService.ts).
 
-**Developer Guidelines**
+**How to Work with Middleware**
 
-- Middleware should not contain business logic; that belongs in services.
-- Use transformers to map incoming DTOs to models, keeping controllers/services clean.
-- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
-- All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
+- Middleware should not contain business logic; that belongs in services.  
+- Middleware must remain stateless. If shared state is needed (e.g., logging or exception handling), implement it in the corresponding service and inject it into middleware.  
+- Use transformers to map incoming DTOs to models, keeping controllers/services clean.  
+- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.  
 
 ### Business
 
@@ -444,14 +413,66 @@ Create the client for the security layer, this is going to be functional code. E
 
 ### Background/Jobs/Listeners
 
-Its a layer that handles everything that happens "in the background" without direct user interaction, it will:
+**Location:**
 
-- Maintains an authenticated WebSocket connection with the Okta access token to receive real-time events.
-- Publish these events to a decoupled Event Bus (Pub/Sub) consumed by UI modules.
-- Implements periodic jobs with React Query (polling and invalidation upon return of focus/online).
-- It provides a Service Worker template and Push notifications when the app is in the background.
+```tsx
+src/
+  background/
+    events/
+      eventBus.ts               
+      types.ts                  
+    listeners/
+      wsClient.ts               
+      sessionListener.ts               
+    jobs/
+      polling.ts                
+      visibilitySync.ts         
+    sw/
+      service-worker.ts         
+      swRegistration.ts         
+    notifications/
+      pushClient.ts             
+```
 
-This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach backend (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
+***How to start/plug in the layer in our application***
+
+```tsx
+
+import { wsClient } from "@/background/listeners/wsClient";
+import { attachSessionListener } from "@/background/listeners/sessionListener";
+import { startLightPolling } from "@/background/jobs/polling";
+import { attachVisibilitySync } from "@/background/jobs/visibilitySync";
+//import { registerSW } from "@/background/sw/swRegistration";
+
+const disposers: Array<() => void> = [];
+
+function bootBackground(queryClient: QueryClient) {
+  //WebSocket + listeners
+  wsClient.connect();
+  disposers.push(() => wsClient.close());
+  disposers.push(attachSessionListener());
+
+  //Light polling and revalidation on focus/online
+  disposers.push(startLightPolling(queryClient));
+  disposers.push(attachVisibilitySync(queryClient));
+
+  //Service worker
+  //registerSW();
+}
+
+//when mounting the <App/> (you already pass QueryClient):
+bootBackground(queryClient);
+
+//when disassembling (if HMR or cleanup applies):
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => disposers.forEach(d => d()));
+}
+
+
+```
+
+
+This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach background layer (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
 
 
 ### DTOs
