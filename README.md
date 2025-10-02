@@ -1,17 +1,21 @@
 # 20MinCoach
+
 This is the documentation of the design of **20MinCoach** which is described [here](https://github.com/vsurak/cursostec/tree/master/diseno).
 
 ### Table of Contents
+
 - [General Design Features](#general-design-features)
 - [Detailed Layer Design](#detailed-layer-design)
 
 ## General Design Features
+
 This section describes general features of the platform's design, such as technologies used and architecture.
 
 ### Technology Research and Selection
+
 For this platform `React 18` is going to be used as a Front-End library. Because this is a Single Page Application no framework is required. Everything is developt on Vite + React + TypeScript.
 
-`React` provides flexibility, is very popular and allows scalability for projects of any size. React's Virtual DOM is a lightweight copy of the actual DOM, which allows it to efficiently update only the changed components rather than re-rendering the entire page. This results in faster rendering and smoother user experiences. 
+`React` provides flexibility, is very popular and allows scalability for projects of any size. React's Virtual DOM is a lightweight copy of the actual DOM, which allows it to efficiently update only the changed components rather than re-rendering the entire page. This results in faster rendering and smoother user experiences.
 
 `TailWind` in this platform is used as a CSS framework. It provides CSS utilities for quick web development and easy personalization. It is going to be used alongside `React`.
 
@@ -25,6 +29,7 @@ The following technologies will provide real-time communication:
 For testing and linting `Vitest` and `ESLint` will be implemented. These two are going to be configured on a pipeline for auto testing and linting after every push into the repo.
 
 The following **styling methodologies** are key features of this design:
+
 - Utility-First CSS
 - Design Tokens / CSS Variables
 - Component Variants Pattern
@@ -33,8 +38,11 @@ The following **styling methodologies** are key features of this design:
 `Tailwind CSS` is used as the primary styling framework with JIT compiler, `tailwindcss-animate` for pre-built animation utilities, `shadcn/ui` as a provider of pre-defined UI components and `class-variance-authority (CVA)` for Component Variants Pattern.
 
 This creates a themeable, maintainable system where colors/styles are centralized and consistently applied across the platform.
+
 ### N-Layer Architecture Design
+
 This architecture consist of four main layers:
+
 - Presentation
 - Application
 - Bussiness
@@ -52,7 +60,6 @@ The authentication is an external layer that can be exchange easily. At first th
 
 If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1Architecture.pdf)
 
-
 ### Visual Components Strategy
 
 **Organization Strategy**
@@ -68,6 +75,7 @@ Never duplicate UI markup. Always extend from `ui/` primitives.
 **Reusable Library Structure**
 
 Extend only from `ui/` components. Example:
+
 ```tsx
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
@@ -77,8 +85,9 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
     <Button>Ver perfil</Button>
     <Button>Conectar ahora</Button>
   </CardFooter>
-</Card>
+</Card>;
 ```
+
 Always use Tailwind tokens (bg-card, text-card-foreground, shadow-soft). Never use raw CSS values.
 
 Keep accessibility defaults: ARIA attributes on interactive elements, focus styles, keyboard navigation enabled.
@@ -103,13 +112,16 @@ Keep accessibility defaults: ARIA attributes on interactive elements, focus styl
   - Variants (online/offline, active/inactive).
 
 Example:
+
 ```tsx
 render(<CoachCard coach={mockCoach} user={mockUser} />);
 expect(screen.getByText('Coach de Liderazgo')).toBeInTheDocument();
 ```
+
 ## Detailed Layer Design
 
 ### Visual Components
+
 All visual components are in [/src/components](src/components/).
 Use them as building blocks, never re-invent styles.
 
@@ -122,6 +134,7 @@ It already includes `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitl
 To build a domain card (e.g. coach profile), import and compose these parts.
 
 Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx):
+
 ```tsx
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
@@ -131,7 +144,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
     <Button>Ver perfil</Button>
     <Button>Conectar ahora</Button>
   </CardFooter>
-</Card>
+</Card>;
 ```
 
 Always extend from ui/card.tsx. Do not duplicate card markup or styles.
@@ -147,6 +160,7 @@ Toggle is done with `<SidebarTrigger>`.
 Responsive behavior is built in: desktop = fixed, mobile = overlay.
 
 Example:
+
 ```tsx
 <SidebarProvider>
   <Sidebar>
@@ -161,7 +175,6 @@ Example:
 
   <SidebarInset>{children}</SidebarInset>
 </SidebarProvider>
-
 ```
 
 Never implement your own sidebar; always extend this system.
@@ -174,8 +187,11 @@ Never implement your own sidebar; always extend this system.
   - [session/](src/components/session) - session domain components
 
 All interactive elements must have ARIA attributes:
+
 ```tsx
-<button aria-label="Open sidebar" aria-expanded={isOpen}>Menu</button>
+<button aria-label="Open sidebar" aria-expanded={isOpen}>
+  Menu
+</button>
 ```
 
 Keyboard accessibility: ensure tabIndex=0 on links and buttons.
@@ -191,11 +207,13 @@ Sidebar and Card components already include mobile - desktop transitions.
 - No business logic in components. Data must come via props.
 - Only use Tailwind tokens (colors, shadows, transitions) defined in [index](src/index.css). Never use raw hex values.
 - Example of token usage:
+
 ```tsx
 <div className="bg-card text-card-foreground shadow-[var(--shadow-soft)]">
   …
 </div>
 ```
+
 ### Controllers
 
 All controller logic is implemented as custom React hooks inside [/src/hooks](/src/hooks/).
@@ -210,30 +228,34 @@ This keeps hooks testable and ensures consistency across the app.
 **Available Hooks**
 
 [use-mobile.tsx](src/hooks/use-mobile.tsx)– detects viewport size to handle responsive UI.
+
 ```tsx
 const isMobile = useIsMobile();
-<div className={isMobile ? "p-4" : "p-8"}>Responsive content</div>
+<div className={isMobile ? 'p-4' : 'p-8'}>Responsive content</div>;
 ```
 
 use-toast.ts – manages toast notifications.
+
 ```tsx
 const { toast } = useToast();
-<Button onClick={() => toast({ title: "Profile saved!" })}>Save</Button>
+<Button onClick={() => toast({ title: 'Profile saved!' })}>Save</Button>;
 ```
 
 [useLogger.ts](src/hooks/useLogger.ts)– connects UI with [LoggingService](src/logging/LoggingService.ts) and [ExceptionHandler](src/exceptionHandling/ExceptionHandler.ts).
+
 ```tsx
 const { logUserAction, handleAsyncOperation } = useLogger();
 
-logUserAction("Clicked Save Button");
+logUserAction('Clicked Save Button');
 
 await handleAsyncOperation(
-  () => CoachService.getInstance().getCoachById("123"),
-  "COACH",
-  "fetch_by_id",
+  () => CoachService.getInstance().getCoachById('123'),
+  'COACH',
+  'fetch_by_id',
   user.id
 );
 ```
+
 Hooks that interact with services (e.g., [useLogger.ts](src/hooks/useLogger.ts)) must inject them via `Service.getInstance()`.
 Utility hooks (e.g., [use-mobile.tsx](src/hooks/use-mobile.tsx), [use-toast.tsx](src/hooks/use-toast.ts)) don’t need dependency injection because they don’t depend on services.
 **Rules for Developers**
@@ -243,6 +265,7 @@ Utility hooks (e.g., [use-mobile.tsx](src/hooks/use-mobile.tsx), [use-toast.tsx]
 - Hooks must only return state, callbacks, or utilities to the component.
 - For errors, always go through useLogger.handleError or useLogger.handleAsyncOperation, never try/catch silently.
 - Add new hooks inside [/src/hooks](src/hooks) following the same pattern.
+
 ### Model
 
 All domain models live in [/src/models](src/models/).
@@ -266,6 +289,7 @@ Each validator enforces integrity rules for its corresponding model.
 - [userValidator.ts](src/validators/userValidator.ts) – validates User input.
 
 **Example**: Coach Validation
+
 ```ts
 import { createCoachSchema } from '../validators/coachValidator';
 
@@ -275,15 +299,21 @@ const input = {
   specialties: ['HEALTH', 'PSYCHOLOGY'],
   experience: 10,
   pricePerSession: 50,
-  availability: { timezone: 'America/Bogota', weeklySchedule: { monday: [] }, instantAvailable: true },
+  availability: {
+    timezone: 'America/Bogota',
+    weeklySchedule: { monday: [] },
+    instantAvailable: true,
+  },
   languages: ['English', 'Spanish'],
 };
 
 const validCoach = createCoachSchema.parse(input);
 ```
+
 The `.parse()` method throws detailed errors if the input is invalid. Always run `.parse()` before persisting or using external input.
 
 **How to Work with Models & Validators**
+
 - Models: only structure, no logic.
 - Validators: keep them in [/src/validators](src/validators/) and use them in services or controllers before consuming data.
 - Use `z.infer` to derive TypeScript types from schemas and prevent type drift.
@@ -331,10 +361,10 @@ try {
 
 **How to Work with Middleware**
 
-- Middleware should not contain business logic; that belongs in services.  
-- Middleware must remain stateless. If shared state is needed (e.g., logging or exception handling), implement it in the corresponding service and inject it into middleware.  
-- Use transformers to map incoming DTOs to models, keeping controllers/services clean.  
-- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.  
+- Middleware should not contain business logic; that belongs in services.
+- Middleware must remain stateless. If shared state is needed (e.g., logging or exception handling), implement it in the corresponding service and inject it into middleware.
+- Use transformers to map incoming DTOs to models, keeping controllers/services clean.
+- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
 
 ### Business
 
@@ -416,32 +446,24 @@ Create the client for the security layer, this is going to be functional code. E
 **Location:**
 
 ```tsx
-src/
-  background/
-    events/
-      eventBus.ts               
-      types.ts                  
-    listeners/
-      wsClient.ts               
-      sessionListener.ts               
-    jobs/
-      polling.ts                
-      visibilitySync.ts         
-    sw/
-      service-worker.ts         
-      swRegistration.ts         
-    notifications/
-      pushClient.ts             
+src / background / events / eventBus.ts;
+types.ts;
+listeners / wsClient.ts;
+sessionListener.ts;
+jobs / polling.ts;
+visibilitySync.ts;
+sw / service - worker.ts;
+swRegistration.ts;
+notifications / pushClient.ts;
 ```
 
-***How to start/plug in the layer in our application***
+**_How to start/plug in the layer in our application_**
 
 ```tsx
-
-import { wsClient } from "@/background/listeners/wsClient";
-import { attachSessionListener } from "@/background/listeners/sessionListener";
-import { startLightPolling } from "@/background/jobs/polling";
-import { attachVisibilitySync } from "@/background/jobs/visibilitySync";
+import { wsClient } from '@/background/listeners/wsClient';
+import { attachSessionListener } from '@/background/listeners/sessionListener';
+import { startLightPolling } from '@/background/jobs/polling';
+import { attachVisibilitySync } from '@/background/jobs/visibilitySync';
 //import { registerSW } from "@/background/sw/swRegistration";
 
 const disposers: Array<() => void> = [];
@@ -465,15 +487,11 @@ bootBackground(queryClient);
 
 //when disassembling (if HMR or cleanup applies):
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => disposers.forEach(d => d()));
+  import.meta.hot.dispose(() => disposers.forEach((d) => d()));
 }
-
-
 ```
 
-
 This layer is isolated in `src/background/`, with sample code and documentation for the team to extend when integrating the 20minCoach background layer (live sessions, coach presence, notifications, etc.), or designing a future mobile version.
-
 
 ### DTOs
 
@@ -502,13 +520,12 @@ async getCoachById(id: string): Promise<Coach> {
 
 there are templates of mappers on this folder - [transformers](src/middleware/transformers)
 
-
-***DTO-light policy:*** 
+**_DTO-light policy:_**
 
 keep DTOs only where a transformation is actually needed.
+
 - If an endpoint already returns the exact shape you want, the service can return it as is (after a Zod .parse()), no mapper file.
 - If any field needs conversion (date parsing, renames, coercions), create a small mapper for that endpoint’s payload and keep DTO types private to the service layer.
-
 
 ### Styles
 
@@ -526,13 +543,13 @@ The UI is styled with Tailwind CSS. Design tokens (HSL CSS variables) live in `s
 
 - Only add a small CSS Module next to a component if utilities become unwieldy (rare).
 
-***Dark/Light mode — what you do vs. what the app does:***
+**_Dark/Light mode — what you do vs. what the app does:_**
 
 - The app toggles dark mode by adding/removing `.dark` on `<html>`. The tokens in `index.css` change values under that class.
 
 - You, in components, just use the semantic classes listed above. Do not write conditional color logic or theme checks in components; if a color looks wrong, you likely bypassed tokens.
 
-***Responsiveness — practical rules:***
+**_Responsiveness — practical rules:_**
 
 - Start with the smallest layout: base classes without prefixes. Enhance with `sm:` and up.
 
@@ -543,7 +560,6 @@ The UI is styled with Tailwind CSS. Design tokens (HSL CSS variables) live in `s
 **Component template**
 
 ```tsx
-
 type InfoCardProps = {
   title: string;
   children: React.ReactNode;
@@ -551,14 +567,21 @@ type InfoCardProps = {
   actionLabel?: string; //required if onAction is provided
 };
 
-export function InfoCard({ title, children, onAction, actionLabel }: InfoCardProps) {
+export function InfoCard({
+  title,
+  children,
+  onAction,
+  actionLabel,
+}: InfoCardProps) {
   return (
     <section
       className="bg-card text-card-foreground rounded-lg shadow-[var(--shadow-soft)] p-4 sm:p-6"
       aria-label={title}
     >
       <header className="flex items-start justify-between gap-4">
-        <h3 className="text-base sm:text-lg font-semibold leading-tight">{title}</h3>
+        <h3 className="text-base sm:text-lg font-semibold leading-tight">
+          {title}
+        </h3>
         {onAction && (
           <button
             type="button"
@@ -575,10 +598,7 @@ export function InfoCard({ title, children, onAction, actionLabel }: InfoCardPro
     </section>
   );
 }
-
-
 ```
-
 
 ### Utilities
 
@@ -1099,22 +1119,30 @@ We chose to add Prettier to a ESLint setup in order to format code to a consiste
 Prettier runs as an ESLint rule, so formatting errors are reported alongside other lint errors.
 
 **ESLint and Prettier Configuration**
+
 1. Install ESLint
+
 ```bash
 npm install eslint --save-dev
 ```
+
 2. Install Prettier
+
 ```bash
 npm install --save-dev --save-exact prettier
 ```
+
 3. Integrate ESLint with Prettier
+
 ```bash
 npm install --save-dev eslint-config-prettier eslint-plugin-prettier
 ```
+
 - **eslint-config-prettier** disables ESLint rules that may conflict with Prettier.
 - **eslint-plugin-prettier** runs Prettier as an ESLint rule, reporting formatting issues as linting errors.
 
 4. Update `eslint.config.js` with:
+
 ```js
 {
   "extends": [
@@ -1127,9 +1155,11 @@ npm install --save-dev eslint-config-prettier eslint-plugin-prettier
   }
 }
 ```
+
 If any exceptions are needed consider adding `'~~-~~/~~': 'off'`
 
 5. Create `.prettierrc.json` and add:
+
 ```json
 {
   "semi": true,
@@ -1143,6 +1173,7 @@ If any exceptions are needed consider adding `'~~-~~/~~': 'off'`
 ```
 
 6. Add scripts for convenience
+
 ```json
 {
   "scripts": {
@@ -1238,9 +1269,8 @@ Classes, interfaces, types and enum members are named using the `PascalCase` con
 `npm run lint` checks all files and reports errors/warnings, `npm run lint:fix` fixes automatically correctable issues, including Prettier formatting.
 If you want to format the entire project according to Prettier rules use `npm run format` this formatting is independent of ESLint.
 
-
-
 ### Build and Deployment Pipeline
+
 Continuous integration is achieved with the implementation of a pipeline => [ci-cd.yml](./.github/workflows/ci-cd.yml).
 This pipeline is in charge only of CI, CD (continuous deployment) is achieved with Vercel.
 
@@ -1274,6 +1304,7 @@ jobs:
       - name: Build project
         run: npm run build
 ```
+
 This pipeline builds and tests the project. `vitest` is used for unit tests and `ESLint` is used for linting.
 The configuration of the linting tool is described in the previous layer.
 
