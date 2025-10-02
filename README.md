@@ -56,13 +56,58 @@ If you want a pdf with more quality => [Case1Architecture.pdf](./diagrams/Case1A
 
 ### Visual Components Strategy
 
-Esta sección no me quedó muy clara la verdad:
+**Organization Strategy**
 
-- Develop a component organization strategy, this might be lead by the technology choose
-- Design how to achive a reusable component library structure, those are steps for the developers
-- Create a component development workflow based on the technology selected, those are steps for the developers
-- Establish component testing methodology, this is not theory, are steps for the developers
+- Place generic reusable components inside [/src/components/ui](src/components/ui/) (e.g., `Button`, `Card`, `Alert`).
+- Place layout components inside /src/components/layout(e.g., `Sidebar`, `MainLayout`).
+- Place domain-specific components in their domain folder:
+  - [/coach](src/components/coach)
+  - [/session](src/components/session)
 
+Never duplicate UI markup. Always extend from `ui/` primitives.
+
+**Reusable Library Structure**
+
+Extend only from `ui/` components. Example:
+```tsx
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+
+<Card>
+  <CardContent>…coach info…</CardContent>
+  <CardFooter>
+    <Button>Ver perfil</Button>
+    <Button>Conectar ahora</Button>
+  </CardFooter>
+</Card>
+```
+Always use Tailwind tokens (bg-card, text-card-foreground, shadow-soft). Never use raw CSS values.
+
+Keep accessibility defaults: ARIA attributes on interactive elements, focus styles, keyboard navigation enabled.
+
+**Development Workflow**
+
+- Create the component in the correct folder (ui/, coach/, session/).
+- Define props for all dynamic data. Do not hardcode.
+- Apply Tailwind classes using design tokens (`bg-background`, `text-foreground`, `shadow-[var(--shadow-soft)]`).
+- Add responsive classes (`sm:`, `md:`, `lg:`) where needed.
+- Ensure accessibility with ARIA roles and keyboard navigation.
+
+**Testing Methodology**
+
+- All tests are in [/src/test](src/test).
+- Name tests after the component: ComponentName.test.tsx.
+- Use `@testing-library/react` + `vitest`.
+- Every test must check:
+  - Props rendering (text, numbers, conditional labels).
+  - Accessibility (ARIA roles, focus, labels).
+  - Events (clicks, state toggles).
+  - Variants (online/offline, active/inactive).
+
+Example:
+```tsx
+render(<CoachCard coach={mockCoach} user={mockUser} />);
+expect(screen.getByText('Coach de Liderazgo')).toBeInTheDocument();
+```
 ## Detailed Layer Design
 
 Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
@@ -79,8 +124,7 @@ It already includes `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitl
 
 To build a domain card (e.g. coach profile), import and compose these parts.
 
-Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx)
-:
+Example – [CoachCard.tsx](src/components/coach/CoachCard.tsx):
 ```tsx
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
@@ -99,9 +143,9 @@ Always extend from ui/card.tsx. Do not duplicate card markup or styles.
 
 The sidebar system is already implemented in [/src/components/layout/Sidebar.tsx](/src/components/layout/Sidebar.tsx).
 
-Use <SidebarProvider> at the root, and <Sidebar>, <SidebarContent>, <SidebarMenu>, <SidebarMenuItem> etc. to build navigation.
+Use `<SidebarProvider>` at the root, and `<Sidebar>`, `<SidebarContent>`, `<SidebarMenu>`, `<SidebarMenuItem>` etc. to build navigation.
 
-Toggle is done with <SidebarTrigger>.
+Toggle is done with `<SidebarTrigger>`.
 
 Responsive behavior is built in: desktop = fixed, mobile = overlay.
 
@@ -221,8 +265,8 @@ Input validation is handled with Zod in [/src/validators](src/validators/).
 
 Each validator enforces integrity rules for its corresponding model.
 
-[coachValidator.ts](src/validators/coachValidator.ts) – validates Coach input.
-[userValidator.ts](src/validators/userValidator.ts) – validates User input.
+- [coachValidator.ts](src/validators/coachValidator.ts) – validates Coach input.
+- [userValidator.ts](src/validators/userValidator.ts) – validates User input.
 
 **Example**: Coach Validation
 ```ts
@@ -250,19 +294,17 @@ The `.parse()` method throws detailed errors if the input is invalid. Always run
 
 ### Middleware
 
-**Location**: [src/middleware](src/middleware)
+All middleware lives in[src/middleware](src/middleware)
 
-**Purpose**: Centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies (auth checks, error standardization, logging) before passing control to services or controllers.
+They centralize cross-cutting concerns like authentication, logging, and error handling. Middleware intercepts requests or events to apply policies before passing control to services or controllers.
 
-**Folder Hierarchy**:
-
-- [authMiddleware.ts](src/middleware/authMiddleware.ts) – Handles authentication, token refresh, and role-based access control.
-- [errorMiddleware.ts](src/middleware/errorMiddleware.ts)– Standardizes error handling, converts exceptions to structured responses, logs errors.
+- [authMiddleware.ts](src/middleware/authMiddleware.ts) – authentication, token refresh, role-based access control.
+- [errorMiddleware.ts](src/middleware/errorMiddleware.ts)– standardizes error handling, converts exceptions to structured responses, logs errors.
 - [transformers](src/middleware/transformers)– Maps DTOs to Models (e.g., [[coach.mapper.ts](src/middleware/transformers/coach.mapper.ts), [session.mapper.ts](src/middleware/transformers/session.mapper.ts), [user.mapper.ts](src/middleware/transformers/user.mapper.ts)).
 
 **Applied Design Pattern**: Middleware / Interceptor Pattern.
 
-Middleware functions as a pipeline to intercept, validate, log, or transform requests/responses.
+Functions as a pipeline to intercept, validate, log, or transform requests/responses.
 
 **Examples**
 AuthMiddleware
@@ -288,14 +330,14 @@ try {
 
 - Wraps any service/controller operation.
 - Produces standardized error responses with timestamp, correlationId, code, and message.
-- Logs errors and security events via [LogginService](src/logging/LoggingService.ts).
+- Logs errors and security events via the [Logging layer](src/logging/LoggingService.ts).
 
-**Developer Guidelines**
+**How to Work with Middleware**
 
-- Middleware should not contain business logic; that belongs in services.
-- Use transformers to map incoming DTOs to models, keeping controllers/services clean.
-- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.
-- All new middleware must follow the singleton pattern if it holds shared state (like logging or exception handling).
+- Middleware should not contain business logic; that belongs in services.  
+- Middleware must remain stateless. If shared state is needed (e.g., logging or exception handling), implement it in the corresponding service and inject it into middleware.  
+- Use transformers to map incoming DTOs to models, keeping controllers/services clean.  
+- Use `ErrorMiddleware.createErrorHandler` to standardize error handling across services.  
 
 ### Business
 
