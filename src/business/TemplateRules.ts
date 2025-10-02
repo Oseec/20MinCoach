@@ -1,5 +1,7 @@
-//Placeholder for future business rules
+//Template for business rules
+import { SomeModel } from '../models/SomeModel';
 
-export function exampleRule(): boolean {
+export function ruleName(entity: SomeModel): boolean {
+  //implement domain rule
   return true;
 }
