@@ -218,6 +218,7 @@ When creating a new domain entity, add it as a TypeScript file inside [/src/mode
 **Model Validation**
 
 Input validation is handled with Zod in [/src/validators](src/validators/).
+
 Each validator enforces integrity rules for its corresponding model.
 
 [coachValidator.ts](src/validators/coachValidator.ts) – validates Coach input.
