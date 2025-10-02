@@ -17,11 +17,10 @@ For this platform `React 18` is going to be used as a Front-End library. Because
 
 `Angular` is a complete framework that would stablish a pre-defined architecture. This would limit our freedom to implement extra features to the platform in a future. Plus it has a more "steep" learning curve, this affets our efficiency.
 
-`Vue` for this case-scenario, is a better option than `Angular` because it provides more flexibility and is less complex. But is not better than `React`.
+`Vue` for this case-scenario, is a better option than `Angular` because it provides more flexibility and is less complex. But `React` provides more freedom.
 
 The following technologies will provide real-time communication:
-`Lovable Cloud/Supabase Realtime` for instant notification in the platform
-`Resend` for emails (reminders or confirmations)
+`Lovable Cloud/Supabase Realtime` for instant notification in the platform and `Resend` for emails (reminders or confirmations)
 
 For testing and linting `Vitest` and `ESLint` will be implemented. These two are going to be configured on a pipeline for auto testing and linting after every push into the repo.
 
@@ -64,8 +63,6 @@ Esta sección no me quedó muy clara la verdad:
 - Establish component testing methodology, this is not theory, are steps for the developers
 
 ## Detailed Layer Design
-
-Esta sección indica las especificaciones esperadas de cada layer. Estrategias que el profe espera que apliquemos en los layers.
 
 ### Visual Components
 All visual components are in [/src/components](src/components/).
@@ -688,10 +685,6 @@ private getErrorMessage(error: any, context: ExceptionContext): string {
   }
 ```
 
-Here´s a diagram of the error handling flow
-
-<img src="./diagrams/errorsFlow.png" alt="errorsFlow Image" width="200"/>
-
 ### Logging
 
 This logging layer is designed to provide request, conectivity and user interaction tracking.
@@ -894,12 +887,6 @@ Kibana will display log data through charts, graphs, and tables to identify tren
 For long-term compliance and cost optimization, logs are archived into **Amazon S3**.  
 This ensures that older logs remain accessible for investigation, audits, and regulatory requirements, while reducing the load on ElasticSearch.
 S3 lifecycle rules automatically move objects to Glacier/Deep Archive for further cost reduction.
-
-Lifecycle transitions:
-
-- 0–1 year: S3 Standard-IA (Infrequent Access).
-- 1–7 years: Glacier.
-- 7+ years: Glacier Deep Archive (optional).
 
 Retention and Storage Strategy
 Once a log is considered cold storage it'll be transfered to S3.
@@ -1272,5 +1259,3 @@ The configuration of the linting tool is described in the previous layer.
 `vitest` tests files are located on [test](./src/test) in this files we have three tests. One for CoachCard, MainLayout and SessionCard.
 
 After every `push` a Git Action is going to be excecuted. This process can be checked on the `Action` window in GitHub. If everything is ok and steps are passed successfully Vercel will start de deployment stage automatically. `link-here`.
-
-## Consulta: Para lo de Maze, lo invitamos al team para que revise el heatmap y las grabaciones, mostramos eso nosotros en la revisión, o lo montamos en la docu?
