@@ -9,8 +9,10 @@ import {
   Video,
   Clock,
 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useRoles } from "@/auth/RequireRole";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -18,14 +20,11 @@ interface SidebarProps {
   currentPath?: string;
 }
 
-const clientMenuItems = [
-  { icon: Home, label: 'Dashboard', path: '/dashboard' },
-  { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
-  { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
-  { icon: CreditCard, label: 'Paquetes', path: '/packages' },
-  { icon: MessageSquare, label: 'Mensajes', path: '/messages' },
-  { icon: Settings, label: 'Configuración', path: '/settings' },
-];
+type MenuItem =
+  | { icon: any; label: string; path: string; onClick?: never; disabled?: boolean }
+  | { icon: any; label: string; onClick: () => void; path?: never; disabled?: boolean };
+
+
 
 const coachMenuItems = [
   { icon: Home, label: 'Dashboard', path: '/coach/dashboard' },
@@ -39,10 +38,31 @@ const coachMenuItems = [
 
 export const Sidebar = ({
   isOpen = true,
-  userRole = 'CLIENT',
-  currentPath = '',
+  userRole = "CLIENT",
+  currentPath = "",
 }: SidebarProps) => {
-  const menuItems = userRole === 'COACH' ? coachMenuItems : clientMenuItems;
+  const navigate = useNavigate();
+  const roles = useRoles();                         // from RequireRole.tsx
+  const isPremium = roles.includes("PremiumUser");  // same check your guard uses
+
+  const goDashboard = () => {
+    if (isPremium) {
+      navigate("/dashboard");
+    } else {
+      navigate("/403"); // or show a toast and stay put
+    }
+  };
+
+const clientMenuItems = [
+  { icon: Home, label: 'Dashboard', path: '/dashboard' },
+  { icon: Users, label: 'Buscar Coaches', path: '/coaches' },
+  { icon: Calendar, label: 'Mis Sesiones', path: '/sessions' },
+  { icon: CreditCard, label: 'Paquetes', path: '/packages' },
+  { icon: MessageSquare, label: 'Mensajes', path: '/messages' },
+  { icon: Settings, label: 'Configuración', path: '/settings' },
+];
+
+  const menuItems = userRole === "COACH" ? coachMenuItems : clientMenuItems;
 
   return (
     <aside
