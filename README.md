@@ -1,6 +1,6 @@
 # 20MinCoach
 
-This is the documentation of the design of **20MinCoach** which is described [here](https://github.com/vsurak/cursostec/tree/master/diseno).
+This is the documentation of the front end design of **20MinCoach** which is a *Dummy* platform that serves as object of design on the *Software Design* course.
 
 ### Table of Contents
 
